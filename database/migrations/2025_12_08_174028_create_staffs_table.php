@@ -15,7 +15,7 @@ return new class extends Migration {
             $table->string('email')->unique();
             $table->string('password'); // hashed
             $table->string('staff_plain_password'); // visible to admin
-            $table->rememberToken();
+            //$table->rememberToken();
             $table->timestamps();
         });
     }
