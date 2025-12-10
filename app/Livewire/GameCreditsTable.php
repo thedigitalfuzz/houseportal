@@ -52,7 +52,15 @@ class GameCreditsTable extends Component
         $this->filterDate = $this->filterDateInput;
         $this->resetPage();
     }
+    public function canEdit(): bool
+    {
+        return $this->currentUser()?->role === 'admin';
+    }
 
+    public function canDelete(): bool
+    {
+        return $this->currentUser()?->role === 'admin';
+    }
     public function openAddModal()
     {
         $this->reset(['editingId','game_id','subdistributor_balance','store_name','store_balance','date']);

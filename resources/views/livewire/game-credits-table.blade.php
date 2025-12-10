@@ -49,7 +49,9 @@
                                     <td class="p-3">{{ $record->updated_by_name }}</td>
                                     <td class="p-3 text-right flex justify-end gap-1">
                                         <button wire:click="openEditModal({{ $record->id }})" class="bg-blue-200 text-black px-3 py-1 rounded">Edit</button>
+                                        @if($this->canDelete())
                                         <button wire:click="confirmDelete({{ $record->id }})" class="bg-red-600 text-white px-3 py-1 rounded">Delete</button>
+                                            @endif
                                     </td>
                                 </tr>
                             @endforeach
