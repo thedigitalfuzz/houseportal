@@ -18,6 +18,7 @@
                 <th class="p-3 text-left">Username</th>
                 <th class="p-3 text-left">Email</th>
                 <th class="p-3 text-left">Password (plain)</th>
+                <th class="p-3 text-left">Facebook Profile</th>
                 <th class="p-3 text-left">Created At</th>
                 <th class="px-4 py-2 text-right">Actions</th>
             </tr>
@@ -31,6 +32,7 @@
                     <td class="p-3">{{ $staff->staff_username }}</td>
                     <td class="p-3">{{ $staff->email }}</td>
                     <td class="p-3">{{ $staff->staff_plain_password }}</td>
+                    <td class="p-3">{{ $staff->facebook_profile }}</td>
                     <td class="p-3">{{ $staff->created_at->format('Y-m-d H:i') }}</td>
 
                     <td class="p-3 text-right flex justify-end gap-2">
@@ -69,8 +71,16 @@
                     <input type="text" wire:model="staff_name" placeholder="Name" class="w-full border rounded p-2" />
                     <input type="text" wire:model="staff_username" placeholder="Username" class="w-full border rounded p-2" />
                     <input type="email" wire:model="email" placeholder="Email" class="w-full border rounded p-2" />
-                    <input type="text" wire:model="password" placeholder="Password" class="w-full border rounded p-2" />
+                    @if($editingStaffId)
+                        <div class="flex items-center gap-1">
+                            <label for="currentpw" class="text-sm">Current Password:</label>
+                            <input type="text" name="currentpw" wire:model="plain_password" placeholder="Password" class="w-full border rounded" disabled />
 
+                        </div>
+                      @endif
+                     <input type="text" wire:model="password" placeholder="Password" class="w-full border rounded p-2" />
+
+                    <input type="text" wire:model="facebook_profile" placeholder="Facebook Profile" class="border rounded w-full p-2">
                     <!-- Photo Upload -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Staff Photo</label>

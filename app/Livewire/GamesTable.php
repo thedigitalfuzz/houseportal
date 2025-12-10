@@ -19,6 +19,7 @@ class GamesTable extends Component
     public $editingGameId;
     public $name;
     public $game_code;
+    public $backend_link;
 
     // NEW DELETE CONFIRMATION
     public $confirmDeleteId = null;
@@ -54,7 +55,7 @@ class GamesTable extends Component
 
     public function openAddModal()
     {
-        $this->reset(['editingGameId', 'name', 'game_code']);
+        $this->reset(['editingGameId', 'name', 'game_code', 'backend_link']);
         $this->modalOpen = true;
     }
 
@@ -72,6 +73,7 @@ class GamesTable extends Component
         $validated = $this->validate([
             'name' => 'required|string|max:255',
             'game_code' => 'nullable|string|max:100',
+            'backend_link' => 'nullable|string|max:255',
         ]);
 
         if ($this->editingGameId) {
@@ -84,7 +86,7 @@ class GamesTable extends Component
         }
 
         $this->modalOpen = false;
-        $this->reset(['editingGameId', 'name', 'game_code']);
+        $this->reset(['editingGameId', 'name', 'game_code', 'backend_link']);
     }
 
     // OPEN CONFIRM DELETE MODAL

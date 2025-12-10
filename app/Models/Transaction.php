@@ -18,10 +18,14 @@ class Transaction extends Model
         'staff_user_id',
         'cashin',
         'cashout',
+        'total_transaction',
         'bonus_added',
         'deposit',
+        'cash_tag',
+        'wallet_name',
+        'wallet_remarks',
         'transaction_time',
-        'notes'
+        'notes',
     ];
 
     protected $dates = ['transaction_time'];

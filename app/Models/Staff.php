@@ -17,6 +17,7 @@ class Staff extends Authenticatable
         'email',
         'password',
         'staff_plain_password',
+        'facebook_profile',
         'photo',
     ];
 

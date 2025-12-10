@@ -22,6 +22,8 @@ class StaffsTable extends Component
     public $staff_username;
     public $email;
     public $password;
+    public $plain_password;
+    public $facebook_profile;
     public $photo; // for upload
     public $existingPhoto; // to show current photo in edit modal
 
@@ -40,6 +42,15 @@ class StaffsTable extends Component
         $this->search = $this->searchInput;
         $this->resetPage();
     }
+
+    public function mount()
+    {
+        // Only allow admin to access this component
+        if (auth()->user()?->role !== 'admin') {
+            abort(403, 'Unauthorized access');
+        }
+    }
+
 
     public function openAddModal()
     {
@@ -60,6 +71,7 @@ class StaffsTable extends Component
         $this->staff_username = $staff->staff_username;
         $this->email = $staff->email;
         $this->password = '';
+        $this->plain_password = $staff->staff_plain_password;
         $this->existingPhoto = $staff->photo;
 
         $this->modalOpen = true;
@@ -72,6 +84,7 @@ class StaffsTable extends Component
             'staff_username' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:staffs,email' . ($this->editingStaffId ? ',' . $this->editingStaffId : ''),
             'password' => $this->editingStaffId ? 'nullable|string|min:4' : 'required|string|min:4',
+            'facebook_profile' => 'nullable|string|max:255',
             'photo' => 'nullable|image|max:2048',
         ];
 
@@ -90,6 +103,7 @@ class StaffsTable extends Component
                 'email' => $validated['email'],
                 'staff_plain_password' => $validated['password'] ?: $staff->staff_plain_password,
                 'password' => $validated['password'] ? Hash::make($validated['password']) : $staff->password,
+                'facebook_profile' => $validated['facebook_profile'],
                 'photo' => $validated['photo'] ?? $staff->photo,
             ]);
         } else {
@@ -99,6 +113,7 @@ class StaffsTable extends Component
                 'email' => $validated['email'],
                 'staff_plain_password' => $validated['password'],
                 'password' => Hash::make($validated['password']),
+                'facebook_profile' => $validated['facebook_profile'],
                 'photo' => $validated['photo'] ?? null,
             ]);
         }
@@ -107,7 +122,7 @@ class StaffsTable extends Component
 
         $this->reset([
             'editingStaffId','staff_name','staff_username','email',
-            'password','photo','existingPhoto'
+            'password', 'facebook_profile','photo','existingPhoto'
         ]);
     }
 

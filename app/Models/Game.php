@@ -8,7 +8,7 @@ class Game extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name'];
+    protected $fillable = ['name','game_code', 'backend_link'];
 
     public function transactions()
     {

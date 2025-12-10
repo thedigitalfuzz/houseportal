@@ -16,7 +16,7 @@ Route::view('/', 'welcome');
 Route::middleware(['auth.any', 'verified'])->group(function () {
 
     // Dashboard
-    Route::view('/dashboard', 'dashboard')->name('dashboard');
+    Route::view('/dashboard', 'pages.dashboard-page')->name('dashboard');
 
     // Profile
     Route::view('/profile', 'profile')->name('profile');
@@ -33,27 +33,34 @@ Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
 
 Route::get('/players', function () {
     return view('players.index'); // we will create this Blade
-})->name('players.index');
+})->middleware(['auth.any', 'verified'])->name('players.index');
 
 Route::get('/staffmanagement', function () {
     return view('staffs.index'); // we will create this Blade
-})->name('staffs.index');
+})->middleware(['auth.any', 'verified'])->name('staffs.index');
 
 Route::get('/editprofile', function () {
     return view('admin.editprofile'); // we will create this Blade
-})->name('admin.editprofile');
+})->middleware(['auth.any', 'verified'])->name('admin.editprofile');
 
 Route::get('/games', function () {
     return view('pages.games'); // Blade file we created
-})->name('games');
+})->middleware(['auth.any', 'verified'])->name('games');
+
+Route::get('/wallets', function () {
+    return view('pages.wallets'); // Blade file we created
+})->middleware(['auth.any', 'verified'])->name('wallets');
+
+Route::get('/game-credits', function() {
+    return view('pages.game-credits');
+})->middleware(['auth.any','verified'])->name('game-credits');
+
 
 
 Route::middleware(['auth', CheckRole::class.':admin'])->group(function () {
     Route::get('/staff', function () {
         return view('staff.index'); // staff management page
     })->name('staff.index');
-
-    // Only main admin can create/edit/delete players & transactions
 });
 
 

@@ -18,6 +18,7 @@
                 <th class="p-3 text-left">ID</th>
                 <th class="p-3 text-left">Name</th>
                 <th class="p-3 text-left">Game Code</th>
+                <th class="p-3 text-left">Backend Link</th>
                 <th class="p-3 text-left">Created At</th>
                 @if($this->canEdit())
                     <th class="px-4 py-2 text-right">Actions</th>
@@ -30,6 +31,7 @@
                     <td class="p-3">{{ $game->id }}</td>
                     <td class="p-3">{{ $game->name }}</td>
                     <td class="p-3">{{ $game->game_code ?? '-' }}</td>
+                    <td class="p-3">{{ $game->backend_link ?? '-' }}</td>
                     <td class="p-3">{{ $game->created_at->format('Y-m-d H:i') }}</td>
                     <td class="p-3 text-right flex justify-end gap-2">
                         @if($this->canEdit())
@@ -61,6 +63,7 @@
                 <div class="space-y-3">
                     <input type="text" wire:model="name" placeholder="Game Name" class="w-full border rounded p-2" />
                     <input type="text" wire:model="game_code" placeholder="Game Code / Invite Code" class="w-full border rounded p-2" />
+                    <input type="text" wire:model="backend_link" placeholder="Backend Link of Game" class="w-full border rounded p-2" />
                 </div>
                 <div class="mt-4 flex justify-end gap-2">
                     <button wire:click="$set('modalOpen', false)" class="px-4 py-2 border rounded">Cancel</button>

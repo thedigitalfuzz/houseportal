@@ -25,7 +25,12 @@
         <a href="{{ route('transactions') }}" class="block py-2 px-6 hover:bg-gray-700 {{ request()->routeIs('transactions') ? 'bg-gray-700' : '' }}">
             Transactions
         </a>
-
+        <a href="{{ route('wallets') }}" class="block py-2 px-6 hover:bg-gray-700 {{ request()->routeIs('wallets') ? 'bg-gray-700' : '' }}">
+            Wallets
+        </a>
+        <a href="{{ route('game-credits') }}" class="block py-2 px-6 hover:bg-gray-700 {{ request()->routeIs('game-credits') ? 'bg-gray-700' : '' }}">
+            Games Credit
+        </a>
         @if($currentUser?->role === 'admin')
             <a href="{{ route('staffs.index') }}" class="block py-2 px-6 hover:bg-gray-700 {{ request()->routeIs('staffs.index') ? 'bg-gray-700' : '' }}">
                 Staff Management
@@ -33,6 +38,8 @@
             <a href="{{ route('admin.editprofile') }}" class="block py-2 px-6 hover:bg-gray-700 {{ request()->routeIs('admin.editprofile') ? 'bg-gray-700' : '' }}">
                 Edit Profile
             </a>
+
+
         @endif
     </nav>
 </aside>

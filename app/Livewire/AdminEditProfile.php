@@ -22,7 +22,7 @@ class AdminEditProfile extends Component
         $user = Auth::user();
 
         if (!$user || $user->role !== 'admin') {
-            abort(403);
+            abort(403,'Unauthorized access');
         }
 
         $this->name = $user->name;
