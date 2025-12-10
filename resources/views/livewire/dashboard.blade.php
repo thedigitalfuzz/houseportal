@@ -22,7 +22,7 @@
                     <tr class="border-t">
                         <td class="p-2">{{ $wallet->wallet_name }}</td>
                         <td class="p-2">{{ $wallet->wallet_remarks ?? '-' }}</td>
-                        <td class="p-2">₨ {{ number_format($wallet->current_balance, 2) }}</td>
+                        <td class="p-2">$ {{ number_format($wallet->current_balance, 2) }}</td>
                         <td class="p-2">{{ $wallet->date->format('Y-m-d') }}</td>
                     </tr>
                 @endforeach
@@ -46,9 +46,9 @@
                 @foreach($recentGameCredits as $gc)
                     <tr class="border-t">
                         <td class="p-2">{{ optional($gc->game)->name ?? '-' }}</td>
-                        <td class="p-2">₨ {{ number_format($gc->subdistributor_balance, 2) }}</td>
+                        <td class="p-2">$ {{ number_format($gc->subdistributor_balance, 2) }}</td>
                         <td class="p-2">{{ $gc->store_name }}</td>
-                        <td class="p-2">₨ {{ number_format($gc->store_balance, 2) }}</td>
+                        <td class="p-2">$ {{ number_format($gc->store_balance, 2) }}</td>
                     </tr>
                 @endforeach
                 </tbody>
@@ -71,10 +71,10 @@
                 @foreach($recentTransactions as $txn)
                     <tr class="border-t">
                         <td class="p-2">{{ optional($txn->player)->name ?? optional($txn->player)->player_name ?? '-' }}</td>
-                        <td class="p-2">₨ {{ number_format($txn->cashin, 2) }}</td>
-                        <td class="p-2">₨ {{ number_format($txn->cashout, 2) }}</td>
+                        <td class="p-2">$ {{ number_format($txn->cashin, 2) }}</td>
+                        <td class="p-2">$ {{ number_format($txn->cashout, 2) }}</td>
                         <td class="p-2">
-                            ₨ {{ number_format(($txn->cashin ?? 0) - ($txn->cashout ?? 0), 2) }}
+                            $ {{ number_format(($txn->cashin ?? 0) - ($txn->cashout ?? 0), 2) }}
                         </td>
                     </tr>
                 @endforeach

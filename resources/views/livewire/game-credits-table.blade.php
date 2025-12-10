@@ -42,9 +42,9 @@
                             <tbody>
                             @foreach($gameRecords as $record)
                                 <tr class="border-t">
-                                    <td class="p-3">₨ {{ number_format($record->subdistributor_balance,2) }}</td>
+                                    <td class="p-3">$ {{ number_format($record->subdistributor_balance,2) }}</td>
                                     <td class="p-3">{{ $record->store_name }}</td>
-                                    <td class="p-3">₨ {{ number_format($record->store_balance,2) }}</td>
+                                    <td class="p-3">$ {{ number_format($record->store_balance,2) }}</td>
                                     <td class="p-3">{{ $record->created_by_name }}</td>
                                     <td class="p-3">{{ $record->updated_by_name }}</td>
                                     <td class="p-3 text-right flex justify-end gap-1">

@@ -39,7 +39,7 @@
                             <td class="p-3">{{ $wallet->agent }}</td>
                             <td class="p-3">{{ $wallet->wallet_name }}</td>
                             <td class="p-3">{{ $wallet->wallet_remarks ?? '-' }}</td>
-                            <td class="p-3">₨ {{ number_format($wallet->current_balance, 2) }}</td>
+                            <td class="p-3">$ {{ number_format($wallet->current_balance, 2) }}</td>
                             <td class="p-3">{{ $wallet->date->format('Y-m-d') }}</td>
                             <td class="p-3">{{ $wallet->created_by_name }}</td>
                             <td class="p-3">{{ $wallet->updated_by_name }}</td>

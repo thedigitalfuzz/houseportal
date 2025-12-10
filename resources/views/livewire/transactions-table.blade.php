@@ -58,8 +58,8 @@
                     <td class="p-3">{{ $t->player->assignedStaff->staff_name ?? '-' }}</td>
                     <td class="p-3">{{ $t->player->assignedStaff->facebook_profile ?? '-' }}</td>
                     <td class="p-3">{{ $t->game->name ?? '-' }}</td>
-                    <td class="p-3">₨ {{ number_format($t->cashin,2) }}</td>
-                    <td class="p-3">₨ {{ number_format($t->cashout,2) }}</td>
+                    <td class="p-3">$ {{ number_format($t->cashin,2) }}</td>
+                    <td class="p-3">$ {{ number_format($t->cashout,2) }}</td>
                     <td class="p-3">$ {{ number_format($t->total_transaction, 2) }}</td>
                     <td class="p-3">{{ $t->cash_tag }}</td>
                     <td class="p-3">{{ $t->wallet_name }}</td>

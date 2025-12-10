@@ -82,7 +82,7 @@ class StaffsTable extends Component
         $rules = [
             'staff_name' => 'required|string|max:255',
             'staff_username' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:staffs,email' . ($this->editingStaffId ? ',' . $this->editingStaffId : ''),
+            'email' => 'required|email|max:255|unique:staffs,email,' . ($this->editingStaffId ?? 'NULL'),
             'password' => $this->editingStaffId ? 'nullable|string|min:4' : 'required|string|min:4',
             'facebook_profile' => 'nullable|string|max:255',
             'photo' => 'nullable|image|max:2048',
