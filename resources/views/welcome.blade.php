@@ -16,19 +16,19 @@
     </style>
 </head>
 <body class="bg-gradient-to-r from-purple-900 via-indigo-900 to-blue-900 h-screen flex items-center justify-center">
+<header class="grid grid-cols-2 items-center gap-2 py-10 lg:grid-cols-3">
 
-<div class="text-center text-white px-4">
+</header>
+<main class="text-center text-white px-4">
     <!-- Portal Title -->
     <h1 class="text-4xl sm:text-6xl md:text-7xl font-bold mb-6 animate-pulse">HouseSupport Portal</h1>
 
     <!-- Subtitle -->
     <p class="text-lg sm:text-xl md:text-2xl mb-10">Use this to manage and organize your data</p>
-
-    <!-- Login Button -->
-    <a href="{{ url('/login') }}" class="inline-block px-8 py-4 bg-yellow-500 hover:bg-yellow-600 text-black font-bold text-lg rounded-lg shadow-lg transition duration-300">
-        Login
-    </a>
-</div>
+    @if (Route::has('login'))
+        <livewire:welcome.navigation />
+    @endif
+</main>
 
 <!-- Footer -->
 <footer class="absolute bottom-4 w-full text-center text-gray-300 text-sm">
