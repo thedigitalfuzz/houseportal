@@ -31,7 +31,21 @@ Route::middleware('auth')->group(function () {
         ->name('password.confirm');
 });
 
+// Important: logout must clear BOTH guards' sessions and then invalidate session
 Route::post('/logout', function () {
-    Auth::logout();
-    return redirect()->route('login'); // Redirect to login page after logout
+    // Logout web guard (admin)
+    if (Auth::guard('web')->check()) {
+        Auth::guard('web')->logout();
+    }
+
+    // Logout staff guard
+    if (Auth::guard('staff')->check()) {
+        Auth::guard('staff')->logout();
+    }
+
+    // Invalidate session and CSRF token
+    request()->session()->invalidate();
+    request()->session()->regenerateToken();
+
+    return redirect()->route('login');
 })->name('logout');
