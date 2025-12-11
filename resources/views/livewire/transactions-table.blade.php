@@ -1,12 +1,12 @@
 <div>
     <div class="mb-4 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-        <div class="flex gap-2">
+        <div class="flex flex-col md:flex-row gap-2 md:items-center">
             <!-- Search by Player Username / Player Name -->
-            <input type="text" wire:model="searchInput" placeholder="Search by username or player name" class="border rounded px-2 py-1" />
-            <button wire:click="applySearch" class="px-4 py-1 bg-blue-600 text-white rounded">Search</button>
+            <input type="text" wire:model="searchInput" placeholder="Search by username or player name" class="border rounded px-2 py-1 w-full md:w-auto" />
+            <button wire:click="applySearch" class="px-4 py-1 bg-blue-600 text-white rounded w-full md:w-auto">Search</button>
 
             <!-- Filter by Game -->
-            <select wire:model="game_id" class="border rounded px-2 py-1">
+            <select wire:model="game_id" class="border rounded px-2 py-1 w-full md:w-auto">
                 <option value="">All games</option>
                 @foreach($games as $g)
                     <option value="{{ $g->id }}">{{ $g->name }}</option>
@@ -15,7 +15,7 @@
 
             <!-- Filter by Staff (Admin Only) -->
             @if($currentUser->role === 'admin')
-                <select wire:model="staff_id" class="border rounded px-2 py-1">
+                <select wire:model="staff_id" class="border rounded px-2 py-1 w-full md:w-auto">
                     <option value="">All Staffs</option>
                     @foreach($allStaffs as $staff)
                         <option value="{{ $staff->id }}">{{ $staff->staff_name }}</option>
@@ -24,18 +24,18 @@
             @endif
 
             <!-- Filter by Dates -->
-            <input type="date" wire:model="date_from" class="border rounded px-2 py-1" />
-            <input type="date" wire:model="date_to" class="border rounded px-2 py-1" />
+            <input type="date" wire:model="date_from" class="border rounded px-2 py-1 w-full md:w-auto" />
+            <input type="date" wire:model="date_to" class="border rounded px-2 py-1 w-full md:w-auto" />
         </div>
     </div>
 
     <div class="bg-white rounded shadow overflow-x-auto">
-        <table class="min-w-full table-auto">
+        <table class="min-w-full table-auto whitespace-nowrap">
             <thead class="bg-gray-50">
             <tr>
-                <th class="p-3 text-left">ID</th>
                 <th class="p-3 text-left">Username</th>
                 <th class="p-3 text-left">Player Name</th>
+                <th class="p-3 text-left">Player Profile</th>
                 <th class="p-3 text-left">Assigned Staff</th>
                 <th class="p-3 text-left">Staff Facebook Profile</th>
                 <th class="p-3 text-left">Game</th>
@@ -52,18 +52,18 @@
             <tbody>
             @forelse($transactions as $t)
                 <tr class="border-t">
-                    <td class="p-3">#{{ $t->id }}</td>
                     <td class="p-3">{{ $t->player->username ?? '-' }}</td>
                     <td class="p-3">{{ $t->player->player_name ?? '-' }}</td>
+                    <td>{{ $t->player->facebook_profile ?? '-' }}</td>
                     <td class="p-3">{{ $t->player->assignedStaff->staff_name ?? '-' }}</td>
-                    <td class="p-3">{{ $t->player->assignedStaff->facebook_profile ?? '-' }}</td>
+                    <td class="p-3 max-w-[240px] truncate">{{ $t->player->assignedStaff->facebook_profile ?? '-' }}</td>
                     <td class="p-3">{{ $t->game->name ?? '-' }}</td>
                     <td class="p-3">$ {{ number_format($t->cashin,2) }}</td>
                     <td class="p-3">$ {{ number_format($t->cashout,2) }}</td>
                     <td class="p-3">$ {{ number_format($t->total_transaction, 2) }}</td>
                     <td class="p-3">{{ $t->cash_tag }}</td>
                     <td class="p-3">{{ $t->wallet_name }}</td>
-                    <td class="p-3">{{ $t->wallet_remarks }}</td>
+                    <td class="p-3 max-w-[240px] truncate">{{ $t->wallet_remarks }}</td>
                     <td class="p-3">{{ $t->transaction_time }}</td>
                     <td class="p-3 text-right flex justify-end gap-2">
                         @if($currentUser->role === 'admin' || ($t->player->staff_id === $currentUser->id))
@@ -76,7 +76,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="13" class="p-3 text-center">No transactions found.</td>
+                    <td colspan="14" class="p-3 text-center">No transactions found.</td>
                 </tr>
             @endforelse
             </tbody>
@@ -89,8 +89,8 @@
 
     {{-- EDIT MODAL --}}
     @if($editModal)
-        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div class="bg-white rounded shadow p-6 w-96">
+        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 px-4">
+            <div class="bg-white rounded shadow p-6 w-full max-w-md">
                 <h2 class="text-lg font-bold mb-4">Edit Transaction</h2>
                 <div class="space-y-2">
                     <label for="player" class="text-xs">Player:</label>
@@ -141,8 +141,8 @@
 
     {{-- DELETE CONFIRM MODAL --}}
     @if($deleteModal)
-        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div class="bg-white rounded shadow p-6 w-80 text-center">
+        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 px-4">
+            <div class="bg-white rounded shadow p-6 w-full max-w-sm text-center">
                 <h2 class="text-lg font-semibold mb-4">Confirm Delete</h2>
                 <p>Are you sure you want to delete this transaction?</p>
                 <div class="mt-4 flex justify-center gap-2">
