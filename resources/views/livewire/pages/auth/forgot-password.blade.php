@@ -35,8 +35,15 @@ new #[Layout('layouts.guest')] class extends Component
         session()->flash('status', __($status));
     }
 }; ?>
+<div>
+    <div class="flex justify-center items-center mb-4">
+        <div class="bg-gray-800 rounded-full p-1 flex items-center justify-center">
+            <img src="{{ asset('hs-logo.png') }}" class="object-contain rounded-full" style="width: 120px;" />
+        </div>
+    </div>
 
 <div>
+
     <div class="mb-4 text-sm text-gray-600">
         {{ __('Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.') }}
     </div>
@@ -58,4 +65,5 @@ new #[Layout('layouts.guest')] class extends Component
             </x-primary-button>
         </div>
     </form>
+</div>
 </div>

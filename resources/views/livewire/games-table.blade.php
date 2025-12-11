@@ -7,9 +7,12 @@
             @endif
         </div>
 
-        <div class="flex justify-between gap-2">
+        <div class="flex flex-col md:flex-row justify-between gap-2">
             <input type="text" wire:model="searchInput" placeholder="Search game" class="border rounded px-2 py-1" />
-            <button wire:click="applySearch" class="px-4 py-1 bg-blue-600 text-white rounded">Search</button>
+            <div class="justify-self-end">
+                <button wire:click="applySearch" class="px-4 py-1 bg-blue-600 text-white rounded">Search</button>
+            </div>
+
         </div>
 
     </div>

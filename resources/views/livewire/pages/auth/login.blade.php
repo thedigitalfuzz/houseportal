@@ -28,6 +28,11 @@ new #[Layout('layouts.guest')] class extends Component
 <div>
     <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
+    <div class="flex justify-center items-center">
+        <div class="bg-gray-800 rounded-full p-1 flex items-center justify-center">
+            <img src="{{ asset('hs-logo.png') }}" class="object-contain rounded-full" style="width: 120px;" />
+        </div>
+    </div>
 
     <form wire:submit="login">
         <!-- Email Address -->
@@ -55,16 +60,20 @@ new #[Layout('layouts.guest')] class extends Component
             </label>
         </div>
 
-        <div class="flex items-center justify-end mt-4">
-            @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('password.request') }}" wire:navigate>
-                    {{ __('Forgot your password?') }}
-                </a>
-            @endif
+        <div class="flex items-center flex-col justify-center gap-4">
 
-            <x-primary-button class="ms-3">
+
+            <x-primary-button>
                 {{ __('Log in') }}
             </x-primary-button>
+            <div>
+                @if (Route::has('password.request'))
+                    <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('password.request') }}" wire:navigate>
+                        {{ __('Forgot your password?') }}
+                    </a>
+                @endif
+            </div>
+
         </div>
     </form>
 </div>

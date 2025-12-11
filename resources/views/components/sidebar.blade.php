@@ -3,6 +3,8 @@
     class="w-64 bg-gray-800 text-white fixed inset-y-0 left-0 z-40 transform -translate-x-full transition-transform duration-300 lg:translate-x-0 lg:static lg:block flex-shrink-0"
 >
     <div class="p-6 font-bold text-xl border-b border-gray-700">
+        <img src="{{ asset('hs-logo.png') }}" alt="Image" class="mx-auto"  style="width: 80px;">
+
         HouseSupport Portal
     </div>
 

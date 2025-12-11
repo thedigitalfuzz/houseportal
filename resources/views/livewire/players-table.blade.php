@@ -6,7 +6,9 @@
         </div>
         <div class="flex flex-col md:flex-row gap-2">
             <div class="flex gap-2">
-                <input type="text" wire:model="searchInput" placeholder="Search player" class="border rounded px-2 py-1" />
+                <input type="text" wire:model="searchInput" placeholder="Search player" class="border rounded px-2 py-1 w-full" />
+            </div>
+            <div class="flex flex-row gap-2 items-center justify-between">
                 @if($currentUser->role === 'admin')
                     <select wire:model="filter_staff_id" class="border rounded px-2 py-1 w-fit">
                         <option value="">All Staffs</option>
@@ -34,10 +36,10 @@
                 <th class="p-3 text-left">ID</th>
                 <th class="p-3 text-left">Username</th>
                 <th class="p-3 text-left">Player Name</th>
-                <th class="p-3 text-left">Facebook/Instagram Link</th>
+                <th class="p-3 text-left">Social Media Link</th>
                 <th class="p-3 text-left">Phone</th>
                 <th class="p-3 text-left">Assigned Staff</th>
-                <th class="p-3 text-left">Staff Facebook Profile</th>
+                <th class="p-3 text-left">Staff Profile</th>
                 <th class="p-3 text-left">Created At</th>
                 <th class="px-4 py-2 text-right">Actions</th>
             </tr>

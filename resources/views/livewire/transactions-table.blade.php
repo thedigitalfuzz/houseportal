@@ -9,32 +9,38 @@
                 New Transaction
             </button>
         </div>
-        <div class="flex gap-2">
-            <div class="flex flex-col gap-2 md:flex-row md:items-center">
+        <div class="flex gap-2 flex-col md:flex-row">
+
                 <div class="flex gap-2 items-center">
-                    <input type="text" wire:model="searchInput" placeholder="Search by username or player name" class="border rounded px-2 py-1" />
-                    <select wire:model="game_id" class="border rounded px-2 py-1">
-                        <option value="">All games</option>
-                        @foreach($games as $g)
-                            <option value="{{ $g->id }}">{{ $g->name }}</option>
-                        @endforeach
-                    </select>
+                    <input type="text" wire:model="searchInput" placeholder="Search by username or player name" class="border rounded px-2 py-1 w-full" />
                 </div>
                <div class="flex flex-col gap-2 md:flex-row">
-                   <div>
-                       @if($currentUser->role === 'admin')
-                           <select wire:model="staff_id" class="border rounded px-2 py-1">
-                               <option value="">All Staffs</option>
-                               @foreach($allStaffs as $staff)
-                                   <option value="{{ $staff->id }}">{{ $staff->staff_name }}</option>
+                   <div class="flex flex-col gap-2 md:flex-row">
+                       <div>
+                           @if($currentUser->role === 'admin')
+                               <select wire:model="staff_id" class="border rounded px-2 py-1 w-full">
+                                   <option value="">All Staffs</option>
+                                   @foreach($allStaffs as $staff)
+                                       <option value="{{ $staff->id }}">{{ $staff->staff_name }}</option>
+                                   @endforeach
+                               </select>
+                           @endif
+                       </div>
+                       <div>
+                           <select wire:model="game_id" class="border rounded px-2 py-1 w-full">
+                               <option value="">All games</option>
+                               @foreach($games as $g)
+                                   <option value="{{ $g->id }}">{{ $g->name }}</option>
                                @endforeach
                            </select>
-                       @endif
+                       </div>
                    </div>
+
+
                    <div class="flex gap-2 flex-col md:flex-row">
-                       <div>
-                           <input type="date" wire:model="date_from" class="border rounded px-2 py-1" />
-                           <input type="date" wire:model="date_to" class="border rounded px-2 py-1" />
+                       <div class="flex flex-col md:flex-row gap-2">
+                           <input type="date" wire:model="date_from" class="border rounded px-2 py-1 w-full" />
+                           <input type="date" wire:model="date_to" class="border rounded px-2 py-1 w-full" />
                        </div>
                         <div>
                             <button wire:click="applySearch" class="px-4 py-1 bg-blue-600 text-white rounded">Search</button>
@@ -43,7 +49,7 @@
 
                    </div>
                  </div>
-            </div>
+
         </div>
     </div>
     <div class="grid grid-cols-1">

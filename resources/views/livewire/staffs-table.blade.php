@@ -5,9 +5,12 @@
             <button wire:click="openAddModal" class="px-4 py-2 bg-green-600 text-white rounded">Add Staff</button>
         </div>
 
-        <div class="flex gap-2">
+        <div class="flex gap-2 flex-col md:flex-row">
             <input type="text" wire:model="searchInput" placeholder="Search staff" class="border rounded px-2 py-1" />
-            <button wire:click="applySearch" class="px-4 py-1 bg-blue-600 text-white rounded">Search</button>
+            <div>
+                <button wire:click="applySearch" class="px-4 py-1 bg-blue-600 text-white rounded">Search</button>
+            </div>
+
         </div>
 
 
