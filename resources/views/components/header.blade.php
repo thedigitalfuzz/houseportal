@@ -43,7 +43,7 @@
 
                         <button class="flex items-center gap-2 p-2 rounded hover:bg-gray-50">
                             <img src="{{ $photoUrl }}" class="w-8 h-8 rounded-full object-cover" alt="me">
-                            <span class="hidden sm:inline">{{ $displayName }}</span>
+                            <span class="inline">{{ $displayName }}</span>
                         </button>
                     </x-slot>
 

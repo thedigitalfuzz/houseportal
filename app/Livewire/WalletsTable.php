@@ -140,7 +140,7 @@ class WalletsTable extends Component
     {
         $user = $this->currentUser();
 
-        // Filtered query
+        // Filtered query used to determine dates
         $query = Wallet::query()
             ->when($this->searchAgent, fn($q) => $q->where('agent', 'like', '%'.$this->searchAgent.'%'))
             ->when($this->searchWallet, fn($q) => $q->where('wallet_name', 'like', '%'.$this->searchWallet.'%'))
@@ -163,8 +163,14 @@ class WalletsTable extends Component
             ['path' => request()->url(), 'query' => request()->query()]
         );
 
-        // Fetch wallets for current 5 dates
-        $walletsByDate = Wallet::whereIn('date', $currentDates)
+        // --- IMPORTANT FIX ---
+        // Fetch wallets for current dates but APPLY THE SAME FILTERS so only matching rows are returned.
+        $walletsByDate = Wallet::query()
+            ->when($this->searchAgent, fn($q) => $q->where('agent', 'like', '%'.$this->searchAgent.'%'))
+            ->when($this->searchWallet, fn($q) => $q->where('wallet_name', 'like', '%'.$this->searchWallet.'%'))
+            ->when($this->searchRemarks, fn($q) => $q->where('wallet_remarks', 'like', '%'.$this->searchRemarks.'%'))
+            ->when($this->filterDate, fn($q) => $q->whereDate('date', $this->filterDate))
+            ->whereIn('date', $currentDates)
             ->orderBy('date', 'desc')
             ->get()
             ->groupBy(fn($w) => $w->date->format('Y-m-d'));
@@ -175,4 +181,5 @@ class WalletsTable extends Component
             'currentUser' => $user
         ]);
     }
+
 }

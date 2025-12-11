@@ -1,16 +1,21 @@
 <div>
     <!-- Header with Add Game button -->
-    <div class="mb-4 flex justify-between items-center">
+    <div class="mb-4 flex flex-col gap-2 md:flex-row justify-between md:items-center">
         <div>
+            @if($this->canEdit())
+                <button wire:click="openAddModal" class="px-4 py-2 bg-green-600 text-white rounded">Add Game</button>
+            @endif
+        </div>
+
+        <div class="flex justify-between gap-2">
             <input type="text" wire:model="searchInput" placeholder="Search game" class="border rounded px-2 py-1" />
             <button wire:click="applySearch" class="px-4 py-1 bg-blue-600 text-white rounded">Search</button>
         </div>
-        @if($this->canEdit())
-            <button wire:click="openAddModal" class="px-4 py-2 bg-green-600 text-white rounded">Add Game</button>
-        @endif
+
     </div>
 
     <!-- Games Table -->
+    <div class="grid grid-cols-1">
     <div class="bg-white rounded shadow overflow-x-auto">
         <table class="min-w-full table-auto">
             <thead class="bg-gray-50">
@@ -50,7 +55,7 @@
             </tbody>
         </table>
     </div>
-
+    </div>
     <div class="mt-3">
         {{ $games->links() }}
     </div>

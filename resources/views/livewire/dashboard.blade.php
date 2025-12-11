@@ -1,7 +1,7 @@
 <div class="p-4">
-    <h1 class="text-4xl text-blue-950 font-bold mb-1">Welcome to Housesupport Portal</h1>
-    <h2 class="text-2xl text-gray-600 font-semibold mb-3">This is the dashboard</h2>
-    <p class="text-lg mb-6">Use sidebar to navigate</p>
+    <h1 class="text-4xl text-blue-950 font-bold mb-1 text-center md:text-left">Welcome to Housesupport Portal</h1>
+    <h2 class="text-2xl text-gray-600 font-semibold mb-3 text-center md:text-left">This is the dashboard</h2>
+    <p class="text-lg mb-6 text-center md:text-left">Use sidebar to navigate</p>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
@@ -24,6 +24,7 @@
                         <td class="p-2">{{ $wallet->wallet_remarks ?? '-' }}</td>
                         <td class="p-2">$ {{ number_format($wallet->current_balance, 2) }}</td>
                         <td class="p-2">{{ $wallet->date->format('Y-m-d') }}</td>
+
                     </tr>
                 @endforeach
                 </tbody>

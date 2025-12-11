@@ -149,7 +149,12 @@ class GameCreditsTable extends Component
             ['path'=>request()->url(),'query'=>request()->query()]
         );
 
+        // --- IMPORTANT FIX ---
+        // Fetch credits for current dates but APPLY THE SAME FILTERS so only matching rows show.
         $creditsByDate = GameCredit::with(['game', 'createdBy', 'updatedBy'])
+            ->when($this->game_id, fn($q) => $q->where('game_id', $this->game_id))
+            ->when($this->searchStore, fn($q) => $q->where('store_name','like','%'.$this->searchStore.'%'))
+            ->when($this->filterDate, fn($q) => $q->whereDate('date',$this->filterDate))
             ->whereIn('date', $currentDates)
             ->orderBy('date','desc')
             ->get()
@@ -164,4 +169,5 @@ class GameCreditsTable extends Component
             'games' => $games,
         ]);
     }
+
 }

@@ -37,7 +37,7 @@
     <main class="p-4 sm:p-6 flex-1">
         @yield('content')
     </main>
-
+    @include('components.footer')
 </div>
 
 @livewireScripts

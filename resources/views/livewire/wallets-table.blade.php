@@ -1,20 +1,26 @@
 <div>
     <!-- Filters + Add Wallet Button -->
     <div class="mb-4 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-        <div class="flex gap-2 flex-wrap">
-            <input type="text" wire:model="searchAgentInput" placeholder="Search Agent" class="border rounded px-2 py-1" />
-            <input type="text" wire:model="searchWalletInput" placeholder="Wallet Name" class="border rounded px-2 py-1" />
-            <input type="text" wire:model="searchRemarksInput" placeholder="Wallet Remarks" class="border rounded px-2 py-1" />
-            <input type="date" wire:model="filterDateInput" class="border rounded px-2 py-1" />
-            <button wire:click="applySearch" class="px-4 py-1 bg-blue-600 text-white rounded">Search</button>
-        </div>
         <div>
             <button wire:click="openAddModal" class="px-4 py-2 bg-green-600 text-white rounded">Add Record</button>
         </div>
+        <div class="flex gap-2 flex-wrap">
+            <div class="flex gap-2">
+                <input type="text" wire:model="searchAgentInput" placeholder="Search Agent" class="border rounded px-2 py-1 w-full" />
+                <input type="text" wire:model="searchWalletInput" placeholder="Wallet Name" class="border rounded px-2 py-1 w-full" />
+            </div>
+            <div class="flex gap-2">
+                <input type="text" wire:model="searchRemarksInput" placeholder="Wallet Remarks" class="border rounded w-full px-2 py-1" />
+                <input type="date" wire:model="filterDateInput" class="border rounded px-2 py-1 w-full" />
+            </div>
+
+            <button wire:click="applySearch" class="px-4 py-1 bg-blue-600 text-white rounded">Search</button>
+        </div>
+
     </div>
 
     @forelse($walletsByDate as $date => $walletsChunk)
-        <div class="mb-6">
+        <div class="grid grid-cols-1 mb-6">
             <h3 class="font-bold text-lg mb-2">{{ \Carbon\Carbon::parse($date)->format('Y-F-d') }}</h3>
 
             <div class="bg-white rounded shadow overflow-x-auto">

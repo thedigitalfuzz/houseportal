@@ -1,14 +1,18 @@
 <div>
 
-    <div class="mb-4 flex justify-between items-center">
+    <div class="mb-4 flex flex-col md:flex-row justify-between md:items-center gap-2">
         <div>
+            <button wire:click="openAddModal" class="px-4 py-2 bg-green-600 text-white rounded">Add Staff</button>
+        </div>
+
+        <div class="flex gap-2">
             <input type="text" wire:model="searchInput" placeholder="Search staff" class="border rounded px-2 py-1" />
             <button wire:click="applySearch" class="px-4 py-1 bg-blue-600 text-white rounded">Search</button>
         </div>
 
-        <button wire:click="openAddModal" class="px-4 py-2 bg-green-600 text-white rounded">Add Staff</button>
-    </div>
 
+    </div>
+    <div class="grid grid-cols-1">
     <div class="bg-white rounded shadow overflow-x-auto">
         <table class="min-w-full table-auto">
             <thead class="bg-gray-50">
@@ -52,7 +56,7 @@
             </tbody>
         </table>
     </div>
-
+    </div>
     <div class="mt-3">
         {{ $staffs->links() }}
     </div>

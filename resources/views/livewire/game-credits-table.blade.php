@@ -1,25 +1,36 @@
 <div>
     <div class="mb-4 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
         <div class="flex gap-2 flex-wrap">
-            <!-- Game filter dropdown -->
-            <select wire:model="game_id" class="border rounded px-2 py-1">
-                <option value="">All Games</option>
-                @foreach($games as $g)
-                    <option value="{{ $g->id }}">{{ $g->name }}</option>
-                @endforeach
-            </select>
+            <div>
+                <button wire:click="openAddModal" class="px-4 py-2 bg-green-600 text-white rounded">Add Record</button>
+            </div>
 
-            <input type="text" wire:model="searchStoreInput" placeholder="Search Store" class="border rounded px-2 py-1" />
-            <input type="date" wire:model="filterDateInput" class="border rounded px-2 py-1" />
+        </div>
+        <div class="flex flex-col md:flex-row gap-2">
+            <div class="flex gap-2">
+                <input type="text" wire:model="searchStoreInput" placeholder="Search Store" class="border w-full rounded px-2 py-1" />
+                <input type="date" wire:model="filterDateInput" class="border rounded px-2 w-full py-1" />
+            </div>
+            <div class="flex items-center gap-2">
+                <select wire:model="game_id" class="border rounded w-full px-2 py-1">
+                    <option value="">All Games</option>
+                    @foreach($games as $g)
+                        <option value="{{ $g->id }}">{{ $g->name }}</option>
+                    @endforeach
+                </select>
+
+        <div>
             <button wire:click="applySearch" class="px-4 py-1 bg-blue-600 text-white rounded">Search</button>
         </div>
-        <div>
-            <button wire:click="openAddModal" class="px-4 py-2 bg-green-600 text-white rounded">Add Record</button>
+
+            </div>
+
         </div>
+
     </div>
 
     @forelse($creditsByDate as $date => $creditsChunk)
-        <div class="mb-6 border-4 border-gray-300 p-3">
+        <div class="mb-6 border-4 border-gray-300 p-3  grid grid-cols-1">
             <!-- Date chunk -->
             <h3 class="font-bold text-lg mb-2">{{ \Carbon\Carbon::parse($date)->format('Y-F-d') }}</h3>
 
