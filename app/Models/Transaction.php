@@ -25,10 +25,15 @@ class Transaction extends Model
         'wallet_name',
         'wallet_remarks',
         'transaction_time',
+        'transaction_date',
         'notes',
     ];
 
-    protected $dates = ['transaction_time'];
+    protected $dates = ['transaction_time', 'transaction_date'];
+
+    protected $casts = [
+        'transaction_date' => 'date',
+    ];
 
     public function player()
     {

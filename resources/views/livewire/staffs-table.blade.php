@@ -102,7 +102,7 @@
                         @elseif($editingStaffId && $existingPhoto)
                             <div class="mt-2">
                                 <span class="text-sm text-gray-600">Current Photo:</span>
-                                <img src="{{ asset('storage/' . $existingPhoto) }}" class="w-22 h-22 rounded-full mt-1 object-cover" alt="Staff Photo">
+                                <img src="{{ asset('storage/' . $existingPhoto) }}" class="w-[160px] h-[160px] rounded-full mt-1 object-cover" alt="Staff Photo">
                             </div>
                         @endif
                     </div>

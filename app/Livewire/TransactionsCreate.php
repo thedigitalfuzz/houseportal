@@ -19,6 +19,7 @@ class TransactionsCreate extends Component
     public $wallet_name;
     public $wallet_remarks;
     public $notes;
+    public $transaction_date; // new
     public $showModal = false;
 
     protected $rules = [
@@ -31,6 +32,7 @@ class TransactionsCreate extends Component
         'cash_tag' => 'nullable|string|max:255',
         'wallet_name' => 'nullable|string|max:255',
         'wallet_remarks' => 'nullable|string',
+        'transaction_date' => 'required|date', // require the new date from user
     ];
 
     #[\Livewire\Attributes\On('open-create-transaction')]
@@ -48,6 +50,7 @@ class TransactionsCreate extends Component
             'wallet_name',
             'wallet_remarks',
             'notes',
+            'transaction_date',
         ]);
 
         $this->showModal = true;
@@ -87,7 +90,8 @@ class TransactionsCreate extends Component
             'wallet_name' => $this->wallet_name,
             'wallet_remarks' => $this->wallet_remarks,
             'notes' => $this->notes,
-            'transaction_time' => now(),
+            'transaction_time' => now(),           // keep auto-filled
+            'transaction_date' => $this->transaction_date, // user-specified date used for chunking
             'staff_user_id' => $user->role === 'admin' ? $user->id : null,
         ]);
 

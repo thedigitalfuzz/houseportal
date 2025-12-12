@@ -72,6 +72,7 @@ class StaffsTable extends Component
         $this->email = $staff->email;
         $this->password = '';
         $this->plain_password = $staff->staff_plain_password;
+        $this->facebook_profile = $staff->facebook_profile;
         $this->existingPhoto = $staff->photo;
 
         $this->modalOpen = true;

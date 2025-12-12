@@ -9,6 +9,8 @@ use App\Models\Game;
 use App\Models\Player;
 use App\Models\Staff;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Carbon\Carbon;
 
 class TransactionsTable extends Component
 {
@@ -17,7 +19,7 @@ class TransactionsTable extends Component
     public $searchInput = '';
     public $search = '';
     public $game_id = null;
-    public $staff_id = null; // only for admin filter
+    public $staff_id = null;
     public $date_from = null;
     public $date_to = null;
     public $perPage = 15;
@@ -35,9 +37,12 @@ class TransactionsTable extends Component
     public $editDeposit;
     public $editNotes;
     public $editTransactionTime;
+    public $editTransactionDate;
 
     public $confirmDeleteId = null;
     public $deleteModal = false;
+
+    protected $listeners = ['transactionCreated' => '$refresh'];
 
     public function updatingSearchInput()
     {
@@ -63,12 +68,6 @@ class TransactionsTable extends Component
     public function canDelete(): bool
     {
         return $this->currentUser()?->role === 'admin';
-    }
-
-    #[\Livewire\Attributes\On('transactionCreated')]
-    public function refreshTable()
-    {
-        $this->resetPage();
     }
 
     public function confirmDelete($id)
@@ -106,7 +105,11 @@ class TransactionsTable extends Component
         $this->editWalletRemarks = $transaction->wallet_remarks;
         $this->editDeposit = $transaction->deposit;
         $this->editNotes = $transaction->notes;
-        $this->editTransactionTime = $transaction->transaction_time;
+
+        // Only date for display
+        $this->editTransactionDate = $transaction->transaction_date
+            ? Carbon::parse($transaction->transaction_date)->format('Y-m-d')
+            : now()->format('Y-m-d');
 
         $this->editModal = true;
     }
@@ -124,13 +127,12 @@ class TransactionsTable extends Component
             'editWalletRemarks' => 'nullable|string|max:255',
             'editDeposit' => 'nullable|numeric|min:0',
             'editNotes' => 'nullable|string',
-            'editTransactionTime' => 'required|date',
+            'editTransactionDate' => 'required|date',
         ]);
 
         $total = ($this->editCashin ?? 0) - ($this->editCashout ?? 0);
 
         $transaction = Transaction::findOrFail($this->editingTransactionId);
-
         $transaction->update([
             'player_id' => $this->editPlayerId,
             'game_id' => $this->editGameId,
@@ -143,43 +145,66 @@ class TransactionsTable extends Component
             'wallet_remarks' => $this->editWalletRemarks,
             'deposit' => $this->editDeposit ?? 0,
             'notes' => $this->editNotes,
-            'transaction_time' => $this->editTransactionTime,
+            'transaction_date' => $this->editTransactionDate,
+            // remove transaction_time completely
         ]);
 
         $this->editModal = false;
         $this->resetPage();
     }
-
     public function render()
     {
         $user = $this->currentUser();
 
+        // Base query with all filters
         $query = Transaction::with(['player.assignedStaff','game'])
             ->when($user->role !== 'admin', fn($q) => $q->whereHas('player', fn($p) => $p->where('staff_id', $user->id)))
             ->when($this->game_id, fn($q) => $q->where('game_id', $this->game_id))
-            ->when($this->date_from, fn($q) => $q->whereDate('transaction_time', '>=', $this->date_from))
-            ->when($this->date_to, fn($q) => $q->whereDate('transaction_time', '<=', $this->date_to))
-            ->when($this->search, fn($q) => $q->whereHas('player', function($p) use ($user) {
+            ->when($this->date_from, fn($q) => $q->whereDate('transaction_date', '>=', $this->date_from))
+            ->when($this->date_to, fn($q) => $q->whereDate('transaction_date', '<=', $this->date_to))
+            ->when($this->search, fn($q) => $q->whereHas('player', function($p) {
                 $p->where('username','like','%'.$this->search.'%')
                     ->orWhere('player_name','like','%'.$this->search.'%');
             }))
             ->when($this->staff_id && $user->role === 'admin', fn($q) => $q->whereHas('player', fn($p) => $p->where('staff_id', $this->staff_id)));
 
-        $transactions = $query->orderBy('transaction_time','desc')->paginate($this->perPage);
+        // Get all filtered transactions
+        $allTransactions = $query->orderBy('transaction_time', 'desc')->get();
+
+        // Get distinct dates from filtered transactions, ignoring nulls
+        $dates = $allTransactions->filter(fn($t) => $t->transaction_date !== null)
+            ->pluck('transaction_date')
+            ->unique()
+            ->map(fn($d) => $d->format('Y-m-d'))
+            ->sortDesc();
+
+// Pagination for dates
+        $currentPage = LengthAwarePaginator::resolveCurrentPage();
+        $perPage = 5;
+        $currentDates = $dates->slice(($currentPage - 1) * $perPage, $perPage)->values();
+        $paginatedDates = new LengthAwarePaginator(
+            $currentDates,
+            $dates->count(),
+            $perPage,
+            $currentPage,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
+
+// Only fetch transactions that belong to current page of dates, ignoring null dates
+        $transactionsByDate = $allTransactions->filter(fn($t) => $t->transaction_date !== null && in_array($t->transaction_date->format('Y-m-d'), $currentDates->toArray()))
+            ->groupBy(fn($t) => $t->transaction_date->format('Y-m-d'));
 
         $allStaffs = $user->role === 'admin' ? Staff::all() : collect();
-
-        // Filter players for edit modal
-        $players = $user->role === 'admin'
-            ? Player::all()
-            : Player::where('staff_id', $user->id)->get();
+        $players = $user->role === 'admin' ? Player::all() : Player::where('staff_id', $user->id)->get();
 
         return view('livewire.transactions-table', [
-            'transactions' => $transactions,
+            'transactionsByDate' => $transactionsByDate,
+            'transactionsDates' => $paginatedDates,
             'games' => Game::all(),
-            'players' => $players, // <-- now only assigned players for staff
+            'players' => $players,
             'currentUser' => $user,
             'allStaffs' => $allStaffs,
         ]);
     }
+
 }

@@ -25,6 +25,7 @@
                     <input type="text" wire:model="wallet_name" class="border rounded w-full px-2 py-1" placeholder="Wallet Name">
                     <input type="text" wire:model="wallet_remarks" class="border rounded w-full px-2 py-1" placeholder="Wallet Remarks">
                     <input type="number" wire:model="bonus_added" class="border rounded w-full px-2 py-1" placeholder="Bonus Added">
+                    <input type="date" wire:model="transaction_date" class="border rounded w-full px-2 py-1" placeholder="Transaction Date">
                     <textarea wire:model="notes" class="border rounded w-full px-2 py-1" placeholder="Notes"></textarea>
                 </div>
                 <!-- BUTTONS -->
