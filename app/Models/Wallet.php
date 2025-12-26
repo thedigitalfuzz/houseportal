@@ -22,7 +22,9 @@ class Wallet extends Model
     // Casts for proper data types
     protected $casts = [
         'current_balance' => 'decimal:2',  // ensures two decimal places
-        'date' => 'date',                  // casts to Carbon instance
+        'date' => 'date', // casts to Carbon instance
+        'closing_balance' => 'decimal:2',
+        'balance_difference' => 'decimal:2',
     ];
 
     /**
@@ -66,4 +68,25 @@ class Wallet extends Model
             ? ($this->updatedBy->staff_name ?? '-')
             : ($this->updatedBy->name ?? '-');
     }
+
+    public function getBalanceDifferenceAttribute()
+    {
+        $previous = self::where('agent', $this->agent)
+            ->where('wallet_name', $this->wallet_name)
+            ->when(
+                is_null($this->wallet_remarks),
+                fn ($q) => $q->whereNull('wallet_remarks'),
+                fn ($q) => $q->where('wallet_remarks', $this->wallet_remarks)
+            )
+            ->where('date', '<', $this->date)
+            ->orderBy('date', 'desc')
+            ->first();
+
+        if (!$previous) {
+            return 0;
+        }
+
+        return $this->current_balance - $previous->current_balance;
+    }
+
 }

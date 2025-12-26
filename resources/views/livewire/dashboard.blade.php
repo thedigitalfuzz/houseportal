@@ -7,7 +7,13 @@
 
         <!-- Recent Wallets -->
         <div class="bg-white shadow rounded p-4 overflow-x-auto">
-            <h2 class="font-bold mb-3">Recent Wallets</h2>
+            <div class="flex justify-between mb-2 items-center">
+                <h2 class="font-bold mb-3">Recent Wallets</h2>
+                <a href="{{ route('wallets') }}" class="inline-block px-2 py-1 text-sm bg-blue-200 rounded-lg sm:px-3 sm:py-2 sm:text-base">
+                    Wallets
+                </a>
+            </div>
+
             <table class="min-w-full table-auto">
                 <thead>
                 <tr class="bg-gray-100">
@@ -33,7 +39,13 @@
 
         <!-- Recent Game Credits -->
         <div class="bg-white shadow rounded p-4 overflow-x-auto">
-            <h2 class="font-bold mb-3">Recent Game Credits</h2>
+            <div class="flex justify-between items-center mb-2">
+                <h2 class="font-bold mb-3">Recent Game Credits</h2>
+                <a href="{{ route('game-credits') }}" class="inline-block px-2 py-1 text-sm bg-blue-200 rounded-lg sm:px-3 sm:py-2 sm:text-base">
+                    Game Credits
+                </a>
+            </div>
+
             <table class="min-w-full table-auto">
                 <thead>
                 <tr class="bg-gray-100">
@@ -58,7 +70,13 @@
 
         <!-- Recent Transactions -->
         <div class="bg-white shadow rounded p-4 overflow-x-auto">
-            <h2 class="font-bold mb-3">Recent Transactions</h2>
+            <div class="flex justify-between items-center mb-2">
+                <h2 class="font-bold mb-3">Recent Transactions</h2>
+                <a href="{{ route('transactions') }}" class="inline-block px-2 py-1 text-sm bg-blue-200 rounded-lg sm:px-3 sm:py-2 sm:text-base">
+                    Transactions
+                </a>
+            </div>
+
             <table class="min-w-full table-auto">
                 <thead>
                 <tr class="bg-gray-100">
