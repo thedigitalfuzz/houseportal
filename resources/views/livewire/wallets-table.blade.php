@@ -11,6 +11,10 @@
                         class="px-4 py-2 bg-indigo-600 text-white rounded">
                     Add Wallet
                 </button>
+                <a href="{{ route('wallet-details') }}"
+                   class="px-4 py-2 bg-indigo-600 text-white rounded">
+                    Wallet Details
+                </a>
             @endif
 
         </div>

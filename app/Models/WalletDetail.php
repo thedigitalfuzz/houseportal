@@ -13,4 +13,5 @@ class WalletDetail extends Model
         'wallet_name',
         'wallet_remarks',
     ];
+
 }

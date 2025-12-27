@@ -6,12 +6,15 @@ use Livewire\Component;
 use App\Models\Wallet;
 use App\Models\GameCredit;
 use App\Models\Transaction;
+use App\Models\WalletDetail;
+
 
 class Dashboard extends Component
 {
     public $recentWallets = [];
     public $recentGameCredits = [];
     public $recentTransactions = [];
+    public $recentWalletDetails = [];
 
     public function mount()
     {
@@ -30,6 +33,10 @@ class Dashboard extends Component
         // Fetch 5 most recent Transactions
         $this->recentTransactions = Transaction::with(['player', 'game'])
             ->orderBy('transaction_time', 'desc')
+            ->take(5)
+            ->get();
+
+        $this->recentWalletDetails = WalletDetail::orderBy('created_at', 'desc')
             ->take(5)
             ->get();
     }

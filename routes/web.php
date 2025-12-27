@@ -51,6 +51,12 @@ Route::get('/wallets', function () {
     return view('pages.wallets'); // Blade file we created
 })->middleware(['auth.any', 'verified'])->name('wallets');
 
+Route::get('/wallet-details', function () {
+    return view('pages.wallet-details-page'); // Blade file we created
+})->middleware(['auth.any', 'verified'])->name('wallet-details');
+
+
+
 Route::get('/game-credits', function() {
     return view('pages.game-credits');
 })->middleware(['auth.any','verified'])->name('game-credits');

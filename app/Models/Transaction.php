@@ -46,6 +46,7 @@ class Transaction extends Model
         return $this->belongsTo(Game::class);
     }
 
+
     public function staffUser()
     {
         return $this->belongsTo(User::class, 'staff_user_id');

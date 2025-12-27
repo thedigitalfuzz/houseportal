@@ -81,20 +81,57 @@
                 <thead>
                 <tr class="bg-gray-100">
                     <th class="p-2 text-left">Player</th>
-                    <th class="p-2 text-left">Cash In</th>
-                    <th class="p-2 text-left">Cash Out</th>
-                    <th class="p-2 text-left">Total</th>
+                    <th class="p-2 text-left">Transaction</th>
+                    <th class="p-2 text-left">Amount</th>
+                    <th class="p-2 text-left">Remarks</th>
                 </tr>
                 </thead>
                 <tbody>
                 @foreach($recentTransactions as $txn)
                     <tr class="border-t">
                         <td class="p-2">{{ optional($txn->player)->name ?? optional($txn->player)->player_name ?? '-' }}</td>
-                        <td class="p-2">$ {{ number_format($txn->cashin, 2) }}</td>
-                        <td class="p-2">$ {{ number_format($txn->cashout, 2) }}</td>
                         <td class="p-2">
-                            $ {{ number_format(($txn->cashin ?? 0) - ($txn->cashout ?? 0), 2) }}
+                            {{ $txn->cashin > 0 ? 'Cash In' : 'Cash Out' }}
                         </td>
+
+                        <td class="p-2">
+                            ${{ number_format($txn->cashin > 0 ? $txn->cashin : $txn->cashout, 2) }}
+                        </td>
+
+                        <td class="p-2">
+                            {{ $txn->wallet_remarks ?? '-' }}
+                        </td>
+                    </tr>
+                @endforeach
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Recent Wallet Details -->
+        <div class="bg-white shadow rounded p-4 overflow-x-auto">
+            <div class="flex justify-between items-center mb-2">
+                <h2 class="font-bold mb-3">Recent Wallet Details</h2>
+                <a href="{{ route('wallets') }}" class="inline-block px-2 py-1 text-sm bg-blue-200 rounded-lg sm:px-3 sm:py-2 sm:text-base">
+                    Wallets
+                </a>
+            </div>
+            <table class="min-w-full table-auto">
+                <thead>
+                <tr class="bg-gray-100">
+                    <th class="p-2 text-left">Agent</th>
+                    <th class="p-2 text-left">Wallet</th>
+                    <th class="p-2 text-left">Remarks</th>
+                    <th class="p-2 text-left">Created</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                @foreach($recentWalletDetails as $wd)
+                    <tr class="border-t">
+                        <td class="p-2">{{ $wd->agent }}</td>
+                        <td class="p-2">{{ $wd->wallet_name }}</td>
+                        <td class="p-2">{{ $wd->wallet_remarks }}</td>
+                        <td class="p-2">{{ $wd->created_at->format('Y-m-d') }}</td>
                     </tr>
                 @endforeach
                 </tbody>
