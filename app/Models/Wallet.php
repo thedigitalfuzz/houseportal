@@ -12,6 +12,8 @@ class Wallet extends Model
         'wallet_name',
         'wallet_remarks',
         'current_balance',
+        'net_transaction',
+        'variance_balance',
         'date',
         'created_by_id',
         'created_by_type',

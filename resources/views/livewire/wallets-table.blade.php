@@ -59,6 +59,8 @@
                         <th class="p-3 text-left">Wallet Remarks</th>
                         <th class="p-3 text-left">Current Balance</th>
                         <th class="p-3 text-left">Difference from Previous Balance</th>
+                        <th class="p-3 text-left">Net Transaction</th>
+                        <th class="p-3 text-left">Variance</th>
                         <th class="p-3 text-left">Created By</th>
                         <th class="p-3 text-left">Last Edited By</th>
                         <th class="px-4 py-2 text-right">Actions</th>
@@ -85,6 +87,33 @@
                                 @endif
                             </td>
 
+
+                            <td class="p-3 text-right">
+                                @if($wallet->net_transaction < 0)
+                                    -${{ number_format(abs($wallet->net_transaction), 2) }}
+                                @else
+                                    ${{ number_format($wallet->net_transaction, 2) }}
+                                @endif
+                            </td>
+                            <td class="p-3 text-right">
+                                @php
+                                    $variance = $wallet->balance_difference - $wallet->net_transaction;
+                                    $isPositiveMismatch = $wallet->balance_difference > $wallet->net_transaction;
+                                    $isNegativeMismatch = $wallet->balance_difference < $wallet->net_transaction;
+                                @endphp
+
+                                @if($variance == 0)
+                                    <span class="text-green-600 font-bold">✔</span>
+                                @elseif($isPositiveMismatch)
+                                    <span class="text-green-600 font-bold">
+            ${{ number_format($variance, 2) }}
+        </span>
+                                @elseif($isNegativeMismatch)
+                                    <span class="text-red-600 font-bold">
+            ${{ number_format(abs($variance), 2) }}
+        </span>
+                                @endif
+                            </td>
 
 
 

@@ -54,10 +54,11 @@
                         <th class="p-3 text-left">Assigned Staff</th>
                         <th class="p-3 text-left">Staff Profile</th>
                         <th class="p-3 text-left">Game</th>
-                        <th class="p-3 text-left">Cashin</th>
-                        <th class="p-3 text-left">Cashout</th>
-                        <th class="p-3 text-left">Total</th>
+                        <th class="p-3 text-left">Transaction Type</th>
+                        <th class="p-3 text-left">Amount</th>
+                        <th class="p-3 text-left">Bonus</th>
                         <th class="p-3 text-left">Cash Tag</th>
+                        <th class="p-3 text-left">Wallet Agent</th>
                         <th class="p-3 text-left">Wallet Name</th>
                         <th class="p-3 text-left">Wallet Remarks</th>
                         <th class="p-3 text-left">Time</th>
@@ -75,10 +76,18 @@
                             <td class="p-3">{{ $t->player->assignedStaff->staff_name ?? '-' }}</td>
                             <td class="p-3">{{ $t->player->assignedStaff->facebook_profile ?? '-' }}</td>
                             <td class="p-3">{{ $t->game->name ?? '-' }}</td>
-                            <td class="p-3">$ {{ number_format($t->cashin,2) }}</td>
-                            <td class="p-3">$ {{ number_format($t->cashout,2) }}</td>
-                            <td class="p-3">$ {{ number_format($t->total_transaction,2) }}</td>
+                            <td class="p-3">
+                                {{ $t->cashin > 0 ? 'Cash In' : 'Cash Out' }}
+                            </td>
+
+                            <td class="p-3">
+                                ${{ number_format($t->cashin > 0 ? $t->cashin : $t->cashout, 2) }}
+                            </td>
+
+
+                            <td class="p-3">$ {{ number_format($t->bonus_added,2) }}</td>
                             <td class="p-3">{{ $t->cash_tag }}</td>
+                            <td class="p-3">{{ $t->agent }}</td>
                             <td class="p-3">{{ $t->wallet_name }}</td>
                             <td class="p-3">{{ $t->wallet_remarks }}</td>
                             <td class="p-3">{{ $t->transaction_time }}</td>
@@ -132,18 +141,55 @@
                         @endforeach
                     </select>
 
-                    <label class="text-xs">Cash In:</label>
-                    <input type="number" wire:model="editCashin" placeholder="Cash In" class="border rounded w-full px-2 py-1" />
-                    <label class="text-xs">Cash Out:</label>
-                    <input type="number" wire:model="editCashout" placeholder="Cash Out" class="border rounded w-full px-2 py-1" />
+                    <label class="text-xs">Type:</label>
+                    <select wire:model="editTransactionType" class="border rounded w-full px-2 py-1">
+                        <option value="">Select Type</option>
+                        <option value="cashin">Cash In</option>
+                        <option value="cashout">Cash Out</option>
+                    </select>
+
+                    <label class="text-xs">Amount:</label>
+                    <input type="number" wire:model="editAmount" placeholder="Amount" class="border rounded w-full px-2 py-1" />
+
                     <label class="text-xs">Bonus:</label>
                     <input type="number" wire:model="editBonusAdded" placeholder="Bonus Added" class="border rounded w-full px-2 py-1" />
                     <label class="text-xs">Cash Tag:</label>
                     <input type="text" wire:model="editCashTag" placeholder="Cash Tag" class="border rounded w-full px-2 py-1" />
-                    <label class="text-xs">Wallet:</label>
-                    <input type="text" wire:model="editWalletName" placeholder="Wallet Name" class="border rounded w-full px-2 py-1" />
-                    <label class="text-xs">Remarks:</label>
-                    <input type="text" wire:model="editWalletRemarks" placeholder="Wallet Remarks" class="border rounded w-full px-2 py-1" />
+                    <!-- Agent -->
+                    <div class="flex items-center justify-between">
+                        <label class="text-xs">Wallet Agent:</label>
+                        <select wire:model.live="editAgent" class="w-full border rounded p-2">
+                            <option value="">Select Agent</option>
+                            @foreach($editAgents as $a)
+                                <option value="{{ $a }}">{{ $a }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+
+                    <!-- Wallet Name -->
+                    <div class="flex items-center justify-between">
+                    <label class="text-xs">Wallet Name:</label>
+                    <select wire:model.live="editWalletName" class="w-full border rounded p-2">
+                        <option value="">Select Wallet Name</option>
+                        @foreach($editWalletNames as $w)
+                            <option value="{{ $w }}">{{ $w }}</option>
+                        @endforeach
+                    </select>
+                    </div>
+                    <!-- Wallet Remarks -->
+                    <div class="flex items-center">
+                    <label class="text-xs">Wallet Remarks:</label>
+                    <select wire:model.live="editWalletRemarks" class="w-full border rounded p-2">
+                        <option value="">Select Wallet Remarks</option>
+                        @foreach($editWalletRemarksOptions as $r)
+                            <option value="{{ $r }}">{{ $r }}</option>
+                        @endforeach
+                    </select>
+                    </div>
+
+
+
                     <label class="text-xs">Notes:</label>
                     <textarea wire:model="editNotes" placeholder="Notes" class="border rounded w-full px-2 py-1"></textarea>
                     <label class="text-xs">Date:</label>

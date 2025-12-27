@@ -22,6 +22,7 @@ class Transaction extends Model
         'bonus_added',
         'deposit',
         'cash_tag',
+        'agent',
         'wallet_name',
         'wallet_remarks',
         'transaction_time',

@@ -6,6 +6,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\Transaction;
 use App\Models\Game;
+use App\Models\WalletDetail;
 use App\Models\Player;
 use App\Models\Staff;
 use Illuminate\Support\Facades\Auth;
@@ -30,14 +31,24 @@ class TransactionsTable extends Component
     public $editGameId;
     public $editCashin;
     public $editCashout;
+    public $editTransactionType;
+    public $editAmount;
+
     public $editBonusAdded;
     public $editCashTag;
+    public $editAgent;
     public $editWalletName;
     public $editWalletRemarks;
+
+    public $editAgents = [];
+    public $editWalletNames = [];
+    public $editWalletRemarksOptions = [];
     public $editDeposit;
     public $editNotes;
     public $editTransactionTime;
     public $editTransactionDate;
+
+
 
     public $confirmDeleteId = null;
     public $deleteModal = false;
@@ -84,6 +95,55 @@ class TransactionsTable extends Component
         $this->resetPage();
     }
 
+
+    public function mount()
+    {
+        $this->editAgents = WalletDetail::select('agent')
+            ->distinct()
+            ->orderBy('agent')
+            ->pluck('agent')
+            ->toArray();
+    }
+    public function updatedEditAgent()
+    {
+        $this->editWalletName = null;
+        $this->editWalletRemarks = null;
+
+        if (!$this->editAgent) {
+            $this->editWalletNames = [];
+            $this->editWalletRemarksOptions = [];
+            return;
+        }
+
+        $this->editWalletNames = WalletDetail::where('agent', $this->editAgent)
+            ->select('wallet_name')
+            ->distinct()
+            ->orderBy('wallet_name')
+            ->pluck('wallet_name')
+            ->toArray();
+
+        $this->editWalletRemarksOptions = [];
+    }
+    public function updatedEditWalletName()
+    {
+        $this->editWalletRemarks = null;
+
+        if (!$this->editAgent || !$this->editWalletName) {
+            $this->editWalletRemarksOptions = [];
+            return;
+        }
+
+        $this->editWalletRemarksOptions = WalletDetail::where('agent', $this->editAgent)
+            ->where('wallet_name', $this->editWalletName)
+            ->orderBy('wallet_remarks')
+            ->pluck('wallet_remarks')
+            ->toArray();
+    }
+
+
+
+
+
     public function editTransaction($id)
     {
         $transaction = Transaction::findOrFail($id);
@@ -99,12 +159,31 @@ class TransactionsTable extends Component
         $this->editGameId = $transaction->game_id;
         $this->editCashin = $transaction->cashin;
         $this->editCashout = $transaction->cashout;
+        $this->editTransactionType = $transaction->cashin > 0 ? 'cashin' : 'cashout';
+        $this->editAmount = $transaction->cashin > 0 ? $transaction->cashin : $transaction->cashout;
+
         $this->editBonusAdded = $transaction->bonus_added;
         $this->editCashTag = $transaction->cash_tag;
-        $this->editWalletName = $transaction->wallet_name;
-        $this->editWalletRemarks = $transaction->wallet_remarks;
+
+
         $this->editDeposit = $transaction->deposit;
         $this->editNotes = $transaction->notes;
+        $this->editAgent = $transaction->agent;
+        $this->editWalletName = $transaction->wallet_name;
+        $this->editWalletRemarks = $transaction->wallet_remarks;
+
+        // Populate wallet names for selected agent
+        $this->editWalletNames = WalletDetail::where('agent', $this->editAgent)
+            ->select('wallet_name')
+            ->distinct()
+            ->pluck('wallet_name')
+            ->toArray();
+
+        // Populate wallet remarks for selected agent + wallet
+        $this->editWalletRemarksOptions = WalletDetail::where('agent', $this->editAgent)
+            ->where('wallet_name', $this->editWalletName)
+            ->pluck('wallet_remarks')
+            ->toArray();
 
         // Only date for display
         $this->editTransactionDate = $transaction->transaction_date
@@ -121,8 +200,12 @@ class TransactionsTable extends Component
             'editGameId' => 'required|exists:games,id',
             'editCashin' => 'nullable|numeric|min:0',
             'editCashout' => 'nullable|numeric|min:0',
+            'editTransactionType' => 'required|in:cashin,cashout',
+            'editAmount' => 'required|numeric|min:0',
+
             'editBonusAdded' => 'nullable|numeric|min:0',
             'editCashTag' => 'nullable|string|max:255',
+            'editAgent' => 'nullable|string|max:255',
             'editWalletName' => 'nullable|string|max:255',
             'editWalletRemarks' => 'nullable|string|max:255',
             'editDeposit' => 'nullable|numeric|min:0',
@@ -130,17 +213,31 @@ class TransactionsTable extends Component
             'editTransactionDate' => 'required|date',
         ]);
 
-        $total = ($this->editCashin ?? 0) - ($this->editCashout ?? 0);
+        $cashin = 0;
+        $cashout = 0;
+
+        if ($this->editTransactionType === 'cashin') {
+            $cashin = $this->editAmount;
+        } else {
+            $cashout = $this->editAmount;
+        }
+
+        $total = $cashin - $cashout;
+
+        $bonusAdded = $this->editBonusAdded !== null && $this->editBonusAdded !== ''
+            ? $this->editBonusAdded
+            : 0;
 
         $transaction = Transaction::findOrFail($this->editingTransactionId);
         $transaction->update([
             'player_id' => $this->editPlayerId,
             'game_id' => $this->editGameId,
-            'cashin' => $this->editCashin ?? 0,
-            'cashout' => $this->editCashout ?? 0,
-            'total_transaction' => $total,
-            'bonus_added' => $this->editBonusAdded ?? 0,
+            'cashin' => $this->editTransactionType === 'cashin' ? floatval($this->editAmount) : 0,
+            'cashout' => $this->editTransactionType === 'cashout' ? floatval($this->editAmount) : 0,
+            'total_transaction' => $this->editTransactionType === 'cashin' ? floatval($this->editAmount) : -floatval($this->editAmount),
+            'bonus_added' => floatval($bonusAdded),
             'cash_tag' => $this->editCashTag,
+            'agent' => $this->editAgent, // <--- add this line
             'wallet_name' => $this->editWalletName,
             'wallet_remarks' => $this->editWalletRemarks,
             'deposit' => $this->editDeposit ?? 0,

@@ -8,6 +8,11 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\AuthAnyGuard;
 use App\Providers\StaffUserProvider;
+use App\Models\Wallet;
+use App\Observers\WalletObserver;
+use App\Models\Transaction;
+use App\Observers\TransactionObserver;
+
 
 
 class AppServiceProvider extends ServiceProvider
@@ -30,5 +35,7 @@ class AppServiceProvider extends ServiceProvider
         Auth::provider('staffs', function ($app, array $config) {
             return new \App\Providers\StaffUserProvider();
         });
+        Wallet::observe(WalletObserver::class);
+        Transaction::observe(TransactionObserver::class);
     }
 }
