@@ -97,18 +97,20 @@
                             </td>
                             <td class="p-3 text-right">
                                 @php
-                                    $variance = $wallet->balance_difference - $wallet->net_transaction;
-                                    $isPositiveMismatch = $wallet->balance_difference > $wallet->net_transaction;
-                                    $isNegativeMismatch = $wallet->balance_difference < $wallet->net_transaction;
+                                    // Force numeric values
+                                    $balanceDiff = floatval($wallet->balance_difference);
+                                    $netTrans = floatval($wallet->net_transaction);
+
+                                    $variance = $balanceDiff - $netTrans;
                                 @endphp
 
                                 @if($variance == 0)
                                     <span class="text-green-600 font-bold">✔</span>
-                                @elseif($isPositiveMismatch)
+                                @elseif($variance > 0)
                                     <span class="text-green-600 font-bold">
             ${{ number_format($variance, 2) }}
         </span>
-                                @elseif($isNegativeMismatch)
+                                @elseif($variance < 0)
                                     <span class="text-red-600 font-bold">
             ${{ number_format(abs($variance), 2) }}
         </span>
