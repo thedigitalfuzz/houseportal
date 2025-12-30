@@ -166,7 +166,13 @@
                         <td class="p-3">${{ number_format($totalCashin, 2) }}</td>
                         <td class="p-3">${{ number_format($totalCashout, 2) }}</td>
                         <td class="p-3">${{ number_format($totalBonus, 2) }}</td>
-                        <td class="p-3 text-right">${{ number_format($totalNet, 2) }}</td>
+                        <td class="p-3 text-right">
+                            @if($totalNet < 0)
+                                -${{ number_format(abs($totalNet), 2) }}
+                            @else
+                                ${{ number_format($totalNet, 2) }}
+                            @endif
+                        </td>
                         <td colspan="4"></td>
                     </tr>
                     </tbody>
