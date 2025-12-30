@@ -28,14 +28,44 @@
                             <option value="{{ $g->id }}">{{ $g->name }}</option>
                         @endforeach
                     </select>
+
+
                 </div>
+
             </div>
             <input type="date" name="date-from" wire:model="date_from" class="border rounded px-2 py-1 w-full" />
             <input type="date" name="date-to" wire:model="date_to" class="border rounded px-2 py-1 w-full" />
-            <div>
-                <button wire:click="applySearch" class="px-4 py-1 bg-blue-600 text-white rounded">Search</button>
-            </div>
 
+
+        </div>
+        <div class="flex flex-col gap-2 items-start">
+
+                <select wire:model.live="wallet_agent" class="border rounded px-2 py-1 w-full">
+                    <option value="">Agents</option>
+                    @foreach($walletAgents as $a)
+                        <option value="{{ $a }}">{{ $a }}</option>
+                    @endforeach
+                </select>
+
+                <select wire:model.live="wallet_name" class="border rounded px-2 py-1 w-full">
+                    <option value="">Wallet</option>
+                    @foreach($walletNames as $w)
+                        <option value="{{ $w }}">{{ $w }}</option>
+                    @endforeach
+                </select>
+
+                <select wire:model.live="wallet_remarks" class="border rounded px-2 py-1 w-full">
+                    <option value="">Remarks</option>
+                    @foreach($walletRemarksOptions as $r)
+                        <option value="{{ $r }}">{{ $r }}</option>
+                    @endforeach
+                </select>
+
+
+        </div>
+        <div>
+
+            <button wire:click="applySearch" class="px-4 py-1 bg-blue-600 text-white rounded">Search</button>
         </div>
     </div>
 

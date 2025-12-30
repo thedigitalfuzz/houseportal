@@ -16,25 +16,32 @@
                     Wallet Details
                 </a>
             @endif
-
         </div>
-
 
         <div class="flex gap-2 flex-wrap">
             <div class="flex gap-2">
-                <input type="text" wire:model="searchAgentInput"
-                       placeholder="Search Agent"
-                       class="border rounded px-2 py-1 w-full" />
+                <select wire:model.live="wallet_agent" class="border rounded px-2 py-1">
+                    <option value="">All Wallet Agents</option>
+                    @foreach($walletAgents as $a)
+                        <option value="{{ $a }}">{{ $a }}</option>
+                    @endforeach
+                </select>
 
-                <input type="text" wire:model="searchWalletInput"
-                       placeholder="Wallet Name"
-                       class="border rounded px-2 py-1 w-full" />
+                <select wire:model.live="wallet_name_filter" class="border rounded px-2 py-1">
+                    <option value="">All Wallet Names</option>
+                    @foreach($walletNamesFilter as $w)
+                        <option value="{{ $w }}">{{ $w }}</option>
+                    @endforeach
+                </select>
             </div>
 
             <div class="flex gap-2">
-                <input type="text" wire:model="searchRemarksInput"
-                       placeholder="Wallet Remarks"
-                       class="border rounded w-full px-2 py-1" />
+                <select wire:model.live="wallet_remarks_filter" class="border rounded px-2 py-1">
+                    <option value="">All Wallet Remarks</option>
+                    @foreach($walletRemarksFilter as $r)
+                        <option value="{{ $r }}">{{ $r }}</option>
+                    @endforeach
+                </select>
 
                 <input type="date" wire:model="filterDateInput"
                        class="border rounded px-2 py-1 w-full" />
@@ -63,6 +70,12 @@
                         <th class="p-3 text-left">Wallet Remarks</th>
                         <th class="p-3 text-left">Current Balance</th>
                         <th class="p-3 text-left">Difference from Previous Balance</th>
+
+                        <!-- ADDED -->
+                        <th class="p-3 text-left">Cash In</th>
+                        <th class="p-3 text-left">Cash Out</th>
+                        <th class="p-3 text-left">Bonus</th>
+
                         <th class="p-3 text-left">Net Transaction</th>
                         <th class="p-3 text-left">Variance</th>
                         <th class="p-3 text-left">Created By</th>
@@ -79,11 +92,11 @@
                             <td class="p-3">{{ $wallet->wallet_name }}</td>
                             <td class="p-3">{{ $wallet->wallet_remarks ?? '-' }}</td>
                             <td class="p-3">${{ number_format($wallet->current_balance, 2) }}</td>
+
                             <td class="p-3 font-semibold
-    {{ $wallet->balance_difference > 0 ? 'text-green-600' : '' }}
-    {{ $wallet->balance_difference < 0 ? 'text-red-600' : '' }}
-    {{ $wallet->balance_difference == 0 ? 'text-gray-500' : '' }}
-">
+                                {{ $wallet->balance_difference > 0 ? 'text-green-600' : '' }}
+                                {{ $wallet->balance_difference < 0 ? 'text-red-600' : '' }}
+                                {{ $wallet->balance_difference == 0 ? 'text-gray-500' : '' }}">
                                 @if ($wallet->balance_difference < 0)
                                     -${{ number_format(abs($wallet->balance_difference), 2) }}
                                 @else
@@ -91,6 +104,10 @@
                                 @endif
                             </td>
 
+                            <!-- ADDED -->
+                            <td class="p-3">${{ number_format($wallet->cashin, 2) }}</td>
+                            <td class="p-3">${{ number_format($wallet->cashout, 2) }}</td>
+                            <td class="p-3">${{ number_format($wallet->bonus, 2) }}</td>
 
                             <td class="p-3 text-right">
                                 @if($wallet->net_transaction < 0)
@@ -99,29 +116,24 @@
                                     ${{ number_format($wallet->net_transaction, 2) }}
                                 @endif
                             </td>
+
                             <td class="p-3 text-right">
                                 @php
-                                    // Force numeric values
-                                    $balanceDiff = floatval($wallet->balance_difference);
-                                    $netTrans = floatval($wallet->net_transaction);
-
-                                    $variance = $balanceDiff - $netTrans;
+                                    $variance = floatval($wallet->balance_difference) - floatval($wallet->net_transaction);
                                 @endphp
 
                                 @if($variance == 0)
                                     <span class="text-green-600 font-bold">✔</span>
                                 @elseif($variance > 0)
                                     <span class="text-green-600 font-bold">
-            ${{ number_format($variance, 2) }}
-        </span>
-                                @elseif($variance < 0)
+                                        ${{ number_format($variance, 2) }}
+                                    </span>
+                                @else
                                     <span class="text-red-600 font-bold">
-            ${{ number_format(abs($variance), 2) }}
-        </span>
+                                        ${{ number_format(abs($variance), 2) }}
+                                    </span>
                                 @endif
                             </td>
-
-
 
                             <td class="p-3">{{ $wallet->created_by_name }}</td>
                             <td class="p-3">{{ $wallet->updated_by_name }}</td>
@@ -140,6 +152,23 @@
                             </td>
                         </tr>
                     @endforeach
+
+                    <!-- ADDED TOTAL ROW -->
+                    @php
+                        $totalCashin = $walletsChunk->sum('cashin');
+                        $totalCashout = $walletsChunk->sum('cashout');
+                        $totalBonus = $walletsChunk->sum('bonus');
+                        $totalNet = $walletsChunk->sum('net_transaction');
+                    @endphp
+
+                    <tr class="border-t bg-gray-100 font-bold">
+                        <td colspan="6" class="p-3 text-right">TOTAL</td>
+                        <td class="p-3">${{ number_format($totalCashin, 2) }}</td>
+                        <td class="p-3">${{ number_format($totalCashout, 2) }}</td>
+                        <td class="p-3">${{ number_format($totalBonus, 2) }}</td>
+                        <td class="p-3 text-right">${{ number_format($totalNet, 2) }}</td>
+                        <td colspan="4"></td>
+                    </tr>
                     </tbody>
                 </table>
             </div>
@@ -151,7 +180,6 @@
     <div class="mt-3">
         {{ $wallets->links() }}
     </div>
-
     <!-- ADD / EDIT WALLET RECORD MODAL -->
     @if($addModal || $editModal)
         <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -161,6 +189,12 @@
                 </h2>
 
                 <div class="space-y-3">
+                    @error('date')
+                    <p class="mb-3 p-2 bg-red-600 text-white rounded text-sm">
+                        {{ $message }}
+                    </p>
+                    @enderror
+
                     <select wire:model.live="agent" class="w-full border rounded p-2">
 
                     <option value="">Select Agent</option>
@@ -211,6 +245,9 @@
         <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div class="bg-white rounded shadow p-6 w-full max-w-md">
                 <h2 class="text-xl font-bold mb-4">Add Wallet</h2>
+                @error('detail_wallet_name')
+                <p class="mb-3 p-2 bg-red-600 text-white rounded text-sm">{{ $message }}</p>
+                @enderror
 
                 <div class="space-y-3">
                     <input wire:model="detail_agent"

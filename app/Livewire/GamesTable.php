@@ -24,6 +24,7 @@ class GamesTable extends Component
     // NEW DELETE CONFIRMATION
     public $confirmDeleteId = null;
     public $deleteModal = false;
+    public $duplicateGameError = null;
 
     protected $listeners = ['gameAdded' => '$refresh', 'gameUpdated' => '$refresh'];
 
@@ -56,11 +57,13 @@ class GamesTable extends Component
     public function openAddModal()
     {
         $this->reset(['editingGameId', 'name', 'game_code', 'backend_link']);
+        $this->duplicateGameError = null; // ✅ CLEAR ERROR
         $this->modalOpen = true;
     }
 
     public function openEditModal($id)
     {
+        $this->duplicateGameError = null;
         $game = Game::findOrFail($id);
         $this->editingGameId = $id;
         $this->name = $game->name;
@@ -70,6 +73,18 @@ class GamesTable extends Component
 
     public function saveGame()
     {
+        $this->duplicateGameError = null;
+
+        // Check duplicate name
+        $exists = Game::where('name', $this->name)
+            ->when($this->editingGameId, fn ($q) => $q->where('id', '!=', $this->editingGameId))
+            ->exists();
+
+        if ($exists) {
+            $this->duplicateGameError = 'The game "' . $this->name . '" already exists.';
+            return;
+        }
+
         $validated = $this->validate([
             'name' => 'required|string|max:255',
             'game_code' => 'nullable|string|max:100',

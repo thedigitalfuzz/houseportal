@@ -47,7 +47,13 @@ class TransactionsTable extends Component
     public $editNotes;
     public $editTransactionTime;
     public $editTransactionDate;
+    public $wallet_agent = null;
+    public $wallet_name = null;
+    public $wallet_remarks = null;
 
+    public $walletAgents = [];
+    public $walletNames = [];
+    public $walletRemarksOptions = [];
 
 
     public $confirmDeleteId = null;
@@ -103,7 +109,51 @@ class TransactionsTable extends Component
             ->orderBy('agent')
             ->pluck('agent')
             ->toArray();
+
+        $this->walletAgents = WalletDetail::select('agent')
+            ->distinct()
+            ->orderBy('agent')
+            ->pluck('agent')
+            ->toArray();
     }
+
+    public function updatedWalletAgent()
+    {
+        $this->wallet_name = null;
+        $this->wallet_remarks = null;
+
+        if (!$this->wallet_agent) {
+            $this->walletNames = [];
+            $this->walletRemarksOptions = [];
+            return;
+        }
+
+        $this->walletNames = WalletDetail::where('agent', $this->wallet_agent)
+            ->select('wallet_name')
+            ->distinct()
+            ->orderBy('wallet_name')
+            ->pluck('wallet_name')
+            ->toArray();
+
+        $this->walletRemarksOptions = [];
+    }
+
+    public function updatedWalletName()
+    {
+        $this->wallet_remarks = null;
+
+        if (!$this->wallet_agent || !$this->wallet_name) {
+            $this->walletRemarksOptions = [];
+            return;
+        }
+
+        $this->walletRemarksOptions = WalletDetail::where('agent', $this->wallet_agent)
+            ->where('wallet_name', $this->wallet_name)
+            ->orderBy('wallet_remarks')
+            ->pluck('wallet_remarks')
+            ->toArray();
+    }
+
     public function updatedEditAgent()
     {
         $this->editWalletName = null;
@@ -263,7 +313,16 @@ class TransactionsTable extends Component
                 $p->where('username','like','%'.$this->search.'%')
                     ->orWhere('player_name','like','%'.$this->search.'%');
             }))
-            ->when($this->staff_id && $user->role === 'admin', fn($q) => $q->whereHas('player', fn($p) => $p->where('staff_id', $this->staff_id)));
+            ->when($this->staff_id && $user->role === 'admin', fn($q) => $q->whereHas('player', fn($p) => $p->where('staff_id', $this->staff_id)))
+        ->when($this->wallet_agent, fn ($q) =>
+    $q->where('agent', $this->wallet_agent)
+    )
+        ->when($this->wallet_name, fn ($q) =>
+        $q->where('wallet_name', $this->wallet_name)
+        )
+        ->when($this->wallet_remarks, fn ($q) =>
+        $q->where('wallet_remarks', $this->wallet_remarks)
+        );
 
         // Get all filtered transactions
         $allTransactions = $query->orderBy('transaction_time', 'desc')->get();
@@ -301,6 +360,9 @@ class TransactionsTable extends Component
             'players' => $players,
             'currentUser' => $user,
             'allStaffs' => $allStaffs,
+            'walletAgents' => $this->walletAgents,
+            'walletNames' => $this->walletNames,
+            'walletRemarksOptions' => $this->walletRemarksOptions,
         ]);
     }
 

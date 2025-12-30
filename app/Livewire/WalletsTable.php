@@ -8,6 +8,8 @@ use App\Models\Wallet;
 use App\Models\WalletDetail;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Pagination\LengthAwarePaginator;
+use App\Models\Transaction;
+
 
 class WalletsTable extends Component
 {
@@ -23,6 +25,16 @@ class WalletsTable extends Component
     public $searchWallet = '';
     public $searchRemarks = '';
     public $filterDate = null;
+
+    /* -------- WALLET SEARCH DROPDOWNS (LIKE TRANSACTIONS) -------- */
+    public $wallet_agent = null;
+    public $wallet_name_filter = null;
+    public $wallet_remarks_filter = null;
+
+    public $walletAgents = [];
+    public $walletNamesFilter = [];
+    public $walletRemarksFilter = [];
+
 
     /* ---------------- MODALS ---------------- */
     public $addModal = false;
@@ -47,6 +59,9 @@ class WalletsTable extends Component
     public $detail_wallet_name;
     public $detail_wallet_remarks;
 
+    public $cashin = 0;
+    public $cashout = 0;
+    public $bonus = 0;
     public $confirmDeleteId = null;
 
     protected $listeners = [
@@ -78,6 +93,13 @@ class WalletsTable extends Component
             ->orderBy('agent')
             ->pluck('agent')
             ->toArray();
+
+        $this->walletAgents = WalletDetail::select('agent')
+            ->distinct()
+            ->orderBy('agent')
+            ->pluck('agent')
+            ->toArray();
+
     }
 
     /* ---------------- SEARCH ---------------- */
@@ -133,9 +155,46 @@ class WalletsTable extends Component
             ->toArray();
     }
 
+    public function updatedWalletAgent()
+    {
+        $this->wallet_name_filter = null;
+        $this->wallet_remarks_filter = null;
+
+        if (!$this->wallet_agent) {
+            $this->walletNamesFilter = [];
+            $this->walletRemarksFilter = [];
+            return;
+        }
+
+        $this->walletNamesFilter = WalletDetail::where('agent', $this->wallet_agent)
+            ->select('wallet_name')
+            ->distinct()
+            ->orderBy('wallet_name')
+            ->pluck('wallet_name')
+            ->toArray();
+    }
+
+    public function updatedWalletNameFilter()
+    {
+        $this->wallet_remarks_filter = null;
+
+        if (!$this->wallet_agent || !$this->wallet_name_filter) {
+            $this->walletRemarksFilter = [];
+            return;
+        }
+
+        $this->walletRemarksFilter = WalletDetail::where('agent', $this->wallet_agent)
+            ->where('wallet_name', $this->wallet_name_filter)
+            ->orderBy('wallet_remarks')
+            ->pluck('wallet_remarks')
+            ->toArray();
+    }
+
     /* ---------------- MODAL OPENERS ---------------- */
     public function openAddModal()
     {
+        $this->resetErrorBag();
+        $this->resetValidation();
         $this->reset([
             'editingWalletId',
             'agent',
@@ -144,7 +203,10 @@ class WalletsTable extends Component
             'current_balance',
             'date',
             'walletNames',
-            'walletRemarks'
+            'walletRemarks',
+            'cashin',
+            'cashout',
+            'bonus',
         ]);
 
         $this->addModal = true;
@@ -152,6 +214,8 @@ class WalletsTable extends Component
 
     public function openEditModal($id)
     {
+        $this->resetErrorBag();
+        $this->resetValidation();
         $wallet = Wallet::findOrFail($id);
 
         $this->editingWalletId = $id;
@@ -177,6 +241,8 @@ class WalletsTable extends Component
 
     public function openAddWalletDetailModal()
     {
+        $this->resetErrorBag();
+        $this->resetValidation();
         $this->reset([
             'detail_agent',
             'detail_wallet_name',
@@ -194,8 +260,35 @@ class WalletsTable extends Component
             'wallet_name' => 'required|string|max:255',
             'wallet_remarks' => 'nullable|string|max:255',
             'current_balance' => 'required|numeric',
+            'cashin' => 'nullable|numeric|min:0',
+            'cashout' => 'nullable|numeric|min:0',
+            'bonus' => 'nullable|numeric|min:0',
             'date' => 'required|date',
         ]);
+
+        // ----- DUPLICATE WALLET RECORD CHECK (SAME DATE) -----
+        $duplicateQuery = Wallet::where('agent', $validated['agent'])
+            ->where('wallet_name', $validated['wallet_name'])
+            ->whereDate('date', $validated['date']);
+
+        if (is_null($validated['wallet_remarks'])) {
+            $duplicateQuery->whereNull('wallet_remarks');
+        } else {
+            $duplicateQuery->where('wallet_remarks', $validated['wallet_remarks']);
+        }
+
+// Ignore current record when editing
+        if ($this->editingWalletId) {
+            $duplicateQuery->where('id', '!=', $this->editingWalletId);
+        }
+
+        if ($duplicateQuery->exists()) {
+            $this->addError(
+                'date',
+                "The wallet record for '{$validated['date']}' for this wallet already exists."
+            );
+            return;
+        }
 
         $previousWalletQuery = Wallet::where('agent', $validated['agent'])
             ->where('wallet_name', $validated['wallet_name'])
@@ -257,11 +350,32 @@ class WalletsTable extends Component
     /* ---------------- SAVE WALLET DETAIL ---------------- */
     public function saveWalletDetail()
     {
+        $this->resetErrorBag();
+
         $this->validate([
             'detail_agent' => 'required|string|max:255',
             'detail_wallet_name' => 'required|string|max:255',
             'detail_wallet_remarks' => 'nullable|string|max:255',
         ]);
+
+        $exists = WalletDetail::where('agent', $this->detail_agent)
+            ->where('wallet_name', $this->detail_wallet_name)
+            ->where(function ($q) {
+                if ($this->detail_wallet_remarks === null || $this->detail_wallet_remarks === '') {
+                    $q->whereNull('wallet_remarks');
+                } else {
+                    $q->where('wallet_remarks', $this->detail_wallet_remarks);
+                }
+            })
+            ->exists();
+
+        if ($exists) {
+            $this->addError(
+                'detail_wallet_name',
+                'The wallet you are trying to add already exists.'
+            );
+            return;
+        }
 
         WalletDetail::create([
             'agent' => $this->detail_agent,
@@ -297,9 +411,9 @@ class WalletsTable extends Component
     public function render()
     {
         $query = Wallet::query()
-            ->when($this->searchAgent, fn($q) => $q->where('agent', 'like', "%{$this->searchAgent}%"))
-            ->when($this->searchWallet, fn($q) => $q->where('wallet_name', 'like', "%{$this->searchWallet}%"))
-            ->when($this->searchRemarks, fn($q) => $q->where('wallet_remarks', 'like', "%{$this->searchRemarks}%"))
+            ->when($this->wallet_agent, fn($q) => $q->where('agent', $this->wallet_agent))
+            ->when($this->wallet_name_filter, fn($q) => $q->where('wallet_name', $this->wallet_name_filter))
+            ->when($this->wallet_remarks_filter, fn($q) => $q->where('wallet_remarks', $this->wallet_remarks_filter))
             ->when($this->filterDate, fn($q) => $q->whereDate('date', $this->filterDate))
             ->orderBy('date', 'desc');
 
@@ -318,20 +432,39 @@ class WalletsTable extends Component
             ['path' => request()->url(), 'query' => request()->query()]
         );
 
+        // Fetch wallets and group by date
         $walletsByDate = Wallet::query()
-            ->when($this->searchAgent, fn($q) => $q->where('agent', 'like', "%{$this->searchAgent}%"))
-            ->when($this->searchWallet, fn($q) => $q->where('wallet_name', 'like', "%{$this->searchWallet}%"))
-            ->when($this->searchRemarks, fn($q) => $q->where('wallet_remarks', 'like', "%{$this->searchRemarks}%"))
+            ->when($this->wallet_agent, fn($q) => $q->where('agent', $this->wallet_agent))
+            ->when($this->wallet_name_filter, fn($q) => $q->where('wallet_name', $this->wallet_name_filter))
+            ->when($this->wallet_remarks_filter, fn($q) => $q->where('wallet_remarks', $this->wallet_remarks_filter))
             ->when($this->filterDate, fn($q) => $q->whereDate('date', $this->filterDate))
             ->whereIn('date', $currentDates)
             ->orderBy('date', 'desc')
             ->get()
+            ->map(function($wallet) {
+                $totals = Transaction::where('agent', $wallet->agent)
+                    ->where('wallet_name', $wallet->wallet_name)
+                    ->when($wallet->wallet_remarks, fn($q) => $q->where('wallet_remarks', $wallet->wallet_remarks))
+                    ->whereDate('transaction_date', $wallet->date)
+                    ->selectRaw('SUM(cashin) as cashin, SUM(cashout) as cashout, SUM(bonus_added) as bonus')
+                    ->first();
+
+                $wallet->cashin = $totals->cashin ?? 0;
+                $wallet->cashout = $totals->cashout ?? 0;
+                $wallet->bonus = $totals->bonus ?? 0;
+
+                return $wallet;
+            })
             ->groupBy(fn($w) => $w->date->format('Y-m-d'));
 
         return view('livewire.wallets-table', [
             'walletsByDate' => $walletsByDate,
             'wallets' => $paginatedDates,
             'currentUser' => $this->currentUser(),
+            'walletAgents' => $this->walletAgents,
+            'walletNamesFilter' => $this->walletNamesFilter,
+            'walletRemarksFilter' => $this->walletRemarksFilter,
         ]);
     }
+
 }

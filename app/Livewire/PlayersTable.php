@@ -31,6 +31,7 @@ class PlayersTable extends Component
 
     public $confirmDeleteId = null;
     public $deleteModal = false;
+    public $duplicateUsernameError = null;
 
     protected $listeners = [
         'playerCreated' => '$refresh',
@@ -66,6 +67,7 @@ class PlayersTable extends Component
     public function openAddModal()
     {
         $this->reset(['editingPlayerId','username','player_name','facebook_profile','phone','staff_id']);
+        $this->duplicateUsernameError = null;
         $user = $this->currentUser();
 
         if ($user->role === 'admin') {
@@ -81,6 +83,7 @@ class PlayersTable extends Component
 
     public function openEditModal($id)
     {
+        $this->duplicateUsernameError = null;
         $player = Player::with('assignedStaff')->findOrFail($id);
 
         $this->editingPlayerId = $id;
@@ -98,28 +101,49 @@ class PlayersTable extends Component
 
     public function savePlayer()
     {
+        $this->duplicateUsernameError = null;
+
         $rules = [
-            'username' => 'required|string|max:255',
+            'username' => 'required|string|max:255|unique:players,username' . ($this->editingPlayerId ? ',' . $this->editingPlayerId : ''),
             'player_name' => 'required|string|max:255',
             'facebook_profile' => 'nullable|string|max:255',
             'phone' => 'nullable|string|max:50',
         ];
 
-        $validated = $this->validate($rules);
+        try {
+            $validated = $this->validate($rules);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            if ($e->validator->errors()->has('username')) {
+                $this->duplicateUsernameError = 'The player "' . $this->username . '" already exists.';
+                return;
+            }
+            throw $e;
+        }
 
-        if($this->editingPlayerId){
-            $player = Player::findOrFail($this->editingPlayerId);
-            $player->update(array_merge($validated, ['staff_id' => $this->staff_id]));
+        if ($this->editingPlayerId) {
+            Player::findOrFail($this->editingPlayerId)
+                ->update(array_merge($validated, ['staff_id' => $this->staff_id]));
+
             $this->dispatch('playerUpdated');
             $this->editModal = false;
         } else {
             Player::create(array_merge($validated, ['staff_id' => $this->staff_id]));
+
             $this->dispatch('playerCreated');
             $this->addModal = false;
         }
 
-        $this->reset(['editingPlayerId','username','player_name','facebook_profile','phone','staff_id']);
+        $this->reset([
+            'editingPlayerId',
+            'username',
+            'player_name',
+            'facebook_profile',
+            'phone',
+            'staff_id',
+            'duplicateUsernameError'
+        ]);
     }
+
 
     public function confirmDelete($id)
     {

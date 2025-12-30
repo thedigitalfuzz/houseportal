@@ -68,6 +68,11 @@
         <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" wire:keydown.escape="$set('modalOpen', false)">
             <div class="bg-white rounded shadow p-6 w-full max-w-md">
                 <h2 class="text-xl font-bold mb-4">{{ $editingGameId ? 'Edit Game' : 'Add Game' }}</h2>
+                @if($duplicateGameError)
+                    <div class="mb-3 p-2 bg-red-600 text-white rounded text-sm">
+                        {{ $duplicateGameError }}
+                    </div>
+                @endif
                 <div class="space-y-3">
                     <input type="text" wire:model="name" placeholder="Game Name" class="w-full border rounded p-2" />
                     <input type="text" wire:model="game_code" placeholder="Game Code / Invite Code" class="w-full border rounded p-2" />

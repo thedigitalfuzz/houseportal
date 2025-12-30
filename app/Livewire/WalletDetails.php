@@ -9,12 +9,15 @@ class WalletDetails extends Component
 {
     public $walletDetails;
 
-    public $showEditModal = false;
+    public $deleteModal = false;
 
     public $editId;
     public $agent;
     public $wallet_name;
     public $wallet_remarks;
+
+    public $deleteId = null;
+
 
 
     protected $rules = [
@@ -39,6 +42,26 @@ class WalletDetails extends Component
     }
 
 
+
+    public function confirmDelete($id)
+    {
+        $this->deleteId = $id;
+        $this->deleteModal = true;
+    }
+
+    public function closeDeleteModal()
+    {
+        $this->deleteModal = false;
+        $this->deleteId = null;
+    }
+
+    public function deleteConfirmed()
+    {
+        WalletDetail::findOrFail($this->deleteId)->delete();
+
+        $this->closeDeleteModal();
+        $this->loadData();
+    }
 
 
 

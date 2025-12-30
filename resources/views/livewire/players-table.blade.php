@@ -82,6 +82,12 @@
             <div class="bg-white rounded shadow p-6 w-full max-w-md">
                 <h2 class="text-xl font-bold mb-4">{{ $addModal ? 'Add Player' : 'Edit Player' }}</h2>
                 <div class="space-y-3">
+                    @if($duplicateUsernameError)
+                        <div class="mb-3 p-3 bg-red-600 border border-red-400 text-white rounded">
+                            {{ $duplicateUsernameError }}
+                        </div>
+                    @endif
+
                     <input type="text" wire:model="username" placeholder="Username" class="w-full border rounded p-2" />
                     <input type="text" wire:model="player_name" placeholder="Player Name" class="w-full border rounded p-2" />
                     <input type="text" wire:model="facebook_profile" placeholder="Facebook Link" class="w-full border rounded p-2" />
