@@ -55,6 +55,14 @@ Route::get('/wallet-details', function () {
     return view('pages.wallet-details-page'); // Blade file we created
 })->middleware(['auth.any', 'verified'])->name('wallet-details');
 
+Route::get('/player-rankings', function () {
+    return view('pages.player-rankings-page'); // Blade file we created
+})->middleware(['auth.any', 'verified'])->name('player-rankings');
+
+Route::get('/player-leaderboard', function () {
+    return view('pages.player-leaderboard-page'); // Blade file we created
+})->middleware(['auth.any', 'verified'])->name('player-leaderboard');
+
 
 
 Route::get('/game-credits', function() {

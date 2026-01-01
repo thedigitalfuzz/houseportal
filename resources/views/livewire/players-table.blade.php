@@ -1,8 +1,14 @@
 <div>
     <!-- Filters + Add Player Button -->
     <div class="mb-4 flex flex-col md:flex-row md:items-center md:justify-between  gap-2">
-        <div class="flex justify-start">
+        <div class="flex justify-start gap-2">
             <button wire:click="openAddModal" class="px-4 py-2 bg-green-600 text-white rounded">Add Player</button>
+
+                <a href="{{ route('player-rankings') }}"
+                   class="px-4 py-2 bg-indigo-600 text-white rounded">
+                    Player Rankings
+                </a>
+
         </div>
         <div class="flex flex-col md:flex-row gap-2">
             <div class="flex gap-2">
