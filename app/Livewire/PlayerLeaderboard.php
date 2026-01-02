@@ -42,9 +42,6 @@ class PlayerLeaderboard extends Component
             ')
             ->whereMonth('transactions.transaction_date', $month)
             ->whereYear('transactions.transaction_date', $year)
-            ->when($user->role !== 'admin', function ($q) use ($user) {
-                $q->where('players.staff_id', $user->id);
-            })
             ->groupBy('players.player_name')
             ->orderByDesc('total_cashin')
             ->limit(10)

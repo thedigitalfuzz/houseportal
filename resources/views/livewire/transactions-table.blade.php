@@ -72,16 +72,18 @@
                         <th class="p-3 text-left">Username</th>
                         <th class="p-3 text-left">Player Name</th>
                         <th class="p-3 text-left">Player Profile</th>
-                        <th class="p-3 text-left">Assigned Staff</th>
-                        <th class="p-3 text-left">Staff Profile</th>
                         <th class="p-3 text-left">Game</th>
                         <th class="p-3 text-left">Transaction Type</th>
                         <th class="p-3 text-left">Amount</th>
+                        <!-- bonus and cashtag tables:
                         <th class="p-3 text-left">Bonus</th>
                         <th class="p-3 text-left">Cash Tag</th>
+                        -->
                         <th class="p-3 text-left">Wallet Agent</th>
                         <th class="p-3 text-left">Wallet Name</th>
                         <th class="p-3 text-left">Wallet Remarks</th>
+                        <th class="p-3 text-left">Assigned Staff</th>
+                        <th class="p-3 text-left">Staff Profile</th>
                         <th class="p-3 text-left">Time</th>
                         <th class="px-4 py-2 text-right">Actions</th>
                     </tr>
@@ -94,8 +96,6 @@
                             <td class="p-3">{{ $t->player->username ?? '-' }}</td>
                             <td class="p-3">{{ $t->player->player_name ?? '-' }}</td>
                             <td class="p-3">{{ $t->player->facebook_profile ?? '-' }}</td>
-                            <td class="p-3">{{ $t->player->assignedStaff->staff_name ?? '-' }}</td>
-                            <td class="p-3">{{ $t->player->assignedStaff->facebook_profile ?? '-' }}</td>
                             <td class="p-3">{{ $t->game->name ?? '-' }}</td>
                             <td class="p-3">
                                 {{ $t->cashin > 0 ? 'Cash In' : 'Cash Out' }}
@@ -105,12 +105,15 @@
                                 ${{ number_format($t->cashin > 0 ? $t->cashin : $t->cashout, 2) }}
                             </td>
 
-
+                            <!-- BONUS AND CASHTAG TABLE VIEW:
                             <td class="p-3">$ {{ number_format($t->bonus_added,2) }}</td>
                             <td class="p-3">{{ $t->cash_tag }}</td>
+                            -->
                             <td class="p-3">{{ $t->agent }}</td>
                             <td class="p-3">{{ $t->wallet_name }}</td>
                             <td class="p-3">{{ $t->wallet_remarks }}</td>
+                            <td class="p-3">{{ $t->player->assignedStaff->staff_name ?? '-' }}</td>
+                            <td class="p-3">{{ $t->player->assignedStaff->facebook_profile ?? '-' }}</td>
                             <td class="p-3">{{ $t->transaction_time }}</td>
                             <td class="p-3 text-right flex justify-end gap-2">
                                 @if($currentUser->role === 'admin' || ($t->player->staff_id === $currentUser->id))

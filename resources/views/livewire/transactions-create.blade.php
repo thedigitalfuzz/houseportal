@@ -26,9 +26,9 @@
                     </select>
 
                     <input type="number" wire:model="amount" class="border rounded w-full px-2 py-1" placeholder="Amount">
-
-                    <input type="text" wire:model="cash_tag" class="border rounded w-full px-2 py-1" placeholder="Cash Tag">
-                    <!-- Agent Dropdown -->
+                    <!-- FOR CASHTAG INPUT
+                                       <input type="text" wire:model="cash_tag" class="border rounded w-full px-2 py-1" placeholder="Cash Tag">
+                     -->
 
                     <select wire:model.live="agent" class="w-full border rounded p-2">
                         <option value="">Select Agent</option>
@@ -53,8 +53,9 @@
                         @endforeach
                     </select>
 
-
+<!-- FOR BONUS INPUT
                     <input type="number" wire:model="bonus_added" class="border rounded w-full px-2 py-1" placeholder="Bonus Added">
+                   -->
                     <input type="date" wire:model="transaction_date" class="border rounded w-full px-2 py-1" placeholder="Transaction Date">
                     <textarea wire:model="notes" class="border rounded w-full px-2 py-1" placeholder="Notes"></textarea>
                 </div>
