@@ -233,7 +233,7 @@
 
                 <div class="mt-4 flex justify-end gap-2">
                     <button wire:click="$set('{{ $addModal ? 'addModal' : 'editModal' }}', false)"
-                            class="px-4 py-2 border rounded">
+                            class="px-4 py-2 border rounded bg-gray-500 text-white">
                         Cancel
                     </button>
 
@@ -271,7 +271,7 @@
 
                 <div class="mt-4 flex justify-end gap-2">
                     <button wire:click="$set('addWalletDetailModal', false)"
-                            class="px-4 py-2 border rounded">
+                            class="px-4 py-2 border rounded bg-gray-500 text-white">
                         Cancel
                     </button>
 

@@ -7,7 +7,7 @@
                     type="text"
                     wire:model="searchInput"
                     placeholder="Search player name..."
-                    class="flex-1 px-3 py-2 border rounded focus:outline-none focus:ring"
+                    class="flex-1 px-3 py-2 border rounded focus:outline-none focus:ring w-full"
                 >
 
                 <button

@@ -50,7 +50,7 @@
     </div>
 
     <div class="mt-4 flex justify-end gap-2">
-        <a href="{{ route('dashboard') }}" class="px-4 bg-white py-2 border rounded">Cancel</a>
+        <a href="{{ route('dashboard') }}" class="px-4 py-2 border rounded bg-gray-500 text-white">Cancel</a>
         <button wire:click="saveProfile" class="px-4 py-2 bg-green-600 text-white rounded">Save</button>
     </div>
 </div>

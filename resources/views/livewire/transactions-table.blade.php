@@ -9,7 +9,7 @@
         <div class="flex flex-col md:flex-row gap-2">
             <div class="flex gap-2 flex-col md:flex-row">
 
-                    <input type="text" wire:model="searchInput" placeholder="Search by username or player name" class="border rounded px-2 py-1" />
+                    <input type="text" wire:model="searchInput" placeholder="Search by username or player name" class="border rounded  px-2 py-1" />
 
                 <div class="flex gap-2 flex-col md:flex-row">
                     @if($currentUser->role === 'admin')
@@ -174,11 +174,12 @@
 
                     <label class="text-xs">Amount:</label>
                     <input type="number" wire:model="editAmount" placeholder="Amount" class="border rounded w-full px-2 py-1" />
-
+                    <!-- Transaction bonus and cashtag edit
                     <label class="text-xs">Bonus:</label>
                     <input type="number" wire:model="editBonusAdded" placeholder="Bonus Added" class="border rounded w-full px-2 py-1" />
                     <label class="text-xs">Cash Tag:</label>
                     <input type="text" wire:model="editCashTag" placeholder="Cash Tag" class="border rounded w-full px-2 py-1" />
+                   -->
                     <!-- Agent -->
                     <div class="flex items-center justify-between">
                         <label class="text-xs">Wallet Agent:</label>
@@ -212,16 +213,16 @@
                     </select>
                     </div>
 
-
+                    <label class="text-xs">Date:</label>
+                    <input type="date" wire:model="editTransactionDate" class="border rounded w-full px-2 py-1" />
 
                     <label class="text-xs">Notes:</label>
                     <textarea wire:model="editNotes" placeholder="Notes" class="border rounded w-full px-2 py-1"></textarea>
-                    <label class="text-xs">Date:</label>
-                    <input type="date" wire:model="editTransactionDate" class="border rounded w-full px-2 py-1" />
+
                 </div>
 
                 <div class="flex justify-end gap-2 mt-4">
-                    <button wire:click="$set('editModal', false)" class="px-4 py-2 border rounded">Cancel</button>
+                    <button wire:click="$set('editModal', false)" class="px-4 py-2 bg-gray-500 text-white border rounded">Cancel</button>
                     <button wire:click="updateTransaction" class="px-4 py-2 bg-green-600 text-white rounded">Save Changes</button>
                 </div>
             </div>

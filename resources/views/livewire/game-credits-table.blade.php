@@ -97,7 +97,7 @@
                     <input type="date" wire:model="date" class="w-full border rounded p-2" />
                 </div>
                 <div class="mt-4 flex justify-end gap-2">
-                    <button wire:click="$set('{{ $addModal ? 'addModal' : 'editModal' }}', false)" class="px-4 py-2 border rounded">Cancel</button>
+                    <button wire:click="$set('{{ $addModal ? 'addModal' : 'editModal' }}', false)" class="px-4 py-2 border rounded bg-gray-500 text-white">Cancel</button>
                     <button wire:click="saveRecord" class="px-4 py-2 bg-green-600 text-white rounded">{{ $addModal ? 'Add' : 'Save Changes' }}</button>
                 </div>
             </div>

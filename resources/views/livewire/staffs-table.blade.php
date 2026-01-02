@@ -109,7 +109,7 @@
                 </div>
 
                 <div class="mt-4 flex justify-end gap-2">
-                    <button wire:click="$set('modalOpen', false)" class="px-4 py-2 border rounded">Cancel</button>
+                    <button wire:click="$set('modalOpen', false)" class="px-4 py-2 border rounded bg-gray-500 text-white">Cancel</button>
                     <button wire:click="saveStaff" class="px-4 py-2 bg-green-600 text-white rounded">
                         {{ $editingStaffId ? 'Save Changes' : 'Add Staff' }}
                     </button>
