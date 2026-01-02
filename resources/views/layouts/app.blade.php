@@ -6,6 +6,11 @@
     <title>@yield('title', 'Portal')</title>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <style>
+        details[open] .wallet-chevron {
+            transform: rotate(180deg);
+        }
+    </style>
 
     @livewireStyles
 

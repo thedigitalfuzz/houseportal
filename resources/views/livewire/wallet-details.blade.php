@@ -1,12 +1,6 @@
 <div class="p-4">
     <div class="flex items-start md:items-center justify-between flex-col md:flex-row mb-4 gap-2">
         <h1 class="text-3xl font-bold">Wallet Details</h1>
-        <div class="flex items-center gap-2">
-            <a href="{{ route('wallets') }}"
-               class="px-4 py-2 bg-gray-700 text-white rounded">
-                Back
-            </a>
-        </div>
 
     </div>
 

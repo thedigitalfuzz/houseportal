@@ -11,10 +11,6 @@
                         class="px-4 py-2 bg-indigo-600 text-white rounded">
                     Add Wallet
                 </button>
-                <a href="{{ route('wallet-details') }}"
-                   class="px-4 py-2 bg-indigo-600 text-white rounded">
-                    Wallet Details
-                </a>
             @endif
         </div>
 
@@ -74,8 +70,9 @@
                         <!-- ADDED -->
                         <th class="p-3 text-left">Cash In</th>
                         <th class="p-3 text-left">Cash Out</th>
+                        <!--
                         <th class="p-3 text-left">Bonus</th>
-
+                        -->
                         <th class="p-3 text-left">Net Transaction</th>
                         <th class="p-3 text-left">Variance</th>
                         <th class="p-3 text-left">Created By</th>
@@ -107,8 +104,9 @@
                             <!-- ADDED -->
                             <td class="p-3">${{ number_format($wallet->cashin, 2) }}</td>
                             <td class="p-3">${{ number_format($wallet->cashout, 2) }}</td>
+                            <!--
                             <td class="p-3">${{ number_format($wallet->bonus, 2) }}</td>
-
+                            -->
                             <td class="p-3 text-right">
                                 @if($wallet->net_transaction < 0)
                                     -${{ number_format(abs($wallet->net_transaction), 2) }}
@@ -165,7 +163,9 @@
                         <td colspan="6" class="p-3 text-right">TOTAL</td>
                         <td class="p-3">${{ number_format($totalCashin, 2) }}</td>
                         <td class="p-3">${{ number_format($totalCashout, 2) }}</td>
+                        <!--
                         <td class="p-3">${{ number_format($totalBonus, 2) }}</td>
+                        -->
                         <td class="p-3 text-right">
                             @if($totalNet < 0)
                                 -${{ number_format(abs($totalNet), 2) }}

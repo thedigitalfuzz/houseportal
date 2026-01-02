@@ -1,7 +1,8 @@
 <div class="p-4">
-    <div class="flex flex-col md:flex-row gap-2 items-start justify-between">
+    <div class="flex flex-col md:flex-row gap-2 items-start md:items-center justify-between">
+        <h2 class="text-xl font-bold mb-4">Player Rankings</h2>
         <div class="flex flex-col gap-2 justify-start">
-            <h2 class="text-xl font-bold mb-4">Player Rankings</h2>
+
             <div class="mb-4 flex gap-2">
                 <input
                     type="text"
@@ -20,16 +21,7 @@
 
         </div>
 
-        <div class="flex items-center gap-2">
-            <a href="{{ route('player-leaderboard') }}"
-               class="px-4 py-2 bg-indigo-600 text-white rounded">
-                Player Leaderboard
-            </a>
-            <a href="{{ route('players.index') }}"
-               class="px-4 py-2 bg-gray-700 text-white rounded">
-                Back
-            </a>
-        </div>
+
     </div>
 
     <div class="grid grid-cols-1">

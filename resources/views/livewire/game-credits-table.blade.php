@@ -4,7 +4,10 @@
             <div>
                 <button wire:click="openAddModal" class="px-4 py-2 bg-green-600 text-white rounded">Add Record</button>
             </div>
-
+            <a href="{{ route('game-points') }}"
+               class="px-4 py-2 bg-indigo-600 text-white rounded">
+                Game Points
+            </a>
         </div>
         <div class="flex flex-col md:flex-row gap-2">
             <div class="flex gap-2">

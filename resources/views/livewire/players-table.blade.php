@@ -4,10 +4,7 @@
         <div class="flex justify-start gap-2">
             <button wire:click="openAddModal" class="px-4 py-2 bg-green-600 text-white rounded">Add Player</button>
 
-                <a href="{{ route('player-rankings') }}"
-                   class="px-4 py-2 bg-indigo-600 text-white rounded">
-                    Player Rankings
-                </a>
+
 
         </div>
         <div class="flex flex-col md:flex-row gap-2">

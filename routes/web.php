@@ -63,6 +63,15 @@ Route::get('/player-leaderboard', function () {
     return view('pages.player-leaderboard-page'); // Blade file we created
 })->middleware(['auth.any', 'verified'])->name('player-leaderboard');
 
+Route::get('/game-points', function () {
+    return view('pages.game-points-page'); // Blade file we created
+})->middleware(['auth.any', 'verified'])->name('game-points');
+
+Route::get('/monthly-wallet-updates', function () {
+    return view('pages.monthly-wallet-updates-page'); // Blade file we created
+})->middleware(['auth.any', 'verified'])->name('monthly-wallet-updates');
+
+
 
 
 Route::get('/game-credits', function() {
