@@ -194,6 +194,10 @@
                class="block py-2 px-6 hover:bg-gray-700 {{ request()->routeIs('admin.editprofile') ? 'bg-gray-700' : '' }}">
                 Edit Profile
             </a>
+            <a href="{{ route('reports') }}"
+               class="block py-2 px-6 hover:bg-gray-700 {{ request()->routeIs('reports') ? 'bg-gray-700' : '' }}">
+                Reports
+            </a>
         @endif
     </nav>
 </aside>

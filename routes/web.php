@@ -81,6 +81,9 @@ Route::get('/monthly-wallet-updates', function () {
 
 
 
+Route::get('/reports', function () {
+    return view('pages.housesupport-reports-page'); // Blade file we created
+})->middleware(['auth.any', 'verified'])->name('reports');
 
 Route::get('/game-credits', function() {
     return view('pages.game-credits');

@@ -36,6 +36,8 @@ class Transaction extends Model
         'transaction_date' => 'date',
     ];
 
+
+
     public function player()
     {
         return $this->belongsTo(Player::class);
