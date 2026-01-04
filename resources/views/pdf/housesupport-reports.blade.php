@@ -9,6 +9,7 @@
         h3 { margin-top: 20px; margin-bottom: 5px; }
         table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
         th, td { border: 1px solid #ccc; padding: 6px; text-align: left; }
+        .underline {text-underline: #1a202c;}
         th { background-color: #f0f0f0; }
         .text-right { text-align: right; }
         .net-positive { color: green; font-weight: bold; }
@@ -20,13 +21,13 @@
 
 @foreach($pdfData as $i => $chunk)
     <h1>HouseSupport Report</h1>
-    <h2>{{ $i+1 }}. {{ $chunk['title'] }}</h2>
+    <h2 class="underline"> {{ $chunk['title'] }}</h2>
 
     {{-- Summary --}}
     <div style="margin-bottom:10px;">
         <div class="summary-card">Transactions: <b>{{ $chunk['summary']['totalTransactions'] }}</b></div>
-        <div class="summary-card">Cash In: <b>{{ number_format($chunk['summary']['totalCashin'],2) }}</b></div>
-        <div class="summary-card">Cash Out: <b>{{ number_format($chunk['summary']['totalCashout'],2) }}</b></div>
+        <div class="summary-card">Cash In: <b>${{ number_format($chunk['summary']['totalCashin'],2) }}</b></div>
+        <div class="summary-card">Cash Out: <b>${{ number_format($chunk['summary']['totalCashout'],2) }}</b></div>
         <div class="summary-card">Net:
             <b class="{{ $chunk['summary']['netAmount'] < 0 ? 'net-negative' : 'net-positive' }}">
                 {{ $chunk['summary']['netAmount'] < 0 ? '-$'.number_format(abs($chunk['summary']['netAmount']),2) : '$'.number_format($chunk['summary']['netAmount'],2) }}
@@ -47,7 +48,7 @@
         @foreach($chunk['summary']['topCashinPlayers'] as $p)
             <tr>
                 <td>{{ $p->player_name }}</td>
-                <td class="text-right">{{ number_format($p->total,2) }}</td>
+                <td class="text-right">${{ number_format($p->total,2) }}</td>
             </tr>
         @endforeach
         </tbody>
@@ -65,7 +66,7 @@
         @foreach($chunk['summary']['topCashoutPlayers'] as $p)
             <tr>
                 <td>{{ $p->player_name }}</td>
-                <td class="text-right">{{ number_format($p->total,2) }}</td>
+                <td class="text-right">${{ number_format($p->total,2) }}</td>
             </tr>
         @endforeach
         </tbody>
@@ -85,22 +86,22 @@
         <tr>
             <td>Game with Most Cashin</td>
             <td>{{ $chunk['summary']['topCashinGame']->name ?? '-' }}</td>
-            <td class="text-right">{{ number_format($chunk['summary']['topCashinGame']->amount ?? 0,2) }}</td>
+            <td class="text-right">${{ number_format($chunk['summary']['topCashinGame']->amount ?? 0,2) }}</td>
         </tr>
         <tr>
             <td>Game with Most Cashout</td>
             <td>{{ $chunk['summary']['topCashoutGame']->name ?? '-' }}</td>
-            <td class="text-right">{{ number_format($chunk['summary']['topCashoutGame']->amount ?? 0,2) }}</td>
+            <td class="text-right">${{ number_format($chunk['summary']['topCashoutGame']->amount ?? 0,2) }}</td>
         </tr>
         <tr>
             <td>Wallet with Most Cashin</td>
-            <td>{{ $chunk['summary']['topCashinWallet'] ? $chunk['summary']['topCashinWallet']->agent . ' | ' . $chunk['summary']['topCashinWallet']->wallet_name : '-' }}</td>
-            <td class="text-right">{{ number_format($chunk['summary']['topCashinWallet']->amount ?? 0,2) }}</td>
+            <td>{{ $chunk['summary']['topCashinWallet'] ? $chunk['summary']['topCashinWallet']->agent . ' | ' . $chunk['summary']['topCashinWallet']->wallet_name . ' | ' . $chunk['summary']['topCashinWallet']->wallet_remarks : '-' }}</td>
+            <td class="text-right">${{ number_format($chunk['summary']['topCashinWallet']->amount ?? 0,2) }}</td>
         </tr>
         <tr>
             <td>Wallet with Most Cashout</td>
-            <td>{{ $chunk['summary']['topCashoutWallet'] ? $chunk['summary']['topCashoutWallet']->agent . ' | ' . $chunk['summary']['topCashoutWallet']->wallet_name : '-' }}</td>
-            <td class="text-right">{{ number_format($chunk['summary']['topCashoutWallet']->amount ?? 0,2) }}</td>
+            <td>{{ $chunk['summary']['topCashoutWallet'] ? $chunk['summary']['topCashoutWallet']->agent . ' | ' . $chunk['summary']['topCashoutWallet']->wallet_name . ' | ' . $chunk['summary']['topCashoutWallet']->wallet_remarks : '-' }}</td>
+            <td class="text-right">${{ number_format($chunk['summary']['topCashoutWallet']->amount ?? 0,2) }}</td>
         </tr>
         </tbody>
     </table>
@@ -119,8 +120,8 @@
         @foreach($chunk['summary']['walletSummary'] as $w)
             <tr>
                 <td>{{ $w->agent }} | {{ $w->wallet_name }} | {{ $w->wallet_remarks }}</td>
-                <td class="text-right">{{ number_format($w->cashin,2) }}</td>
-                <td class="text-right">{{ number_format($w->cashout,2) }}</td>
+                <td class="text-right">${{ number_format($w->cashin,2) }}</td>
+                <td class="text-right">${{ number_format($w->cashout,2) }}</td>
             </tr>
         @endforeach
         </tbody>
@@ -143,8 +144,8 @@
             <tr>
                 <td>{{ $s->staff_name }}</td>
                 <td class="text-right">{{ $s->transactions }}</td>
-                <td class="text-right">{{ number_format($s->cashin,2) }}</td>
-                <td class="text-right">{{ number_format($s->cashout,2) }}</td>
+                <td class="text-right">${{ number_format($s->cashin,2) }}</td>
+                <td class="text-right">${{ number_format($s->cashout,2) }}</td>
                 <td class="text-right {{ $s->net < 0 ? 'net-negative' : 'net-positive' }}">
                     {{ $s->net < 0 ? '-$'.number_format(abs($s->net),2) : '$'.number_format($s->net,2) }}
                 </td>

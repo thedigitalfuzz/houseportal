@@ -1,6 +1,6 @@
 <div>
     {{-- Filters --}}
-    <div class="flex gap-2 mb-4 items-center">
+    <div class="flex flex-col md:flex-row gap-2 mb-4 items-start md:items-center">
         <input type="date" wire:model="searchDate" class="border p-2 rounded" placeholder="Search date">
         <button class="bg-blue-600 text-white px-4 py-2 rounded" wire:click="$refresh">Search</button>
 
@@ -15,7 +15,7 @@
 
 
     {{-- Tabs --}}
-    <div class="flex gap-2 p-2 border rounded border-gray-800 bg-blue-50 mb-6">
+    <div class="flex flex-col md:flex-row gap-2 p-2 border rounded border-gray-800 bg-blue-50 mb-6">
         @foreach(['daily','weekly','monthly','all'] as $tab)
             <button
                 wire:click="setTab('{{ $tab }}')"
@@ -28,6 +28,7 @@
 
     {{-- Chunks --}}
     @forelse($chunks as $chunk)
+        <div class="grid grid-cols-1">
         <div class="p-6 mb-6 space-y-6 border rounded border-gray-300 bg-gray-50 shadow">
 
             {{-- Chunk Title --}}
@@ -133,32 +134,39 @@
             </div>
 
             {{-- Staff --}}
-            <div>
-                <h3 class="font-bold mb-2">Top 3 Staff Performance</h3>
-                <table class="w-full bg-white shadow rounded">
-                    <thead class="bg-gray-100">
-                    <tr>
-                        <th class="p-2 text-left">Staff</th>
-                        <th class="p-2 text-right">Transactions</th>
-                        <th class="p-2 text-right">Cashin</th>
-                        <th class="p-2 text-right">Cashout</th>
-                        <th class="p-2 text-right">Net</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    @foreach($chunk['summary']['topStaffs'] as $s)
-                        <tr class="border-t">
-                            <td class="p-2">{{ $s->staff_name }}</td>
-                            <td class="p-2 text-right">{{ $s->transactions }}</td>
-                            <td class="p-2 text-right">{{ number_format($s->cashin,2) }}</td>
-                            <td class="p-2 text-right">{{ number_format($s->cashout,2) }}</td>
-                            <td class="p-2 text-right">{{ number_format($s->net,2) }}</td>
+            <div class="grid grid-cols-1 md:grid-cols-1 gap-6">
+                <div class="overflow-x-auto bg-white shadow rounded p-2">
+                    <h3 class="font-bold mb-2">Top 3 Staff Performance</h3>
+
+                    <table class="min-w-full table-auto">
+                        <thead class="bg-gray-100">
+                        <tr>
+                            <th class="p-2 text-left">Staff</th>
+                            <th class="p-2 text-right">Transactions</th>
+                            <th class="p-2 text-right">Cashin</th>
+                            <th class="p-2 text-right">Cashout</th>
+                            <th class="p-2 text-right">Net</th>
                         </tr>
-                    @endforeach
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                        @foreach($chunk['summary']['topStaffs'] as $s)
+                            <tr class="border-t">
+                                <td class="p-2">{{ $s->staff_name }}</td>
+                                <td class="p-2 text-right">{{ $s->transactions }}</td>
+                                <td class="p-2 text-right">{{ number_format($s->cashin,2) }}</td>
+                                <td class="p-2 text-right">{{ number_format($s->cashout,2) }}</td>
+                                <td class="p-2 text-right {{ $s->net < 0 ? 'text-red-600' : 'text-green-600' }}">
+                                    {{ $s->net < 0 ? '-$'.number_format(abs($s->net),2) : '$'.number_format($s->net,2) }}
+                                </td>
+                            </tr>
+                        @endforeach
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
+
+        </div>
         </div>
     @empty
         <div class="text-center p-4">No data found.</div>
