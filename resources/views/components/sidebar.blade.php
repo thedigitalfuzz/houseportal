@@ -116,6 +116,12 @@
                 >
                     Game Points
                 </a>
+                <a
+                    href="{{ route('game-performance') }}"
+                    class="block py-2 px-6 text-sm hover:bg-gray-700 {{ request()->routeIs('game-performance') ? 'bg-gray-700' : '' }}"
+                >
+                    Game Performance
+                </a>
             </div>
         </details>
 

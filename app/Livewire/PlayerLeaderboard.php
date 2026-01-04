@@ -52,19 +52,19 @@ class PlayerLeaderboard extends Component
     {
         $leaderboards = [];
 
-        if ($this->searchMode) {
-            // Single month leaderboard
+        // If the user clicked Search, show only selected month/year
+        if ($this->searchMode && !empty($this->month) && !empty($this->year)) {
             $leaderboards[] = [
                 'month' => $this->month,
                 'year'  => $this->year,
                 'rows'  => $this->leaderboardQuery($this->month, $this->year),
             ];
         } else {
-            // Multi-month leaderboard (latest first)
+            // Default: show latest 6 months
             $months = Transaction::selectRaw('
-                    YEAR(transaction_date) as year,
-                    MONTH(transaction_date) as month
-                ')
+                YEAR(transaction_date) as year,
+                MONTH(transaction_date) as month
+            ')
                 ->distinct()
                 ->orderByDesc('year')
                 ->orderByDesc('month')
@@ -84,4 +84,5 @@ class PlayerLeaderboard extends Component
             'leaderboards' => $leaderboards,
         ]);
     }
+
 }

@@ -91,7 +91,7 @@
                     <tbody>
                     @forelse($transactionsByDate[$date] ?? [] as $t)
 
-                        <tr class="border-t">
+                        <tr class="border-t {{ ($t->cashin + $t->cashout) == 0 ? 'bg-red-50' : '' }}">
                             <td class="p-3">#{{ $t->id }}</td>
                             <td class="p-3">{{ $t->player->username ?? '-' }}</td>
                             <td class="p-3">{{ $t->player->player_name ?? '-' }}</td>

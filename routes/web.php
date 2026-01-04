@@ -63,9 +63,17 @@ Route::get('/player-leaderboard', function () {
     return view('pages.player-leaderboard-page'); // Blade file we created
 })->middleware(['auth.any', 'verified'])->name('player-leaderboard');
 
+Route::get('/daily-player-leaderboard', function () {
+    return view('pages.player-leaderboard-daily-page'); // Blade file we created
+})->middleware(['auth.any', 'verified'])->name('daily-player-leaderboard');
+
 Route::get('/game-points', function () {
     return view('pages.game-points-page'); // Blade file we created
 })->middleware(['auth.any', 'verified'])->name('game-points');
+
+Route::get('/game-performance', function () {
+    return view('pages.game-performance-page'); // Blade file we created
+})->middleware(['auth.any', 'verified'])->name('game-performance');
 
 Route::get('/monthly-wallet-updates', function () {
     return view('pages.monthly-wallet-updates-page'); // Blade file we created

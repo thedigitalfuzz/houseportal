@@ -2,20 +2,23 @@
     <h2 class="text-xl font-bold mb-4">Monthly Wallet Updates</h2>
 
     <div class="flex flex-wrap items-center justify-between md:justify-end gap-3 mb-4">
-        <div class="flex gap-2 items-center">
-            <select wire:model.defer="month" class="border rounded px-2 py-1">
-                <option value="">Select Month</option>
-                @foreach(range(1,12) as $m)
-                    <option value="{{ $m }}">{{ \Carbon\Carbon::create()->month($m)->format('F') }}</option>
-                @endforeach
-            </select>
+        <div class="flex flex-col md:flex-row gap-2 items-start md:items-center">
+            <div class="flex gap-2 items-center">
+                <select wire:model.defer="month" class="border rounded px-2 py-1">
+                    <option value="">Select Month</option>
+                    @foreach(range(1,12) as $m)
+                        <option value="{{ $m }}">{{ \Carbon\Carbon::create()->month($m)->format('F') }}</option>
+                    @endforeach
+                </select>
 
-            <select wire:model.defer="year" class="border rounded px-2 py-1">
-                <option value="">Select Year</option>
-                @foreach(range(now()->year - 5, now()->year + 1) as $y)
-                    <option value="{{ $y }}">{{ $y }}</option>
-                @endforeach
-            </select>
+                <select wire:model.defer="year" class="border rounded px-2 py-1">
+                    <option value="">Select Year</option>
+                    @foreach(range(now()->year - 5, now()->year + 1) as $y)
+                        <option value="{{ $y }}">{{ $y }}</option>
+                    @endforeach
+                </select>
+            </div>
+
 
             <button wire:click="search" class="bg-blue-600 text-white px-4 py-2 rounded">Search</button>
         </div>
