@@ -5,8 +5,11 @@
         <button class="bg-blue-600 text-white px-4 py-2 rounded" wire:click="$refresh">Search</button>
 
 
-    @if($searchDate)
-            <button wire:click="exportPdf" class="bg-green-600 text-white px-4 py-2 rounded">Download PDF</button>
+        @if($searchDate)
+            <a href="{{ route('housesupport-report.pdf', ['date' => $searchDate]) }}"
+               class="bg-green-600 text-white px-4 py-2 rounded">
+                Download PDF
+            </a>
         @endif
     </div>
 

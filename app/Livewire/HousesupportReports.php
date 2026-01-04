@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use App\Models\Transaction;
 use App\Models\Player;
 use App\Models\Game;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class HousesupportReports extends Component
 {
@@ -22,6 +23,139 @@ class HousesupportReports extends Component
     {
         return Transaction::query()
             ->when($start && $end, fn($q) => $q->whereBetween('transaction_date', [$start, $end]));
+    }
+
+    public function exportPdf()
+    {
+        if (!$this->searchDate) {
+            $this->dispatchBrowserEvent('alert', ['type' => 'error', 'message' => 'Please select a date first.']);
+            return;
+        }
+
+        $date = Carbon::parse($this->searchDate);
+        $pdfData = [];
+
+        // ----------------------------
+        // 1. Daily Report
+        // ----------------------------
+        $start = $date->copy()->startOfDay();
+        $end = $date->copy()->endOfDay();
+        $q = $this->baseQuery($start, $end);
+        $pdfData[] = [
+            'title' => '1. Daily Report (' . $date->format('d M Y') . ')',
+            'summary' => $this->calculateSummary($q),
+        ];
+
+        // ----------------------------
+        // 2. Weekly Report
+        // ----------------------------
+        $monthStart = $date->copy()->startOfMonth();
+        $monthEnd = $date->copy()->endOfMonth();
+        $daysInMonth = $monthEnd->day;
+
+        $weekRanges = [
+            [1, min(7, $daysInMonth)],
+            [8, min(14, $daysInMonth)],
+            [15, min(21, $daysInMonth)],
+            [22, $daysInMonth],
+        ];
+
+        foreach ($weekRanges as $i => [$startDay, $endDay]) {
+            $weekStart = Carbon::create($date->year, $date->month, $startDay)->startOfDay();
+            $weekEnd = Carbon::create($date->year, $date->month, $endDay)->endOfDay();
+
+            if ($date->between($weekStart, $weekEnd)) {
+                $q = $this->baseQuery($weekStart, $weekEnd);
+                $pdfData[] = [
+                    'title' => '2. Weekly Report (' . $weekStart->format('d M') . ' - ' . $weekEnd->format('d M Y') . ')',
+                    'summary' => $this->calculateSummary($q),
+                ];
+                break;
+            }
+        }
+
+        // ----------------------------
+        // 3. Monthly Report
+        // ----------------------------
+        $monthStart = $date->copy()->startOfMonth();
+        $monthEnd = $date->copy()->endOfMonth();
+        $q = $this->baseQuery($monthStart, $monthEnd);
+        $pdfData[] = [
+            'title' => '3. Monthly Report (' . $monthStart->format('F Y') . ')',
+            'summary' => $this->calculateSummary($q),
+        ];
+
+        // ----------------------------
+        // 4. All Time Report
+        // ----------------------------
+        $q = $this->baseQuery();
+        $pdfData[] = [
+            'title' => '4. All Time Report',
+            'summary' => $this->calculateSummary($q),
+        ];
+
+        $pdf = Pdf::loadView('pdf.housesupport-reports', compact('pdfData'));
+
+        return $pdf->download('housesupport-report-' . $date->format('Y-m-d') . '.pdf');
+    }
+
+    public function generatePdfData()
+    {
+        $date = Carbon::parse($this->searchDate);
+        $pdfData = [];
+
+        // 1. Daily
+        $start = $date->copy()->startOfDay();
+        $end = $date->copy()->endOfDay();
+        $q = $this->baseQuery($start, $end);
+        $pdfData[] = [
+            'title' => '1. Daily Report (' . $date->format('d M Y') . ')',
+            'summary' => $this->calculateSummary($q),
+        ];
+
+        // 2. Weekly
+        $monthStart = $date->copy()->startOfMonth();
+        $monthEnd = $date->copy()->endOfMonth();
+        $daysInMonth = $monthEnd->day;
+
+        $weekRanges = [
+            [1, min(7, $daysInMonth)],
+            [8, min(14, $daysInMonth)],
+            [15, min(21, $daysInMonth)],
+            [22, $daysInMonth],
+        ];
+
+        foreach ($weekRanges as $i => [$startDay, $endDay]) {
+            $weekStart = Carbon::create($date->year, $date->month, $startDay)->startOfDay();
+            $weekEnd = Carbon::create($date->year, $date->month, $endDay)->endOfDay();
+
+            if ($date->between($weekStart, $weekEnd)) {
+                $q = $this->baseQuery($weekStart, $weekEnd);
+                $pdfData[] = [
+                    'title' => '2. Weekly Report (' . $weekStart->format('d M') . ' - ' . $weekEnd->format('d M Y') . ')',
+                    'summary' => $this->calculateSummary($q),
+                ];
+                break;
+            }
+        }
+
+        // 3. Monthly
+        $monthStart = $date->copy()->startOfMonth();
+        $monthEnd = $date->copy()->endOfMonth();
+        $q = $this->baseQuery($monthStart, $monthEnd);
+        $pdfData[] = [
+            'title' => '3. Monthly Report (' . $monthStart->format('F Y') . ')',
+            'summary' => $this->calculateSummary($q),
+        ];
+
+        // 4. All Time
+        $q = $this->baseQuery();
+        $pdfData[] = [
+            'title' => '4. All Time Report',
+            'summary' => $this->calculateSummary($q),
+        ];
+
+        return $pdfData;
     }
 
     public function render()
