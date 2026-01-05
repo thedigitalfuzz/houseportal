@@ -265,11 +265,34 @@ class HousesupportReports extends Component
 
     protected function calculateSummary($q)
     {
+        $falseTransactions = $q->clone()
+            ->where('cashin', 0)
+            ->where('cashout', 0);
+
         return [
             'totalTransactions' => $q->count(),
+            'totalWalletTransactions' => $q->count(),
+
             'totalCashin' => $q->sum('cashin'),
             'totalCashout' => $q->sum('cashout'),
+
+            'totalCashinTransactions' => $q->clone()->where('cashin', '>', 0)->count(),
+            'totalCashoutTransactions' => $q->clone()->where('cashout', '>', 0)->count(),
+
             'netAmount' => $q->sum('cashin') - $q->sum('cashout'),
+
+            'totalPlayers' => $q->clone()
+                ->distinct('player_id')
+                ->count('player_id'),
+
+            'falseTransactionCount' => $falseTransactions->count(),
+
+            'falseTransactionPlayers' => $falseTransactions
+                ->join('players', 'players.id', '=', 'transactions.player_id')
+                ->select('players.player_name')
+                ->distinct()
+                ->pluck('player_name'),
+
             'topCashinPlayers' => $q->clone()
                 ->join('players','players.id','=','transactions.player_id')
                 ->selectRaw('players.player_name, SUM(transactions.cashin) as total')
@@ -277,6 +300,7 @@ class HousesupportReports extends Component
                 ->orderByDesc('total')
                 ->limit(5)
                 ->get(),
+
             'topCashoutPlayers' => $q->clone()
                 ->join('players','players.id','=','transactions.player_id')
                 ->selectRaw('players.player_name, SUM(transactions.cashout) as total')
@@ -284,40 +308,73 @@ class HousesupportReports extends Component
                 ->orderByDesc('total')
                 ->limit(5)
                 ->get(),
+
             'topCashinGame' => $q->clone()
                 ->join('games','games.id','=','transactions.game_id')
                 ->selectRaw('games.name, SUM(transactions.cashin) as amount')
                 ->groupBy('games.name')
                 ->orderByDesc('amount')
                 ->first(),
+
             'topCashoutGame' => $q->clone()
                 ->join('games','games.id','=','transactions.game_id')
                 ->selectRaw('games.name, SUM(transactions.cashout) as amount')
                 ->groupBy('games.name')
                 ->orderByDesc('amount')
                 ->first(),
+
             'topCashinWallet' => $q->clone()
                 ->selectRaw('agent, wallet_name, wallet_remarks, SUM(cashin) as amount')
                 ->groupBy('agent','wallet_name','wallet_remarks')
                 ->orderByDesc('amount')
                 ->first(),
+
             'topCashoutWallet' => $q->clone()
                 ->selectRaw('agent, wallet_name, wallet_remarks, SUM(cashout) as amount')
                 ->groupBy('agent','wallet_name','wallet_remarks')
                 ->orderByDesc('amount')
                 ->first(),
+
+            'topTransactionWallet' => $q->clone()
+                ->selectRaw('agent, wallet_name, wallet_remarks, COUNT(*) as transactions')
+                ->groupBy('agent','wallet_name','wallet_remarks')
+                ->orderByDesc('transactions')
+                ->first(),
+
             'walletSummary' => $q->clone()
-                ->selectRaw('agent, wallet_name, wallet_remarks, SUM(cashin) as cashin, SUM(cashout) as cashout')
+                ->selectRaw('
+                agent,
+                wallet_name,
+                wallet_remarks,
+                COUNT(*) as transactions,
+                SUM(cashin) as cashin,
+                SUM(cashout) as cashout,
+                (SUM(cashin) - SUM(cashout)) as net
+            ')
                 ->groupBy('agent','wallet_name','wallet_remarks')
                 ->get(),
+
             'topStaffs' => $q->clone()
                 ->join('players','players.id','=','transactions.player_id')
                 ->join('staffs','staffs.id','=','players.staff_id')
-                ->selectRaw('staffs.staff_name, COUNT(transactions.id) as transactions, SUM(transactions.cashin) as cashin, SUM(transactions.cashout) as cashout, (SUM(transactions.cashin) - SUM(transactions.cashout)) as net')
+                ->selectRaw('
+                staffs.staff_name,
+                COUNT(transactions.id) as transactions,
+                SUM(transactions.cashin) as cashin,
+                SUM(transactions.cashout) as cashout,
+                (SUM(transactions.cashin) - SUM(transactions.cashout)) as net
+            ')
                 ->groupBy('staffs.staff_name')
+                ->having('transactions', '>', 0)
                 ->orderByDesc('transactions')
-                ->limit(3)
-                ->get()
+                ->get(),
+            'topTransactionPlayer' => $q->clone()
+                ->join('players','players.id','=','transactions.player_id')
+                ->selectRaw('players.player_name, COUNT(transactions.id) as total_transactions')
+                ->groupBy('players.player_name')
+                ->orderByDesc('total_transactions')
+                ->first(),
         ];
     }
+
 }
