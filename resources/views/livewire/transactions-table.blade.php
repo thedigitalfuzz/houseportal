@@ -6,10 +6,10 @@
         </button>
     </div>
     <div class="flex items-start md:items-center flex-col md:flex-row gap-2 mb-4 md:justify-between">
-        <div class="flex flex-col md:flex-row gap-2">
+        <div class="flex flex-col gap-2">
             <div class="flex gap-2 flex-col md:flex-row">
 
-                    <input type="text" wire:model="searchInput" placeholder="Search by username or player name" class="border rounded  px-2 py-1" />
+                <input type="text" wire:model="searchInput" placeholder="Search by username or player name" class="border rounded  px-2 py-1" />
 
                 <div class="flex gap-2 flex-col md:flex-row">
                     @if($currentUser->role === 'admin')
@@ -28,21 +28,21 @@
                         @endforeach
                     </select>
                         <select wire:model.live="wallet_agent" class="border rounded px-2 py-1">
-                            <option value="">Agents</option>
+                            <option value="">All Wallet Agents</option>
                             @foreach($walletAgents as $a)
                                 <option value="{{ $a }}">{{ $a }}</option>
                             @endforeach
                         </select>
 
                         <select wire:model.live="wallet_name" class="border rounded px-2 py-1">
-                            <option value="">Wallets</option>
+                            <option value="">All Wallet Names</option>
                             @foreach($walletNames as $w)
                                 <option value="{{ $w }}">{{ $w }}</option>
                             @endforeach
                         </select>
 
                         <select wire:model.live="wallet_remarks" class="border rounded px-2 py-1">
-                            <option value="">Remarks</option>
+                            <option value="">All Wallet Remarks</option>
                             @foreach($walletRemarksOptions as $r)
                                 <option value="{{ $r }}">{{ $r }}</option>
                             @endforeach
@@ -52,10 +52,42 @@
                 </div>
 
             </div>
-            <input type="date" name="date-from" wire:model="date_from" class="border rounded px-2 py-1 w-full" />
-            <input type="date" name="date-to" wire:model="date_to" class="border rounded px-2 py-1 w-full" />
+            <div class="flex flex-col md:flex-row gap-2 items-start md:items-end">
+                <div class="flex flex-col md:flex-row gap-2">
+                    <div class="flex flex-col gap-1">
+                        <label for="date_from" class="text-sm text-gray-600">
+                            From Date:
+                        </label>
 
-            <button wire:click="applySearch" class="px-4 py-1 bg-blue-600 text-white rounded">Search</button>
+                        <input
+                            type="date"
+                            id="date_from"
+                            wire:model="date_from"
+                            class="border rounded px-3 py-2 w-full"
+                        >
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <label for="date_to" class="text-sm text-gray-600">
+                            To Date:
+                        </label>
+
+                        <input
+                            type="date"
+                            id="date_to"
+                            wire:model="date_to"
+                            class="border rounded px-3 py-2 w-full"
+                        >
+                    </div>
+
+
+                </div>
+
+                    <button wire:click="applySearch" class="px-4 py-2 bg-blue-600 text-white rounded">Search</button>
+
+            </div>
+
+
+
         </div>
 
     </div>

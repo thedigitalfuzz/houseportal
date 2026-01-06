@@ -1,7 +1,23 @@
 <div>
     {{-- Filters --}}
-    <div class="flex flex-col md:flex-row gap-2 mb-4 items-start md:items-center">
-        <input type="date" wire:model="searchDate" class="border p-2 rounded" placeholder="Search date">
+    <div class="flex flex-col md:flex-row gap-2 mb-4 items-start md:items-end">
+        <div class="flex flex-col gap-1">
+            <label for="searchDate" class="text-sm text-gray-600">
+                Search Date:
+            </label>
+
+            <input
+                type="date"
+                id="searchDate"
+                wire:model="searchDate"
+                class="border border-gray-300 rounded px-3 py-2 text-sm w-full
+               focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            >
+        </div>
+
+
+
+
         <button class="bg-blue-600 text-white px-4 py-2 rounded" wire:click="$refresh">Search</button>
 
 
