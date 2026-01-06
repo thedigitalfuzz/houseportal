@@ -17,6 +17,13 @@ class PlayerRankings extends Component
     {
         return Auth::guard('web')->user() ?? Auth::guard('staff')->user();
     }
+
+    public $sortByDate = false;
+
+    public function toggleSort()
+    {
+        $this->sortByDate = !$this->sortByDate;
+    }
     public function applySearch()
     {
         $this->search = $this->searchInput;
@@ -53,7 +60,9 @@ class PlayerRankings extends Component
                 stripos($r->player_name, $this->search) !== false
             )->values();
         }
-
+        if ($this->sortByDate) {
+            $ranked = $ranked->sortBy('last_transaction_date')->values();
+        }
         // footer totals (based on visible rows)
         $totals = [
             'cashin' => $ranked->sum('total_cashin'),

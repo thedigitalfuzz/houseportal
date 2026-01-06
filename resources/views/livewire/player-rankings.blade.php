@@ -2,7 +2,9 @@
     <div class="flex flex-col md:flex-row gap-2 items-start md:items-center justify-between">
         <h2 class="text-xl font-bold mb-4">Player Rankings</h2>
         <div class="flex flex-col gap-2 justify-start">
+            <div class="mb-4">
 
+            </div>
             <div class="mb-4 flex gap-2">
                 <input
                     type="text"
@@ -17,6 +19,7 @@
                 >
                     Search
                 </button>
+
             </div>
 
         </div>
@@ -25,7 +28,14 @@
     </div>
 
     <div class="grid grid-cols-1">
+        <a
+            wire:click="toggleSort"
+            class="cursor-pointer {{ $sortByDate ? 'text-green-600' : 'text-blue-600' }}"
+        >
+            {{ $sortByDate ? 'Sort By Rank' : 'Sort By Date' }}
+        </a>
     <div class="bg-white rounded shadow overflow-x-auto">
+
         <table class="min-w-full table-auto">
             <thead class="bg-gray-100">
             <tr>
