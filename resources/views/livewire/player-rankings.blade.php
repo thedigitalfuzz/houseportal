@@ -91,7 +91,7 @@
             @endforelse
             @if($rankings->count())
                 <tr class="border-t bg-gray-100 font-bold">
-                    <td class="p-3 text-right" colspan="2">
+                    <td class="p-3 text-right" colspan="3">
                         TOTAL
                     </td>
 
@@ -107,6 +107,7 @@
         {{ $totals['net'] >= 0 ? 'text-green-800' : 'text-red-800' }}">
                         ${{ number_format($totals['net'], 2) }}
                     </td>
+                    <td></td>
                 </tr>
             @endif
 
