@@ -34,6 +34,7 @@
                 <th class="p-3 text-right">Total Cash In</th>
                 <th class="p-3 text-right">Total Cash Out</th>
                 <th class="p-3 text-right">Net Total</th>
+                <th class="p-3 text-left">Last Played</th>
             </tr>
             </thead>
 
@@ -63,7 +64,9 @@
     {{ $net >= 0 ? 'text-green-600' : 'text-red-600' }}">
                         {{ $net < 0 ? '-' : '' }}${{ number_format(abs($net), 2) }}
                     </td>
-
+                    <td class="p-3">
+                        {{ $row->last_transaction_date ? \Carbon\Carbon::parse($row->last_transaction_date)->format('Y-m-d') : '-' }}
+                    </td>
                 </tr>
             @empty
                 <tr>

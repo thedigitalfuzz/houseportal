@@ -32,7 +32,8 @@ class PlayerRankings extends Component
             ->selectRaw('
             players.player_name as player_name,
             SUM(transactions.cashin) as total_cashin,
-            SUM(transactions.cashout) as total_cashout
+            SUM(transactions.cashout) as total_cashout,
+            MAX(transactions.transaction_date) as last_transaction_date
         ')
             ->groupBy('players.player_name')
             ->orderByDesc('total_cashin');
