@@ -35,14 +35,19 @@
             <h2 class="text-lg font-bold mb-4">{{ $chunk['label'] }}</h2>
 
             {{-- Summary --}}
-            <div class="grid grid-cols-2 md:grid-cols-6 gap-4">
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
                 <div class="bg-white p-4 shadow rounded">Transactions: <br> <b>{{ $chunk['summary']['totalTransactions'] }}</b></div>
                 <div class="bg-white p-4 shadow rounded">Players: <br> <b>{{ $chunk['summary']['totalPlayers'] }}</b></div>
                 <div class="bg-white p-4 shadow rounded">Cash In:  <br><b>${{ number_format($chunk['summary']['totalCashin'],2) }}</b></div>
                 <div class="bg-white p-4 shadow rounded">Cash Out:  <br><b>${{ number_format($chunk['summary']['totalCashout'],2) }}</b></div>
+                <div class="bg-white p-4 shadow rounded">Net:  <br><b class="{{ $chunk['summary']['netAmount'] < 0 ? 'text-red-600' : 'text-green-600' }}"> {{ $chunk['summary']['netAmount'] < 0
+                                    ? '-$'.number_format(abs($chunk['summary']['netAmount']),2)
+                                    : '$'.number_format($chunk['summary']['netAmount'],2)
+                                }}</b></div>
                 <div class="bg-white p-4 shadow rounded">Cashin Txn:  <br><b>{{ $chunk['summary']['totalCashinTransactions'] }}</b></div>
                 <div class="bg-white p-4 shadow rounded">Cashout Txn:  <br><b>{{ $chunk['summary']['totalCashoutTransactions'] }}</b></div>
             </div>
+            @if($chunk['summary']['falseTransactionCount'] > 0)
             <div class="bg-red-100 border border-red-600 p-4 rounded">
                 <b>False Transactions:</b> <span class="text-red-800 font-bold">{{ $chunk['summary']['falseTransactionCount'] }}</span>
                 <br>
@@ -51,6 +56,7 @@
         {{ $chunk['summary']['falseTransactionPlayers']->implode(', ') ?: '-' }}
     </span>
             </div>
+            @endif
 
 
             {{-- Players --}}
@@ -61,7 +67,7 @@
                         @foreach($chunk['summary']['topCashinPlayers'] as $p)
                             <li class="p-2 flex justify-between">
                                 <span>{{ $p->player_name }}</span>
-                                <span>{{ number_format($p->total,2) }}</span>
+                                <span>${{ number_format($p->total,2) }}</span>
                             </li>
                         @endforeach
                     </ul>
@@ -73,7 +79,7 @@
                         @foreach($chunk['summary']['topCashoutPlayers'] as $p)
                             <li class="p-2 flex justify-between">
                                 <span>{{ $p->player_name }}</span>
-                                <span>{{ number_format($p->total,2) }}</span>
+                                <span>${{ number_format($p->total,2) }}</span>
                             </li>
                         @endforeach
                     </ul>

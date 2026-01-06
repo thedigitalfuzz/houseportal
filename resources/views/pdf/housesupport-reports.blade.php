@@ -52,12 +52,14 @@
         </div>
 
         <div style="width:100%; margin-bottom:10px;">
+            @if($chunk['summary']['falseTransactionCount'] > 0)
             <div style="display:inline-block; width:25%; padding:6px; border:1px solid #ccc; border-radius:4px; background-color:#f9f9f9; vertical-align:top; margin-right:1%;">
                 False Transactions: <b>{{ $chunk['summary']['falseTransactionCount'] }}</b>
             </div>
             <div style="display:inline-block; width:25%; padding:6px; border:1px solid #ccc; border-radius:4px; background-color:#f9f9f9; vertical-align:top; margin-right:1%;">
                 Players with False Transactions:<br> <b>{{ $chunk['summary']['falseTransactionPlayers']->implode(', ') }}</b>
             </div>
+            @endif
             <div style="display:inline-block; width:25%; padding:6px; border:1px solid #ccc; border-radius:4px; background-color:#f9f9f9; vertical-align:top;">
                 Top Player (Most Transactions):<br> <b>{{ $chunk['summary']['topTransactionPlayer']->player_name ?? '-' }} ({{ $chunk['summary']['topTransactionPlayer']->total_transactions ?? 0 }})</b>
             </div>

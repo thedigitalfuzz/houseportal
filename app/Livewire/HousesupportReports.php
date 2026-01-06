@@ -282,8 +282,9 @@ class HousesupportReports extends Component
             'netAmount' => $q->sum('cashin') - $q->sum('cashout'),
 
             'totalPlayers' => $q->clone()
-                ->distinct('player_id')
-                ->count('player_id'),
+                ->join('players', 'players.id', '=', 'transactions.player_id')
+                ->distinct('players.player_name')
+                ->count('players.player_name'),
 
             'falseTransactionCount' => $falseTransactions->count(),
 
