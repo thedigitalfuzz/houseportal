@@ -46,5 +46,23 @@
 </div>
 
 @livewireScripts
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const details = document.querySelectorAll('#sidebar details');
+
+        details.forEach(target => {
+            target.addEventListener('toggle', () => {
+                if (target.open) {
+                    details.forEach(other => {
+                        if (other !== target) {
+                            other.removeAttribute('open');
+                        }
+                    });
+                }
+            });
+        });
+    });
+</script>
+
 </body>
 </html>

@@ -1,6 +1,6 @@
 <aside
     id="sidebar"
-    class="w-64 bg-gray-800 text-white fixed inset-y-0 left-0 z-40 transform -translate-x-full transition-transform duration-300 lg:translate-x-0 lg:static lg:block flex-shrink-0"
+    class="w-64 bg-gray-800 text-white fixed inset-y-0 left-0 z-40 transform -translate-x-full transition-transform duration-300 lg:translate-x-0 lg:static lg:block flex-shrink-0 overflow-y-auto"
 >
     <a href="{{ route('dashboard') }}" class="block">
         <div class="p-6 font-bold text-xl border-b border-gray-700 cursor-pointer">
@@ -28,46 +28,49 @@
             );
         @endphp
 
-        <details class="group" {{ $playersOpen ? 'open' : '' }}>
-            <summary
-                class="flex items-center justify-between py-2 px-6 cursor-pointer list-none hover:bg-gray-700 {{ $playersOpen ? 'bg-gray-700' : '' }}"
-            >
-                <span>Players</span>
 
-                <svg
-                    class="wallet-chevron w-4 h-4 transition-transform duration-300 ease-in-out"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    viewBox="0 0 24 24"
+            <details class="group" {{ $playersOpen ? 'open' : '' }}>
+                <summary
+                    class="flex items-center justify-between py-2 px-6 cursor-pointer list-none hover:bg-gray-700 {{ $playersOpen ? 'bg-gray-700' : '' }}"
                 >
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-                </svg>
-            </summary>
+                    <span>Players</span>
 
-            <div class="ml-4 mt-1 space-y-1">
-                <a
-                    href="{{ route('players.index') }}"
-                    class="block py-2 px-6 text-sm hover:bg-gray-700 {{ request()->routeIs('players.index') ? 'bg-gray-700' : '' }}"
-                >
-                    Player Details
-                </a>
+                    <svg
+                        class="wallet-chevron w-4 h-4 transition-transform duration-300 ease-in-out"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        viewBox="0 0 24 24"
+                    >
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </summary>
 
-                <a
-                    href="{{ route('player-rankings') }}"
-                    class="block py-2 px-6 text-sm hover:bg-gray-700 {{ request()->routeIs('player-rankings') ? 'bg-gray-700' : '' }}"
-                >
-                    Player Rankings
-                </a>
+                <div class="ml-4 mt-1 space-y-1">
+                    <a
+                        href="{{ route('players.index') }}"
+                        class="block py-2 px-6 text-sm hover:bg-gray-700 {{ request()->routeIs('players.index') ? 'bg-gray-700' : '' }}"
+                    >
+                        Player Details
+                    </a>
 
-                <a
-                    href="{{ route('player-leaderboard') }}"
-                    class="block py-2 px-6 text-sm hover:bg-gray-700 {{ request()->routeIs('player-leaderboard') ? 'bg-gray-700' : '' }}"
-                >
-                    Leaderboard
-                </a>
-            </div>
-        </details>
+                    <a
+                        href="{{ route('player-rankings') }}"
+                        class="block py-2 px-6 text-sm hover:bg-gray-700 {{ request()->routeIs('player-rankings') ? 'bg-gray-700' : '' }}"
+                    >
+                        Player Rankings
+                    </a>
+
+                    <a
+                        href="{{ route('player-leaderboard') }}"
+                        class="block py-2 px-6 text-sm hover:bg-gray-700 {{ request()->routeIs('player-leaderboard') ? 'bg-gray-700' : '' }}"
+                    >
+                        Leaderboard
+                    </a>
+                </div>
+            </details>
+
+
 
 
         @php
