@@ -41,6 +41,7 @@
             <tr>
                 <th class="p-3 text-left">Rank</th>
                 <th class="p-3 text-left">Player Name</th>
+                <th class="p-3 text-left">Assigned Staff</th>
                 <th class="p-3 text-right">Total Cash In</th>
                 <th class="p-3 text-right">Total Cash Out</th>
                 <th class="p-3 text-right">Net Total</th>
@@ -57,6 +58,9 @@
 
                     <td class="p-3">
                         {{ $row->player_name }}
+                    </td>
+                    <td class="p-3">
+                        {{ $row->assigned_staffs ?: '-' }}
                     </td>
 
                     <td class="p-3 text-right">
