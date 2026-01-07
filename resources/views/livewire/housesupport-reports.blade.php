@@ -60,6 +60,9 @@
                                 }}</b></div>
                 <div class="bg-white p-4 shadow rounded">Cashin Txn:  <br><b>{{ $chunk['summary']['totalCashinTransactions'] }}</b></div>
                 <div class="bg-white p-4 shadow rounded">Cashout Txn:  <br><b>{{ $chunk['summary']['totalCashoutTransactions'] }}</b></div>
+                <div class="bg-white p-4 shadow rounded">Top Player with Most Txn:  <br><b>{{ $chunk['summary']['topTransactionPlayer']->player_name ?? '-' }} ({{ $chunk['summary']['topTransactionPlayer']->total_transactions ?? 0 }})</b></div>
+                <div class="bg-white p-4 shadow rounded">Total Used Points:<b> {{ number_format($chunk['summary']['gamePointsPerformance']['totals']['used_points'],2) }}</b></div>
+                <div class="bg-white p-4 shadow rounded">Top Game by Used Points:<b>{{ $chunk['summary']['gamePointsPerformance']['totals']['topGamePointsUsed'] ?? '-' }}</b></div>
             </div>
             @if($chunk['summary']['falseTransactionCount'] > 0)
             <div class="bg-red-100 border border-red-600 p-4 rounded">
@@ -98,6 +101,59 @@
                         @endforeach
                     </ul>
                 </div>
+
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-1 gap-6">
+                <div class="overflow-x-auto bg-white shadow rounded p-2 mt-4">
+                    <h3 class="font-bold mb-2">Game Points & Performance</h3>
+                    <table class="min-w-full table-auto bg-white shadow rounded">
+                        <thead class="bg-gray-100">
+                        <tr>
+                            <th class="p-2 text-left">Game</th>
+                            <th class="p-2 text-right">Starting Points</th>
+                            <th class="p-2 text-right">Closing Points</th>
+                            <th class="p-2 text-right">Used Points</th>
+                            <th class="p-2 text-right">Cash In</th>
+                            <th class="p-2 text-right">Cash Out</th>
+                            <th class="p-2 text-right">Net</th>
+                            <th class="p-2 text-left">Top Player</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @foreach($chunk['summary']['gamePointsPerformance']['data'] as $g)
+                            <tr class="border-t">
+                                <td class="p-2">{{ $g['game_name'] }}</td>
+                                <td class="p-2 text-right">{{ number_format($g['total_starting_points'],2) }}</td>
+                                <td class="p-2 text-right">{{ number_format($g['points'],2) }}</td>
+                                <td class="p-2 text-right">{{ number_format($g['used_points'],2) }}</td>
+                                <td class="p-2 text-right">${{ number_format($g['total_cashin'],2) }}</td>
+                                <td class="p-2 text-right">${{ number_format($g['total_cashout'],2) }}</td>
+                                <td class="p-2 text-right {{ $g['total_net'] < 0 ? 'text-red-600' : 'text-green-600' }}">
+                                    {{ $g['total_net'] < 0 ? '-$'.number_format(abs($g['total_net']),2) : '$'.number_format($g['total_net'],2) }}
+                                </td>
+                                <td class="p-2">{{ $g['top_player'] }}</td>
+                            </tr>
+                        @endforeach
+                        <tr class="border-t font-bold bg-gray-100">
+                            <td class="p-2 text-right">TOTAL</td>
+                            <td class="p-2 text-right">{{ number_format($chunk['summary']['gamePointsPerformance']['totals']['total_starting_points'],2) }}</td>
+                            <td class="p-2 text-right">{{ number_format($chunk['summary']['gamePointsPerformance']['totals']['total_closing_points'],2) }}</td>
+                            <td class="p-2 text-right">{{ number_format($chunk['summary']['gamePointsPerformance']['totals']['used_points'],2) }}</td>
+                            <td class="p-2 text-right">${{ number_format($chunk['summary']['gamePointsPerformance']['totals']['total_cashin'],2) }}</td>
+                            <td class="p-2 text-right">${{ number_format($chunk['summary']['gamePointsPerformance']['totals']['total_cashout'],2) }}</td>
+                            <td class="p-2 text-right {{ $chunk['summary']['gamePointsPerformance']['totals']['total_net'] < 0 ? 'text-red-600' : 'text-green-600' }}">
+                                {{ $chunk['summary']['gamePointsPerformance']['totals']['total_net'] < 0
+                                    ? '-$'.number_format(abs($chunk['summary']['gamePointsPerformance']['totals']['total_net']),2)
+                                    : '$'.number_format($chunk['summary']['gamePointsPerformance']['totals']['total_net'],2)
+                                }}
+                            </td>
+                            <td></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
             </div>
 
             {{-- Games & Wallets --}}

@@ -37,6 +37,7 @@
                     <tr>
                         <th class="p-3 text-left">Game</th>
                         <th class="p-3 text-right">Transactions</th>
+                        <th class="p-3 text-right">Used Points</th>
                         <th class="p-3 text-right">Cash In</th>
                         <th class="p-3 text-right">Cash Out</th>
                         <th class="p-3 text-right">Net</th>
@@ -48,6 +49,7 @@
                         <tr class="border-t">
                             <td class="p-3">{{ $r->game_name }}</td>
                             <td class="p-3 text-right">{{ $r->total_transactions }}</td>
+                            <td class="p-3 text-right">{{ $r->used_points }}</td>
                             <td class="p-3 text-right">${{ number_format($r->total_cashin,2) }}</td>
                             <td class="p-3 text-right">${{ number_format($r->total_cashout,2) }}</td>
                             <td class="p-3 text-right {{ $r->total_net < 0 ? 'text-red-600' : 'text-green-600' }}">
@@ -59,6 +61,7 @@
                     @endforeach
                     @php
                     $sumTransactions = collect($chunk['rows'])->sum('total_transactions');
+                    $sumUsedpoints = collect($chunk['rows'])->sum('used_points');
                         $sumCashin = collect($chunk['rows'])->sum('total_cashin');
                         $sumCashout = collect($chunk['rows'])->sum('total_cashout');
                         $sumNet = collect($chunk['rows'])->sum('total_net');
@@ -66,10 +69,13 @@
 
                     <tr class="font-bold bg-gray-200 border-t">
                         <td  class="p-3 text-left">TOTAL</td>
+
                         <td class="p-3 text-right">
                             {{ number_format($sumTransactions) }}
                         </td>
-
+                        <td class="p-3 text-right">
+                            {{ number_format($sumUsedpoints) }}
+                        </td>
                         <td class="p-3 text-right text-green-600">
                             ${{ number_format($sumCashin, 2) }}
                         </td>

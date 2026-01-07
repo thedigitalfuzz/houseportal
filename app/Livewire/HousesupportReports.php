@@ -341,6 +341,10 @@ class HousesupportReports extends Component
                 ->groupBy('agent','wallet_name','wallet_remarks')
                 ->orderByDesc('transactions')
                 ->first(),
+            'gamePointsPerformance' => $this->getGamePointsPerformance(
+                $q->min('transaction_date') ?? null,
+                $q->max('transaction_date') ?? null
+            ),
 
             'walletSummary' => $q->clone()
                 ->selectRaw('
@@ -377,5 +381,86 @@ class HousesupportReports extends Component
                 ->first(),
         ];
     }
+    protected function getGamePointsPerformance($start = null, $end = null)
+    {
+        $games = Game::orderBy('name')->get();
+
+        $data = [];
+        $totalStartingPoints = 0;
+        $totalUsedPoints = 0;
+        $totalClosingPoints = 0;
+        $totalCashin = 0;
+        $totalCashout = 0;
+        $totalNet = 0;
+        $topGamePointsUsed = null;
+        $maxUsedPoints = 0;
+
+        foreach ($games as $game) {
+            $transactions = Transaction::where('game_id', $game->id);
+            $gamePoints = \App\Models\GamePoint::where('game_id', $game->id);
+
+            if ($start && $end) {
+                $transactions->whereBetween('transaction_date', [$start, $end]);
+                $gamePoints->whereBetween('date', [$start, $end]);
+            }
+
+            // Skip games with no data
+            if ($transactions->count() === 0 && $gamePoints->count() === 0) continue;
+
+            $gameStartingPoints = $gamePoints->sum('total_starting_points');
+            $gameUsedPoints = $gamePoints->sum('used_points');
+            $gameClosingPoints = $gamePoints->sum('points');
+
+            $gameCashin = $transactions->sum('cashin');
+            $gameCashout = $transactions->sum('cashout');
+            $gameNet = $gameCashin - $gameCashout;
+
+            $topPlayer = $transactions
+                ->join('players','players.id','=','transactions.player_id')
+                ->selectRaw('players.player_name, SUM(transactions.cashin) as total')
+                ->groupBy('players.player_name')
+                ->orderByDesc('total')
+                ->value('players.player_name') ?? '-';
+
+            $data[] = [
+                'game_name' => $game->name,
+                'total_starting_points' => $gameStartingPoints,
+                'used_points' => $gameUsedPoints,
+                'points' => $gameClosingPoints,
+                'total_cashin' => $gameCashin,
+                'total_cashout' => $gameCashout,
+                'total_net' => $gameNet,
+                'top_player' => $topPlayer,
+            ];
+
+            // Totals
+            $totalStartingPoints += $gameStartingPoints;
+            $totalUsedPoints += $gameUsedPoints;
+            $totalClosingPoints += $gameClosingPoints;
+            $totalCashin += $gameCashin;
+            $totalCashout += $gameCashout;
+            $totalNet += $gameNet;
+
+            // Top game by used points
+            if ($gameUsedPoints > $maxUsedPoints) {
+                $maxUsedPoints = $gameUsedPoints;
+                $topGamePointsUsed = $game->name;
+            }
+        }
+
+        return [
+            'data' => $data,
+            'totals' => [
+                'total_starting_points' => $totalStartingPoints,
+                'used_points' => $totalUsedPoints,
+                'total_closing_points' => $totalClosingPoints,
+                'total_cashin' => $totalCashin,
+                'total_cashout' => $totalCashout,
+                'total_net' => $totalNet,
+                'topGamePointsUsed' => $topGamePointsUsed,
+            ],
+        ];
+    }
+
 
 }

@@ -85,6 +85,12 @@ class GamePerformance extends Component
                     $this->baseQuery()->whereBetween('transactions.transaction_date', [$start, $end])
                 )->map(function ($row) use ($start, $end) {
                     $row->top_player = $this->topPlayer($row->game_id, [$start, $end]);
+                    // --- NEW: Fetch used points for this game on this date ---
+                    $gamePoint = \App\Models\GamePoint::where('game_id', $row->game_id)
+                        ->where('date', $start->format('Y-m-d'))
+                        ->first();
+
+                    $row->used_points = $gamePoint ? $gamePoint->used_points : 0;
                     return $row;
                 });
 
@@ -115,6 +121,12 @@ class GamePerformance extends Component
                     $this->baseQuery()->whereBetween('transactions.transaction_date', [$start, $end])
                 )->map(function ($row) use ($start, $end) {
                     $row->top_player = $this->topPlayer($row->game_id, [$start, $end]);
+                    // --- NEW: Fetch used points for this game on this date ---
+                    $gamePoint = \App\Models\GamePoint::where('game_id', $row->game_id)
+                        ->whereBetween('date', [$start->format('Y-m-d'), $end->format('Y-m-d')])
+                        ->sum('used_points');
+
+                    $row->used_points = $gamePoint ?? 0;
                     return $row;
                 });
 
@@ -143,6 +155,10 @@ class GamePerformance extends Component
             $rows = $this->aggregatedQuery($allTimeQuery)
                 ->map(function ($row) {
                     $row->top_player = $this->topPlayer($row->game_id);
+                    $usedPoints = \App\Models\GamePoint::where('game_id', $row->game_id)
+                        ->sum('used_points');
+
+                    $row->used_points = $usedPoints ?? 0;
                     return $row;
                 });
 
