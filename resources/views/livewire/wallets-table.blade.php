@@ -83,7 +83,13 @@
 
                     <tbody>
                     @foreach($walletsChunk as $wallet)
-                        <tr class="border-t">
+                        @php
+                            $key = $wallet->agent.'|'.$wallet->wallet_name.'|'.$wallet->wallet_remarks;
+                            $disabled = $disabledWallets[$key] ?? null;
+                          $highlight = $disabled
+            && $wallet->date->gte($disabled->status_date ?? $wallet->date);
+                        @endphp
+                        <tr class="border-t  {{ $highlight ? 'bg-red-200' : '' }}">
                             <td class="p-3">{{ $wallet->id }}</td>
                             <td class="p-3">{{ $wallet->agent }}</td>
                             <td class="p-3">{{ $wallet->wallet_name }}</td>

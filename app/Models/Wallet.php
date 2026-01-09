@@ -27,6 +27,8 @@ class Wallet extends Model
         'date' => 'date', // casts to Carbon instance
         'closing_balance' => 'decimal:2',
         'balance_difference' => 'decimal:2',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     /**

@@ -410,6 +410,8 @@ class WalletsTable extends Component
     /* ---------------- RENDER ---------------- */
     public function render()
     {
+        $disabledWallets = WalletDetail::where('status', 'disabled')->get()
+            ->keyBy(fn($w) => $w->agent.'|'.$w->wallet_name.'|'.$w->wallet_remarks);
         $query = Wallet::query()
             ->when($this->wallet_agent, fn($q) => $q->where('agent', $this->wallet_agent))
             ->when($this->wallet_name_filter, fn($q) => $q->where('wallet_name', $this->wallet_name_filter))
@@ -464,6 +466,7 @@ class WalletsTable extends Component
             'walletAgents' => $this->walletAgents,
             'walletNamesFilter' => $this->walletNamesFilter,
             'walletRemarksFilter' => $this->walletRemarksFilter,
+            'disabledWallets' => $disabledWallets,
         ]);
     }
 

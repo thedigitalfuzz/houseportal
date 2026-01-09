@@ -11,14 +11,17 @@ class WalletDetails extends Component
 
     public $deleteModal = false;
 
+
     public $editId;
     public $agent;
     public $wallet_name;
     public $wallet_remarks;
 
     public $deleteId = null;
-
-
+    public $status;
+    public $disabled = false;
+    public $status_date;
+public $editModal = false;
 
     protected $rules = [
         'agent' => 'required|string|max:255',
@@ -63,6 +66,54 @@ class WalletDetails extends Component
         $this->loadData();
     }
 
+    public function openEditModal($id)
+    {
+        $wd = WalletDetail::findOrFail($id);
+
+        $this->editId = $wd->id;
+        $this->agent = $wd->agent;
+        $this->wallet_name = $wd->wallet_name;
+        $this->wallet_remarks = $wd->wallet_remarks;
+
+        // Status radio
+        $this->status = $wd->status;
+
+        // Disabled date input: if disabled, show actual date; else null
+        $this->status_date = $wd->status === 'disabled'
+            ? $wd->status_date->format('Y-m-d')
+            : now()->format('Y-m-d');
+
+        $this->editModal = true;
+    }
+
+// Trigger immediately when status changes
+    public function updatedStatus($value)
+    {
+        if ($value === 'disabled' && !$this->status_date) {
+            $this->status_date = now()->format('Y-m-d');
+        }
+        // If switched back to active, clear date
+        if ($value === 'active') {
+            $this->status_date = null;
+        }
+    }
+
+    public function updateStatus()
+    {
+        $wd = WalletDetail::findOrFail($this->editId);
+
+        $wd->status = $this->status;
+
+        // Save date only if disabled, else null
+        $wd->status_date = $this->status === 'disabled'
+            ? $this->status_date
+            : null;
+
+        $wd->save();
+
+        $this->editModal = false;
+        $this->loadData();
+    }
 
 
     public function render()
