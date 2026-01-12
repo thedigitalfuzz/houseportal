@@ -2,6 +2,44 @@
     <h1 class="text-4xl text-blue-950 font-bold mb-1 text-center md:text-left">Welcome to Housesupport Portal</h1>
     <h2 class="text-2xl text-gray-600 font-semibold mb-3 text-center md:text-left">This is the dashboard</h2>
     <p class="text-lg mb-6 text-center md:text-left">Use sidebar to navigate</p>
+    <div class="font-bold text-xl mb-2"> {{ $monthLabel }} Summary:</div>
+
+    <div class="flex gap-4 flex-col md:flex-row mb-4">
+        <div class="flex flex-col md:flex-row gap-4">
+            <div class="bg-white shadow rounded p-4">
+
+                <div class="text-gray-500 text-sm font-bold">Total Transactions</div>
+                <div class="text-2xl font-bold">
+                    {{ number_format($totalTransactions) }}
+                </div>
+            </div>
+
+            <div class="bg-white shadow rounded p-4">
+                <div class="text-gray-500 text-sm font-bold">Total Cash In</div>
+                <div class="text-2xl font-bold text-green-600">
+                    ${{ number_format($totalCashin, 2) }}
+                </div>
+            </div>
+        </div>
+       <div class="flex flex-col md:flex-row gap-4">
+           <div class="bg-white shadow rounded p-4">
+               <div class="text-gray-500 text-sm font-bold">Total Cash Out</div>
+               <div class="text-2xl font-bold text-red-600">
+                   ${{ number_format($totalCashout, 2) }}
+               </div>
+           </div>
+
+           <div class="bg-white shadow rounded p-4">
+               <div class="text-gray-500 text-sm font-bold">Net Total</div>
+               <div class="text-2xl font-bold {{ $totalNet < 0 ? 'text-red-600' : 'text-green-600' }}">
+                   {{ $totalNet < 0 ? '-' : '' }}${{ number_format(abs($totalNet), 2) }}
+               </div>
+           </div>
+       </div>
+
+
+
+    </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
@@ -162,4 +200,81 @@
 
 
     </div>
+    <div class="grid grid-cols-1  gap-4">
+        <div wire:ignore class="bg-white shadow rounded p-4 mt-6" style="height: 600px;" >
+            <h2 class="font-bold mb-4">
+                Total Cash In – Last 10 Days
+            </h2>
+
+            <canvas id="cashinChart" style="height: 100%; width: 100%;"></canvas>
+        </div>
+    </div>
+    <script>
+        window.cashinChartData = {
+            labels: @json($dailyCashinLabels),
+            data: @json($dailyCashinData)
+        };
+        console.log('Cashin Chart Data:' , window.cashinChartData);
+    </script>
+    <script>
+        function renderCashinChart() {
+            const ctx = document.getElementById('cashinChart');
+            if(!ctx) return;
+
+            if(window.cashinChartInstance) {
+                window.cashinChartInstance.destroy();
+            }
+
+            window.cashinChartInstance = new Chart(ctx.getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: @json($dailyCashinLabels),
+                    datasets: [{
+                        label: 'Total Cash In ($)',
+                        data: @json($dailyCashinData),
+                        backgroundColor: '#2b6cb0',
+                        borderRadius: 6,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return '$' + context.raw.toLocaleString();
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value.toLocaleString(); // <-- adds $ to y-axis labels
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Run once when page loads
+        document.addEventListener('DOMContentLoaded', () => renderCashinChart());
+
+        // Re-run after Livewire updates (if data is dynamic)
+        Livewire.hook('message.processed', () => renderCashinChart());
+    </script>
+
+
+
+
+
+
+
+
 </div>

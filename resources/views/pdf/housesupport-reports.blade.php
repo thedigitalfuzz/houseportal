@@ -67,13 +67,19 @@
 
         </div>
         <div style="width:100%; margin-bottom:10px;">
-            <div style="display:inline-block; width:25%; padding:6px; border:1px solid #ccc; border-radius:4px; background-color:#f9f9f9; vertical-align:top;">
+            <div style="display:inline-block; width:30%; padding:6px; border:1px solid #ccc; border-radius:4px; background-color:#f9f9f9; vertical-align:top; margin-right:1%;">
                 Top Player (Most Transactions):<br> <b>{{ $chunk['summary']['topTransactionPlayer']->player_name ?? '-' }} ({{ $chunk['summary']['topTransactionPlayer']->total_transactions ?? 0 }})</b>
             </div>
-            <div style="display:inline-block; width:25%; padding:6px; border:1px solid #ccc; border-radius:4px; background-color:#f9f9f9; vertical-align:top;">
+            <div style="display:inline-block; width:30%; padding:6px; border:1px solid #ccc; border-radius:4px; background-color:#f9f9f9; vertical-align:top; margin-right:1%;">
+                Top Player (Most Cashin):<br> <b>{{ $chunk['summary']['topCashinPlayer']->player_name ?? '-' }} ({{ $chunk['summary']['topCashinPlayer']->total ?? 0 }})</b>
+            </div>
+
+        </div>
+        <div style="width:100%; margin-bottom:10px;">
+            <div style="display:inline-block; width:30%; padding:6px; border:1px solid #ccc; border-radius:4px; background-color:#f9f9f9; vertical-align:top; margin-right:1%;">
                 Total Game Points Used:<br> <b> {{ number_format($chunk['summary']['gamePointsPerformance']['totals']['used_points'],2) }}</b>
             </div>
-            <div style="display:inline-block; width:25%; padding:6px; border:1px solid #ccc; border-radius:4px; background-color:#f9f9f9; vertical-align:top;">
+            <div style="display:inline-block; width:30%; padding:6px; border:1px solid #ccc; border-radius:4px; background-color:#f9f9f9; vertical-align:top; margin-right:1%;">
                 Top Game by Points Used:<br> <b> {{ $chunk['summary']['gamePointsPerformance']['totals']['topGamePointsUsed'] ?? '-' }}</b>
             </div>
         </div>

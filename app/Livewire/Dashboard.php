@@ -20,7 +20,16 @@ class Dashboard extends Component
     public $recentWalletDetails = [];
     public $topPlayersCurrentMonth = [];
 
+    public $monthlyStats = [];
+    public $cashinLast10Days = [];
+    public $dailyCashinLabels = [];
+    public $dailyCashinData = [];
+    public $monthLabel;
 
+    public $totalTransactions = 0;
+    public $totalCashin = 0;
+    public $totalCashout = 0;
+    public $totalNet = 0;
     public function mount()
     {
         // Fetch 5 most recent Wallet records
@@ -47,6 +56,21 @@ class Dashboard extends Component
 
         $now = Carbon::now();
 
+        $monthQuery = Transaction::query()
+            ->whereMonth('transaction_date', $now->month)
+            ->whereYear('transaction_date', $now->year);
+        $this->monthLabel = $now->format('F Y');
+
+        $monthlyTransactions = Transaction::whereMonth('transaction_date', $now->month)
+            ->whereYear('transaction_date', $now->year);
+
+        $this->totalTransactions = $monthlyTransactions->count();
+        $this->totalCashin = $monthlyTransactions->sum('cashin');
+        $this->totalCashout = $monthlyTransactions->sum('cashout');
+        $this->totalNet = $this->totalCashin - $this->totalCashout;
+
+
+
         $user = Auth::guard('web')->user() ?? Auth::guard('staff')->user();
 
         $this->topPlayersCurrentMonth = Transaction::query()
@@ -66,10 +90,32 @@ class Dashboard extends Component
             ->limit(5)
             ->get();
 
+        // Last 10 days cashin bar chart
+        $last10Days = Transaction::selectRaw('
+        DATE(transaction_date) as day,
+        SUM(cashin) as total
+    ')
+            ->where('transaction_date', '>=', now()->subDays(9)->startOfDay())
+            ->groupBy('day')
+            ->orderBy('day')
+            ->get();
+
+        $this->dailyCashinLabels = $last10Days
+            ->pluck('day')
+            ->map(fn ($d) => Carbon::parse($d)->format('d M'))
+            ->toArray();
+
+        $this->dailyCashinData = $last10Days
+            ->pluck('total')
+            ->toArray();
+
     }
 
     public function render()
     {
         return view('livewire.dashboard');
+
+
+
     }
 }

@@ -379,6 +379,12 @@ class HousesupportReports extends Component
                 ->groupBy('players.player_name')
                 ->orderByDesc('total_transactions')
                 ->first(),
+            'topCashinPlayer' => $q->clone()
+                ->join('players','players.id','=','transactions.player_id')
+                ->selectRaw('players.player_name, SUM(transactions.cashin) as total')
+                ->groupBy('players.player_name')
+                ->orderByDesc('total')
+                ->first(),
         ];
     }
     protected function getGamePointsPerformance($start = null, $end = null)

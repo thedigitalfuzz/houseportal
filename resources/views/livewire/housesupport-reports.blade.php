@@ -206,11 +206,11 @@
                 </div>
 
                 <div class="bg-white p-4 shadow rounded">
-                    <b>Top Player with Most Transactions:</b><br>
-                    {{ $chunk['summary']['topTransactionPlayer']->player_name ?? '-' }}
+                    <b>Top Player with Most Cashin:</b><br>
+                    {{ $chunk['summary']['topCashinPlayer']->player_name ?? '-' }}
                     <br>
                     <span class="text-sm text-gray-600">
-        Transactions: {{ $chunk['summary']['topTransactionPlayer']->total_transactions ?? 0 }}
+        Amount: ${{ number_format($chunk['summary']['topCashinPlayer']->total ?? 0, 2) }}
     </span>
                 </div>
 
