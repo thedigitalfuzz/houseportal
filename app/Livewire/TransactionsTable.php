@@ -55,7 +55,7 @@ class TransactionsTable extends Component
     public $walletNames = [];
     public $walletRemarksOptions = [];
 
-
+    public $editPlayerSearch = '';
     public $confirmDeleteId = null;
     public $deleteModal = false;
 
@@ -245,6 +245,7 @@ class TransactionsTable extends Component
 
     public function updateTransaction()
     {
+        $this->editPlayerId = Player::where('username', $this->editPlayerSearch)->value('id');
         $this->validate([
             'editPlayerId' => 'required|exists:players,id',
             'editGameId' => 'required|exists:games,id',

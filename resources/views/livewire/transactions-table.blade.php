@@ -182,12 +182,19 @@
                 <h2 class="text-lg font-bold mb-2">Edit Transaction</h2>
                 <div class="space-y-2">
                     <label class="text-xs">Player:</label>
-                    <select wire:model="editPlayerId" class="border rounded w-full px-2 py-1">
-                        <option value="">Select Player</option>
+                    <input
+                        list="edit-players-list"
+                        wire:model.live="editPlayerSearch"
+                        placeholder="Search / Select Player"
+                        class="border rounded w-full px-2 py-1"
+                    />
+
+                    <datalist id="edit-players-list">
                         @foreach($players as $p)
-                            <option value="{{ $p->id }}">{{ $p->username }}</option>
+                            <option value="{{ $p->username }}"></option>
                         @endforeach
-                    </select>
+                    </datalist>
+
 
                     <label class="text-xs">Game:</label>
                     <select wire:model="editGameId" class="border rounded w-full px-2 py-1">

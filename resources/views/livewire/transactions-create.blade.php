@@ -5,12 +5,19 @@
                 <h2 class="text-lg font-bold mb-4">New Transaction</h2>
                 <!-- FIELDS -->
                 <div class="space-y-2">
-                    <select wire:model="player_id" class="border rounded w-full px-2 py-1">
-                        <option value="">Select Player</option>
+                    <input
+                        list="players-list"
+                        wire:model.live="playerSearch"
+                        placeholder="Search / Select Player"
+                        class="border rounded w-full px-2 py-1"
+                    />
+
+                    <datalist id="players-list">
                         @foreach($players as $p)
-                            <option value="{{ $p->id }}">{{ $p->username }}</option>
+                            <option value="{{ $p->username }}"></option>
                         @endforeach
-                    </select>
+                    </datalist>
+
 
                     <select wire:model="game_id" class="border rounded w-full px-2 py-1">
                         <option value="">Select Game</option>

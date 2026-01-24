@@ -35,7 +35,7 @@ class TransactionsCreate extends Component
     public $walletOptions = [];
 
 
-
+    public $playerSearch = '';
     public $showModal = false;
 
     protected $rules = [
@@ -134,6 +134,10 @@ class TransactionsCreate extends Component
 
     public function save()
     {
+        $this->player_id = Player::where(
+            'username',
+            $this->playerSearch
+        )->value('id');
         $this->validate();
 
         $cashin = 0;
@@ -189,10 +193,16 @@ class TransactionsCreate extends Component
         // Get current user
         $user = auth()->user() ?? auth()->guard('staff')->user();
 
+
         // Admin sees all players, staff sees only their assigned players
-        $players = $user->role === 'admin'
-            ? Player::all()
-            : Player::where('staff_id', $user->id)->get();
+        $players = ($user->role === 'admin'
+            ? Player::query()
+            : Player::where('staff_id', $user->id)
+        )
+            ->when($this->playerSearch !== '', function ($q) {
+                $q->where('username', 'like', '%' . $this->playerSearch . '%');
+            })
+            ->get();
 
         // Fetch wallets from Wallets table
         $this->walletOptions = Wallet::pluck('wallet_name')->unique();
