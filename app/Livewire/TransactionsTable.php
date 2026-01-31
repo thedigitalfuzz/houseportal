@@ -199,13 +199,15 @@ class TransactionsTable extends Component
         $transaction = Transaction::findOrFail($id);
         $user = $this->currentUser();
 
-        if ($user->role !== 'admin' && $transaction->player->staff_id !== $user->id) {
-            $this->dispatchBrowserEvent('notify', ['type' => 'error', 'message' => 'You cannot edit this transaction.']);
-            return;
-        }
+       // if ($user->role !== 'admin' && $transaction->player->staff_id !== $user->id) {
+         //   $this->dispatchBrowserEvent('notify', ['type' => 'error', 'message' => 'You cannot edit this transaction.']);
+           // return;
+        //}
 
         $this->editingTransactionId = $id;
         $this->editPlayerId = $transaction->player_id;
+        $this->editPlayerSearch = $transaction->player->username;
+
         $this->editGameId = $transaction->game_id;
         $this->editCashin = $transaction->cashin;
         $this->editCashout = $transaction->cashout;
@@ -306,7 +308,7 @@ class TransactionsTable extends Component
 
         // Base query with all filters
         $query = Transaction::with(['player.assignedStaff','game'])
-            ->when($user->role !== 'admin', fn($q) => $q->whereHas('player', fn($p) => $p->where('staff_id', $user->id)))
+            //->when($user->role !== 'admin', fn($q) => $q->whereHas('player', fn($p) => $p->where('staff_id', $user->id)))
             ->when($this->game_id, fn($q) => $q->where('game_id', $this->game_id))
             ->when($this->date_from, fn($q) => $q->whereDate('transaction_date', '>=', $this->date_from))
             ->when($this->date_to, fn($q) => $q->whereDate('transaction_date', '<=', $this->date_to))
@@ -314,8 +316,11 @@ class TransactionsTable extends Component
                 $p->where('username','like','%'.$this->search.'%')
                     ->orWhere('player_name','like','%'.$this->search.'%');
             }))
-            ->when($this->staff_id && $user->role === 'admin', fn($q) => $q->whereHas('player', fn($p) => $p->where('staff_id', $this->staff_id)))
-        ->when($this->wallet_agent, fn ($q) =>
+            //->when($this->staff_id && $user->role === 'admin', fn($q) => $q->whereHas('player', fn($p) => $p->where('staff_id', $this->staff_id)))
+            ->when($this->staff_id, fn($q) =>
+            $q->whereHas('player', fn($p) => $p->where('staff_id', $this->staff_id))
+            )
+            ->when($this->wallet_agent, fn ($q) =>
     $q->where('agent', $this->wallet_agent)
     )
         ->when($this->wallet_name, fn ($q) =>
@@ -351,8 +356,8 @@ class TransactionsTable extends Component
         $transactionsByDate = $allTransactions->filter(fn($t) => $t->transaction_date !== null && in_array($t->transaction_date->format('Y-m-d'), $currentDates->toArray()))
             ->groupBy(fn($t) => $t->transaction_date->format('Y-m-d'));
 
-        $allStaffs = $user->role === 'admin' ? Staff::all() : collect();
-        $players = $user->role === 'admin' ? Player::all() : Player::where('staff_id', $user->id)->get();
+        $allStaffs = Staff::all();
+        $players = Player::all();
 
         return view('livewire.transactions-table', [
             'transactionsByDate' => $transactionsByDate,

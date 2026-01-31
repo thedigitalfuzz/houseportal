@@ -11,16 +11,7 @@
             <div class="flex gap-2">
                 <input type="text" wire:model="searchInput" placeholder="Search player" class="border rounded px-2 py-1 w-full" />
             </div>
-            <div class="flex flex-row gap-2 items-center justify-between">
-                @if($currentUser->role === 'admin')
-                    <select wire:model="filter_staff_id" class="border rounded px-2 py-1 w-fit">
-                        <option value="">All Staffs</option>
-                        @foreach($allStaffs as $staff)
-                            <option value="{{ $staff->id }}">{{ $staff->staff_name }}</option>
-                        @endforeach
-                    </select>
-                @endif
-            </div>
+
             <div>
                 <button wire:click="applySearch" class="px-4 py-1 bg-blue-600 text-white rounded">Search</button>
             </div>
@@ -41,8 +32,8 @@
                 <th class="p-3 text-left">Player Name</th>
                 <th class="p-3 text-left">Social Media Link</th>
                 <th class="p-3 text-left">Phone</th>
-                <th class="p-3 text-left">Assigned Staff</th>
-                <th class="p-3 text-left">Staff Profile</th>
+                <th class="p-3 text-left">Assigned Agent</th>
+                <th class="p-3 text-left">Agent Profile</th>
                 <th class="p-3 text-left">Created At</th>
                 <th class="px-4 py-2 text-right">Actions</th>
             </tr>
@@ -91,21 +82,17 @@
                         </div>
                     @endif
 
-                    <input type="text" wire:model="username" placeholder="Username" class="w-full border rounded p-2" />
+                    <input type="text" wire:model="username" placeholder="Username" class="w-full border rounded p-2" @if($editModal) readonly @endif  />
                     <input type="text" wire:model="player_name" placeholder="Player Name" class="w-full border rounded p-2" />
                     <input type="text" wire:model="facebook_profile" placeholder="Facebook Link" class="w-full border rounded p-2" />
-                    <input type="text" wire:model="phone" placeholder="Phone" class="w-full border rounded p-2" />
+                  <!--  <input type="text" wire:model="phone" placeholder="Phone" class="w-full border rounded p-2" /> -->
 
-                    @if($currentUser->role === 'admin')
                         <select wire:model="staff_id" class="border rounded w-full px-2 py-1">
-                            <option value="">Select Staff</option>
+                            <option value="">Select Agent</option>
                             @foreach($allStaffs as $staff)
-                                <option value="{{ $staff->id }}" @if($staff->id == $staff_id) selected @endif>{{ $staff->staff_name }}</option>
+                                <option value="{{ $staff->id }}">{{ $staff->staff_name }}</option>
                             @endforeach
                         </select>
-                    @else
-                        <input type="text" value="{{ $currentUser->staff_name }}" class="border rounded w-full px-2 py-1 bg-gray-100 cursor-not-allowed" disabled />
-                    @endif
                 </div>
                 <div class="mt-4 flex justify-end gap-2">
                     <button wire:click="$set('{{ $addModal ? 'addModal' : 'editModal' }}', false)" class="px-4 py-2 border rounded bg-gray-500 text-white">Cancel</button>

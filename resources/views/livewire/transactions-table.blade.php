@@ -114,8 +114,9 @@
                         <th class="p-3 text-left">Wallet Agent</th>
                         <th class="p-3 text-left">Wallet Name</th>
                         <th class="p-3 text-left">Wallet Remarks</th>
-                        <th class="p-3 text-left">Assigned Staff</th>
-                        <th class="p-3 text-left">Staff Profile</th>
+                        <th class="p-3 text-left">Player Agent</th>
+                        <!--
+                        <th class="p-3 text-left">Player Agent Profile</th> -->
                         <th class="p-3 text-left">Time</th>
                         <th class="px-4 py-2 text-right">Actions</th>
                     </tr>
@@ -145,12 +146,14 @@
                             <td class="p-3">{{ $t->wallet_name }}</td>
                             <td class="p-3">{{ $t->wallet_remarks }}</td>
                             <td class="p-3">{{ $t->player->assignedStaff->staff_name ?? '-' }}</td>
+                            <!--
                             <td class="p-3">{{ $t->player->assignedStaff->facebook_profile ?? '-' }}</td>
+                            -->
                             <td class="p-3">{{ $t->transaction_time }}</td>
                             <td class="p-3 text-right flex justify-end gap-2">
-                                @if($currentUser->role === 'admin' || ($t->player->staff_id === $currentUser->id))
+
                                     <button wire:click="editTransaction({{ $t->id }})" class="bg-blue-200 text-black px-3 py-1 rounded">Edit</button>
-                                @endif
+
                                 @if($this->canDelete())
                                     <button wire:click="confirmDelete({{ $t->id }})" class="bg-red-600 text-white px-3 py-1 rounded">Delete</button>
                                 @endif

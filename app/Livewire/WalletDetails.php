@@ -4,6 +4,8 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use App\Models\WalletDetail;
+use App\Models\Staff;
+use Illuminate\Support\Facades\Auth;
 
 class WalletDetails extends Component
 {
@@ -29,12 +31,21 @@ public $editModal = false;
         'wallet_remarks' => 'nullable|string|max:255',
     ];
 
+    protected function currentUser()
+    {
+        return Auth::guard('web')->user() ?? Auth::guard('staff')->user();
+    }
     public function mount()
     {
         // Hard stop if not admin (extra safety)
-        abort_unless(auth()->user()?->role === 'admin', 403);
+       // abort_unless(auth()->user()?->role === 'admin', 403);
 
         $this->loadData();
+    }
+
+    public function canDelete(): bool
+    {
+        return $this->currentUser()?->role === 'admin';
     }
 
     public function loadData()

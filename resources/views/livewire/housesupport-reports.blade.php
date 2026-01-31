@@ -262,16 +262,16 @@
                 </div>
             </div>
 
-            {{-- Staff --}}
+            {{-- Agent --}}
             <div class="grid grid-cols-1 md:grid-cols-1 gap-6">
                 <div class="overflow-x-auto bg-white shadow rounded p-2">
-                    <h3 class="font-bold mb-2">Staff Performance</h3>
+                    <h3 class="font-bold mb-2">Agent Performance</h3>
 
 
                     <table class="min-w-full table-auto">
                         <thead class="bg-gray-100">
                         <tr>
-                            <th class="p-2 text-left">Staff</th>
+                            <th class="p-2 text-left">Agent</th>
                             <th class="p-2 text-right">Transactions</th>
                             <th class="p-2 text-right">Cashin</th>
                             <th class="p-2 text-right">Cashout</th>

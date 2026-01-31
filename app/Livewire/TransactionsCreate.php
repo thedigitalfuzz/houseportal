@@ -159,13 +159,13 @@ class TransactionsCreate extends Component
         $user = auth()->user() ?? auth()->guard('staff')->user();
 
         // Staff can only create transaction for their assigned players
-        if ($user->role !== 'admin') {
-            $player = Player::findOrFail($this->player_id);
-            if ($player->staff_id !== $user->id) {
-                $this->dispatchBrowserEvent('notify', ['type' => 'error', 'message' => 'You cannot create a transaction for this player.']);
-                return;
-            }
-        }
+       // if ($user->role !== 'admin') {
+         //   $player = Player::findOrFail($this->player_id);
+           // if ($player->staff_id !== $user->id) {
+             //   $this->dispatchBrowserEvent('notify', ['type' => 'error', 'message' => 'You cannot create a transaction for this player.']);
+               // return;
+            //}
+        //}
 
         Transaction::create([
             'player_id' => $this->player_id,
@@ -195,14 +195,18 @@ class TransactionsCreate extends Component
 
 
         // Admin sees all players, staff sees only their assigned players
-        $players = ($user->role === 'admin'
-            ? Player::query()
-            : Player::where('staff_id', $user->id)
-        )
-            ->when($this->playerSearch !== '', function ($q) {
-                $q->where('username', 'like', '%' . $this->playerSearch . '%');
-            })
-            ->get();
+       // $players = ($user->role === 'admin'
+         //   ? Player::query()
+           // : Player::where('staff_id', $user->id)
+        //)
+          //  ->when($this->playerSearch !== '', function ($q) {
+            //    $q->where('username', 'like', '%' . $this->playerSearch . '%');
+            //})
+            //->get();
+
+        $players = Player::when($this->playerSearch !== '', function ($q) {
+            $q->where('username', 'like', '%' . $this->playerSearch . '%');
+        })->get();
 
         // Fetch wallets from Wallets table
         $this->walletOptions = Wallet::pluck('wallet_name')->unique();

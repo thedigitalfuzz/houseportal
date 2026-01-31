@@ -41,7 +41,7 @@
             <tr>
                 <th class="p-3 text-left">Rank</th>
                 <th class="p-3 text-left">Player Name</th>
-                <th class="p-3 text-left">Assigned Staff</th>
+                <th class="p-3 text-left">Assigned Agent</th>
                 <th class="p-3 text-right">Total Cash In</th>
                 <th class="p-3 text-right">Total Cash Out</th>
                 <th class="p-3 text-right">Net Total</th>

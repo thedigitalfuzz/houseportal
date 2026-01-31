@@ -68,18 +68,14 @@ class PlayersTable extends Component
     {
         $this->reset(['editingPlayerId','username','player_name','facebook_profile','phone','staff_id']);
         $this->duplicateUsernameError = null;
-        $user = $this->currentUser();
 
-        if ($user->role === 'admin') {
-            $this->allStaffs = Staff::all();
-            $this->staff_id = null;
-        } else {
-            $this->staff_id = $user->id;
-            $this->allStaffs = [];
-        }
+        // BOTH admin and staff can select staff now
+        $this->allStaffs = Staff::all();
+        $this->staff_id = null;
 
         $this->addModal = true;
     }
+
 
     public function openEditModal($id)
     {
@@ -93,8 +89,7 @@ class PlayersTable extends Component
         $this->phone = $player->phone ?? '';
         $this->staff_id = $player->staff_id;
 
-        $user = $this->currentUser();
-        $this->allStaffs = $user->role === 'admin' ? Staff::all() : [];
+        $this->allStaffs = Staff::all();
 
         $this->editModal = true;
     }
@@ -164,19 +159,17 @@ class PlayersTable extends Component
         $user = $this->currentUser();
 
         $query = Player::with('assignedStaff')
-            // Staff sees only their assigned players
-            ->when($user->role !== 'admin', fn($q) => $q->where('staff_id', $user->id))
-            // Admin filter by staff dropdown
-            ->when($this->filter_staff_id && $user->role === 'admin', fn($q) => $q->where('staff_id', $this->filter_staff_id))
-            // Search by username or player_name
+            // Allow BOTH admin and staff to see all players
+            ->when($this->filter_staff_id, fn($q) => $q->where('staff_id', $this->filter_staff_id))
             ->when($this->search, fn($q) => $q->where(function($p) {
                 $p->where('username', 'like', '%'.$this->search.'%')
                     ->orWhere('player_name', 'like', '%'.$this->search.'%');
             }));
 
+
         $players = $query->orderBy('id','asc')->paginate($this->perPage);
 
-        $this->allStaffs = $user->role === 'admin' ? Staff::all() : collect();
+       // $this->allStaffs = Staff::all();
 
         return view('livewire.players-table', [
             'players' => $players,

@@ -38,17 +38,19 @@
                     </td>
 
                     <td class="p-2">{{ $wd->created_at->format('Y-m-d') }}</td>
+
+
                     <td class="p-3 text-center space-x-2">
                         <button wire:click="openEditModal({{ $wd->id }})"
                                 class="px-2 py-1 bg-blue-600 text-white rounded">
                             Edit
                         </button>
-
+                        @if($this->canDelete())
                         <button wire:click="confirmDelete({{ $wd->id }})"
                                 class="px-2 py-1 bg-red-600 text-white rounded">
                             Delete
                         </button>
-
+                        @endif
                     </td>
                 </tr>
             @endforeach

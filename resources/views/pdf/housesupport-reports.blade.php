@@ -252,12 +252,12 @@
         </tr>
     </table>
 
-    {{-- Staff Performance --}}
-    <h3>Overall Staff Performance</h3>
+    {{-- Agent Performance --}}
+    <h3>Overall Agent Performance</h3>
     <table>
         <thead>
         <tr>
-            <th>Staff</th>
+            <th>Agent</th>
             <th class="text-right">Transactions</th>
             <th class="text-right">Cashin</th>
             <th class="text-right">Cashout</th>
