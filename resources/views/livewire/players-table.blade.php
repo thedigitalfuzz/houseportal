@@ -31,7 +31,7 @@
                 <th class="p-3 text-left">Username</th>
                 <th class="p-3 text-left">Player Name</th>
                 <th class="p-3 text-left">Social Media Link</th>
-                <th class="p-3 text-left">Phone</th>
+              <!--  <th class="p-3 text-left">Phone</th> -->
                 <th class="p-3 text-left">Assigned Agent</th>
                 <th class="p-3 text-left">Agent Profile</th>
                 <th class="p-3 text-left">Created At</th>
@@ -45,7 +45,7 @@
                     <td class="p-3">{{ $player->username }}</td>
                     <td class="p-3">{{ $player->player_name }}</td>
                     <td class="p-3">{{ $player->facebook_profile ?? '-' }}</td>
-                    <td class="p-3">{{ $player->phone ?? '-' }}</td>
+                  <!--  <td class="p-3">{{ $player->phone ?? '-' }}</td> -->
                     <td class="p-3">{{ $player->assignedStaff?->staff_name ?? '-' }}</td>
                     <td class="p-3">{{ $player->assignedStaff->facebook_profile ?? '-' }}</td>
                     <td class="p-3">{{ $player->created_at->format('Y-m-d H:i') }}</td>

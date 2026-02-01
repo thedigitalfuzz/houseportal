@@ -82,9 +82,9 @@ class Dashboard extends Component
             )
             ->whereMonth('transactions.transaction_date', $now->month)
             ->whereYear('transactions.transaction_date', $now->year)
-            ->when($user && $user->role !== 'admin', function ($q) use ($user) {
-                $q->where('players.staff_id', $user->id);
-            })
+          //  ->when($user && $user->role !== 'admin', function ($q) use ($user) {
+            //    $q->where('players.staff_id', $user->id);
+            //})
             ->groupBy('players.player_name')
             ->orderByDesc('total_cashin')
             ->limit(5)
