@@ -96,6 +96,12 @@ class PlayersTable extends Component
 
     public function savePlayer()
     {
+        $user = $this->currentUser();
+        if (Auth::guard('staff')->check()) {
+            $userType = \App\Models\Staff::class;
+        } else {
+            $userType = \App\Models\User::class;
+        }
         $this->duplicateUsernameError = null;
 
         $rules = [
@@ -117,12 +123,20 @@ class PlayersTable extends Component
 
         if ($this->editingPlayerId) {
             Player::findOrFail($this->editingPlayerId)
-                ->update(array_merge($validated, ['staff_id' => $this->staff_id]));
+                ->update(array_merge($validated, [
+                    'staff_id' => $this->staff_id,
+                    'updated_by_id' => $user->id,
+                    'updated_by_type' => $userType,
+                ]));
 
             $this->dispatch('playerUpdated');
             $this->editModal = false;
         } else {
-            Player::create(array_merge($validated, ['staff_id' => $this->staff_id]));
+            Player::create(array_merge($validated, [
+                'staff_id' => $this->staff_id,
+                'created_by_id' => $user->id,
+                'created_by_type' => $userType,
+            ]));
 
             $this->dispatch('playerCreated');
             $this->addModal = false;
@@ -158,7 +172,7 @@ class PlayersTable extends Component
     {
         $user = $this->currentUser();
 
-        $query = Player::with('assignedStaff')
+        $query = Player::with('assignedStaff', 'createdBy', 'updatedBy')
             // Allow BOTH admin and staff to see all players
             ->when($this->filter_staff_id, fn($q) => $q->where('staff_id', $this->filter_staff_id))
             ->when($this->search, fn($q) => $q->where(function($p) {

@@ -115,6 +115,10 @@
                         <th class="p-3 text-left">Wallet Name</th>
                         <th class="p-3 text-left">Wallet Remarks</th>
                         <th class="p-3 text-left">Player Agent</th>
+                        @if($this->canDelete())
+                        <th class="p-3 text-left">Created By</th>
+                        <th class="p-3 text-left">Last Edited By</th>
+                        @endif
                         <!--
                         <th class="p-3 text-left">Player Agent Profile</th> -->
                         <th class="p-3 text-left">Time</th>
@@ -146,6 +150,10 @@
                             <td class="p-3">{{ $t->wallet_name }}</td>
                             <td class="p-3">{{ $t->wallet_remarks }}</td>
                             <td class="p-3">{{ $t->player->assignedStaff->staff_name ?? '-' }}</td>
+                            @if($this->canDelete())
+                            <td class="p-3">{{ $t->created_by_name }}</td>
+                            <td class="p-3">{{ $t->updated_by_name }}</td>
+                            @endif
                             <!--
                             <td class="p-3">{{ $t->player->assignedStaff->facebook_profile ?? '-' }}</td>
                             -->

@@ -182,6 +182,12 @@ class TransactionsCreate extends Component
             'transaction_time' => now(),           // keep auto-filled
             'transaction_date' => $this->transaction_date, // user-specified date used for chunking
             'staff_user_id' => $user->role === 'admin' ? $user->id : null,
+            'created_by_id' => $user->id,
+            'created_by_type' => $user instanceof \App\Models\User
+                ? 'App\Models\User'
+                : 'App\Models\Staff',
+            'updated_by_id' => null,
+            'updated_by_type' => null,
         ]);
 
         $this->dispatch('transactionCreated');

@@ -197,10 +197,11 @@
         </div>
     @endif
     @if($rechargeListModal)
-        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-auto">
-            <div class="bg-white rounded shadow p-6 w-11/12 max-w-4xl">
-                <h2 class="text-lg font-bold mb-4">Recharge Records</h2>
+        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
 
+        <div class="bg-white rounded shadow w-11/12 max-w-4xl max-h-[90vh] flex flex-col p-6">
+                <h2 class="text-lg font-bold mb-4 shrink-0">Recharge Records</h2>
+            <div class="overflow-y-auto max-h-[420px] border rounded">
                 <table class="min-w-full table-auto mb-4">
                     <thead class="bg-gray-100">
                     <tr>
@@ -226,7 +227,7 @@
                     @endforeach
                     </tbody>
                 </table>
-
+            </div>
                 <div class="flex justify-end mt-4">
                     <button wire:click="$set('rechargeListModal', false)" class="px-4 py-2 border rounded bg-gray-700 text-white">Close</button>
                 </div>

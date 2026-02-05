@@ -282,6 +282,8 @@ class TransactionsTable extends Component
             : 0;
 
         $transaction = Transaction::findOrFail($this->editingTransactionId);
+        $user = $this->currentUser();
+        $userType = $user instanceof \App\Models\User ? 'App\Models\User' : 'App\Models\Staff';
         $transaction->update([
             'player_id' => $this->editPlayerId,
             'game_id' => $this->editGameId,
@@ -296,6 +298,8 @@ class TransactionsTable extends Component
             'deposit' => $this->editDeposit ?? 0,
             'notes' => $this->editNotes,
             'transaction_date' => $this->editTransactionDate,
+            'updated_by_id' => $user->id,
+            'updated_by_type' => $userType,
             // remove transaction_time completely
         ]);
 

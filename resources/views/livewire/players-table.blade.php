@@ -34,6 +34,10 @@
               <!--  <th class="p-3 text-left">Phone</th> -->
                 <th class="p-3 text-left">Assigned Agent</th>
                 <th class="p-3 text-left">Agent Profile</th>
+                @if($this->canDelete())
+                <th class="p-3 text-left">Created By</th>
+                <th class="p-3 text-left">Last Edited By</th>
+                @endif
                 <th class="p-3 text-left">Created At</th>
                 <th class="px-4 py-2 text-right">Actions</th>
             </tr>
@@ -48,6 +52,10 @@
                   <!--  <td class="p-3">{{ $player->phone ?? '-' }}</td> -->
                     <td class="p-3">{{ $player->assignedStaff?->staff_name ?? '-' }}</td>
                     <td class="p-3">{{ $player->assignedStaff->facebook_profile ?? '-' }}</td>
+                    @if($this->canDelete())
+                    <td class="p-3">{{ $player->created_by_name }}</td>
+                    <td class="p-3">{{ $player->updated_by_name }}</td>
+                    @endif
                     <td class="p-3">{{ $player->created_at->format('Y-m-d H:i') }}</td>
                     <td class="p-3 text-right flex justify-end gap-2">
                         <button wire:click="openEditModal({{ $player->id }})" class="bg-blue-200 text-black px-3 py-1 rounded">Edit</button>
