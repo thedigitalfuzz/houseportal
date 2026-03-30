@@ -7,99 +7,71 @@ use App\Livewire\StaffActionsTable;
 use App\Livewire\PlayersTable;
 use App\Http\Livewire\GamesTable;
 use App\Http\Middleware\CheckRole;
+use App\Http\Middleware\CheckStaffRole; // <-- new middleware
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\HouseReportsPdfController;
+use App\Livewire\StaffProfile;
 
 // Public routes
 Route::view('/', 'welcome');
 
-// Auth-protected routes
+// Auth-protected routes for all logged-in users
 Route::middleware(['auth.any', 'verified'])->group(function () {
 
-    // Dashboard
+    // Dashboard (everyone can access)
     Route::view('/dashboard', 'pages.dashboard-page')->name('dashboard');
 
-    // Profile
+    // Profile (everyone can access)
     Route::view('/profile', 'profile')->name('profile');
 
+    Route::get('/players', fn() => view('players.index'))->name('players.index');
+    Route::get('/transactions', fn() => view('pages.transactions'))->name('transactions');
+    Route::get('/games', fn() => view('pages.games'))->name('games');
+
+    Route::middleware('auth:staff')->group(function () {
+        ;    Route::get('/staff-profile', fn() => view('pages.staff-profile-page'))->name('staff-profile');
+    });
 });
 
-Route::get('/transactions', function () {
-    return view('pages.transactions'); // this points to resources/views/transactions.blade.php
-})->middleware(['auth.any', 'verified'])->name('transactions');
-
+// Logout
 Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
     ->middleware('auth.any')
     ->name('logout');
 
-Route::get('/players', function () {
-    return view('players.index'); // we will create this Blade
-})->middleware(['auth.any', 'verified'])->name('players.index');
-
-Route::get('/staffmanagement', function () {
-    return view('staffs.index'); // we will create this Blade
-})->middleware(['auth.any', 'verified'])->name('staffs.index');
-
-Route::get('/editprofile', function () {
-    return view('admin.editprofile'); // we will create this Blade
-})->middleware(['auth.any', 'verified'])->name('admin.editprofile');
-
-Route::get('/games', function () {
-    return view('pages.games'); // Blade file we created
-})->middleware(['auth.any', 'verified'])->name('games');
-
-Route::get('/wallets', function () {
-    return view('pages.wallets'); // Blade file we created
-})->middleware(['auth.any', 'verified'])->name('wallets');
-
-Route::get('/wallet-details', function () {
-    return view('pages.wallet-details-page'); // Blade file we created
-})->middleware(['auth.any', 'verified'])->name('wallet-details');
-
-Route::get('/player-rankings', function () {
-    return view('pages.player-rankings-page'); // Blade file we created
-})->middleware(['auth.any', 'verified'])->name('player-rankings');
-
-Route::get('/player-leaderboard', function () {
-    return view('pages.player-leaderboard-page'); // Blade file we created
-})->middleware(['auth.any', 'verified'])->name('player-leaderboard');
-
-Route::get('/daily-player-leaderboard', function () {
-    return view('pages.player-leaderboard-daily-page'); // Blade file we created
-})->middleware(['auth.any', 'verified'])->name('daily-player-leaderboard');
-
-Route::get('/game-points', function () {
-    return view('pages.game-points-page'); // Blade file we created
-})->middleware(['auth.any', 'verified'])->name('game-points');
-
-Route::get('/game-performance', function () {
-    return view('pages.game-performance-page'); // Blade file we created
-})->middleware(['auth.any', 'verified'])->name('game-performance');
-
-Route::get('/monthly-wallet-updates', function () {
-    return view('pages.monthly-wallet-updates-page'); // Blade file we created
-})->middleware(['auth.any', 'verified'])->name('monthly-wallet-updates');
+// Shared pages accessible by both entry_staff & wallet_manager
 
 
-
-Route::get('/reports', function () {
-    return view('pages.housesupport-reports-page'); // Blade file we created
-})->middleware(['auth.any', 'verified'])->name('reports');
-
-Route::get('/game-credits', function() {
-    return view('pages.game-credits');
-})->middleware(['auth.any','verified'])->name('game-credits');
-
-
-
-Route::middleware(['auth', CheckRole::class.':admin'])->group(function () {
-    Route::get('/staff', function () {
-        return view('staff.index'); // staff management page
-    })->name('staff.index');
+// Wallet manager exclusive pages
+Route::middleware(['auth.any', 'verified', CheckStaffRole::class.':wallet_manager'])->group(function () {
+    Route::get('/wallets', fn() => view('pages.wallets'))->name('wallets');
+    Route::get('/wallet-details', fn() => view('pages.wallet-details-page'))->name('wallet-details');
+    Route::get('/player-rankings', fn() => view('pages.player-rankings-page'))->name('player-rankings');
+    Route::get('/player-leaderboard', fn() => view('pages.player-leaderboard-page'))->name('player-leaderboard');
+    Route::get('/daily-player-leaderboard', fn() => view('pages.player-leaderboard-daily-page'))->name('daily-player-leaderboard');
+    Route::get('/game-performance', fn() => view('pages.game-performance-page'))->name('game-performance');
+    Route::get('/game-points', fn() => view('pages.game-points-page'))->name('game-points');
+    Route::get('/monthly-wallet-updates', fn() => view('pages.monthly-wallet-updates-page'))->name('monthly-wallet-updates');
+    Route::get('/reports', fn() => view('pages.housesupport-reports-page'))->name('reports');
+    Route::get('/game-credits', fn() => view('pages.game-credits'))->name('game-credits');
+    Route::get('/housesupport-report/pdf', [HouseReportsPdfController::class, 'download'])->name('housesupport-report.pdf');
 });
 
+// Admin-only pages
+Route::middleware(['auth', CheckRole::class.':admin'])->group(function () {
+    Route::get('/staff', fn() => view('staff.index'))->name('staff.index');
+    Route::get('/staffmanagement', fn() => view('staffs.index'))->name('staffs.index');
+    Route::get('/editprofile', fn() => view('admin.editprofile'))->name('admin.editprofile');
+    Route::get('/player-agents', fn() => view('pages.player-agents-page'))->name('player-agents');
+});
+/*
+|--------------------------------------------------------------------------
+| Remaining routes (accessible to admin or wallet manager)
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth.any', 'verified', CheckStaffRole::class.':wallet_manager'])->group(function () {
+    Route::get('/housesupport-report/pdf', [HouseReportsPdfController::class, 'download'])
+        ->name('housesupport-report.pdf');
+});
 
-Route::get('/housesupport-report/pdf', [HouseReportsPdfController::class, 'download'])
-    ->name('housesupport-report.pdf');
 // Auth routes generated by Breeze/Jetstream or your auth scaffolding
 require __DIR__.'/auth.php';

@@ -36,10 +36,10 @@ class PlayerRankings extends Component
         // 1️⃣ Base query WITHOUT search (global ranking source)
         $baseQuery = Transaction::query()
             ->join('players', 'players.id', '=', 'transactions.player_id')
-            ->leftJoin('staffs', 'staffs.id', '=', 'players.staff_id')
+            ->leftJoin('player_agents', 'player_agents.id', '=', 'players.agent_id')
             ->selectRaw('
     players.player_name as player_name,
-    GROUP_CONCAT(DISTINCT staffs.staff_name ORDER BY staffs.staff_name SEPARATOR ", ") as assigned_staffs,
+    GROUP_CONCAT(DISTINCT player_agents.player_agent_name ORDER BY player_agents.player_agent_name SEPARATOR ", ") as assigned_agent,
     SUM(transactions.cashin) as total_cashin,
     SUM(transactions.cashout) as total_cashout,
     MAX(transactions.transaction_date) as last_transaction_date

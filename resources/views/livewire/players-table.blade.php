@@ -50,8 +50,8 @@
                     <td class="p-3">{{ $player->player_name }}</td>
                     <td class="p-3">{{ $player->facebook_profile ?? '-' }}</td>
                   <!--  <td class="p-3">{{ $player->phone ?? '-' }}</td> -->
-                    <td class="p-3">{{ $player->assignedStaff?->staff_name ?? '-' }}</td>
-                    <td class="p-3">{{ $player->assignedStaff->facebook_profile ?? '-' }}</td>
+                    <td class="p-3">{{ $player->assignedAgent?->player_agent_name ?? '-' }}</td>
+                    <td class="p-3">{{ $player->assignedAgent->facebook_profile ?? '-' }}</td>
                     @if($this->canDelete())
                     <td class="p-3">{{ $player->created_by_name }}</td>
                     <td class="p-3">{{ $player->updated_by_name }}</td>
@@ -95,10 +95,10 @@
                     <input type="text" wire:model="facebook_profile" placeholder="Facebook Link" class="w-full border rounded p-2" />
                   <!--  <input type="text" wire:model="phone" placeholder="Phone" class="w-full border rounded p-2" /> -->
 
-                        <select wire:model="staff_id" class="border rounded w-full px-2 py-1">
+                        <select wire:model="agent_id" class="border rounded w-full px-2 py-1">
                             <option value="">Select Agent</option>
-                            @foreach($allStaffs as $staff)
-                                <option value="{{ $staff->id }}">{{ $staff->staff_name }}</option>
+                            @foreach($allAgents as $agent)
+                                <option value="{{ $agent->id }}">{{ $agent->player_agent_name }}</option>
                             @endforeach
                         </select>
                 </div>

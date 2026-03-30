@@ -361,15 +361,15 @@ class HousesupportReports extends Component
 
             'topStaffs' => $q->clone()
                 ->join('players','players.id','=','transactions.player_id')
-                ->join('staffs','staffs.id','=','players.staff_id')
+                ->join('player_agents','player_agents.id','=','players.agent_id')
                 ->selectRaw('
-                staffs.staff_name,
+                player_agents.player_agent_name,
                 COUNT(transactions.id) as transactions,
                 SUM(transactions.cashin) as cashin,
                 SUM(transactions.cashout) as cashout,
                 (SUM(transactions.cashin) - SUM(transactions.cashout)) as net
             ')
-                ->groupBy('staffs.staff_name')
+                ->groupBy('player_agents.player_agent_name')
                 ->having('transactions', '>', 0)
                 ->orderByDesc('transactions')
                 ->get(),

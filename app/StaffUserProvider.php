@@ -49,7 +49,7 @@ class StaffUserProvider implements UserProvider
         if (!$staff) return null;
 
         return new class($staff) implements Authenticatable {
-            public $staff_id, $staff_name, $staff_username, $staff_email, $staff_password, $staff_plain_password, $remember_token;
+            public $staff_id, $staff_name, $staff_username, $staff_email, $staff_password, $staff_plain_password, $role, $remember_token;
 
             public function __construct($staff)
             {

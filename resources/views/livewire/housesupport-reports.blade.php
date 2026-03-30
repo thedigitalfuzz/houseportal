@@ -279,14 +279,14 @@
                         </tr>
                         </thead>
                         <tbody>
-                        @foreach($chunk['summary']['topStaffs'] as $s)
+                        @foreach($chunk['summary']['topStaffs'] as $a)
                             <tr class="border-t">
-                                <td class="p-2">{{ $s->staff_name }}</td>
-                                <td class="p-2 text-right">{{ $s->transactions }}</td>
-                                <td class="p-2 text-right">{{ number_format($s->cashin,2) }}</td>
-                                <td class="p-2 text-right">{{ number_format($s->cashout,2) }}</td>
-                                <td class="p-2 text-right {{ $s->net < 0 ? 'text-red-600' : 'text-green-600' }}">
-                                    {{ number_format($s->net,2) }}
+                                <td class="p-2">{{ $a->player_agent_name }}</td>
+                                <td class="p-2 text-right">{{ $a->transactions }}</td>
+                                <td class="p-2 text-right">{{ number_format($a->cashin,2) }}</td>
+                                <td class="p-2 text-right">{{ number_format($a->cashout,2) }}</td>
+                                <td class="p-2 text-right {{ $a->net < 0 ? 'text-red-600' : 'text-green-600' }}">
+                                    {{ number_format($a->net,2) }}
                                 </td>
 
                             </tr>

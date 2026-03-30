@@ -22,6 +22,8 @@
             <tr>
                 <th class="p-3 text-left">ID</th>
                 <th class="p-3 text-left">Name</th>
+                <th class="p-3 text-left">Photo</th>
+                <th class="p-3 text-left">Staff Role</th>
                 <th class="p-3 text-left">Username</th>
                 <th class="p-3 text-left">Email</th>
                 <th class="p-3 text-left">Password (plain)</th>
@@ -36,6 +38,10 @@
                 <tr class="border-t">
                     <td class="p-3">{{ $staff->id }}</td>
                     <td class="p-3">{{ $staff->staff_name }}</td>
+                    <td class="p-3">
+                        <img src="{{ asset('storage/' . $staff->photo) }}" class="w-24 h-24 rounded-full mt-1 object-cover" alt="Staff Photo">
+                    </td>
+                    <td class="p-3">{{ $staff->role }}</td>
                     <td class="p-3">{{ $staff->staff_username }}</td>
                     <td class="p-3">{{ $staff->email }}</td>
                     <td class="p-3">{{ $staff->staff_plain_password }}</td>
@@ -86,7 +92,15 @@
                         </div>
                       @endif
                      <input type="text" wire:model="password" placeholder="Password" class="w-full border rounded p-2" />
-
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Role</label>
+                        <select wire:model="role" class="w-full border rounded p-2">
+                            <option value="">Select role</option>
+                            <option value="wallet_manager">Wallet Manager</option>
+                            <option value="entry_staff">Entry Staff</option>
+                        </select>
+                        @error('role') <span class="text-red-600 text-sm">{{ $message }}</span> @enderror
+                    </div>
                     <input type="text" wire:model="facebook_profile" placeholder="Facebook Profile" class="border rounded w-full p-2">
                     <!-- Photo Upload -->
                     <div>

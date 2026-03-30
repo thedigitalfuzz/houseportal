@@ -26,7 +26,7 @@ class StaffsTable extends Component
     public $facebook_profile;
     public $photo; // for upload
     public $existingPhoto; // to show current photo in edit modal
-
+    public $role;
     public $confirmDeleteId = null;
     public $deleteModalOpen = false;
 
@@ -74,7 +74,7 @@ class StaffsTable extends Component
         $this->plain_password = $staff->staff_plain_password;
         $this->facebook_profile = $staff->facebook_profile;
         $this->existingPhoto = $staff->photo;
-
+        $this->role = $staff->role; // set role for editing
         $this->modalOpen = true;
     }
 
@@ -87,6 +87,7 @@ class StaffsTable extends Component
             'password' => $this->editingStaffId ? 'nullable|string|min:4' : 'required|string|min:4',
             'facebook_profile' => 'nullable|string|max:255',
             'photo' => 'nullable|image|max:2048',
+            'role' => 'required|string|in:entry_staff,wallet_manager', // <-- new
         ];
 
         $validated = $this->validate($rules);
@@ -106,6 +107,7 @@ class StaffsTable extends Component
                 'password' => $validated['password'] ? Hash::make($validated['password']) : $staff->password,
                 'facebook_profile' => $validated['facebook_profile'],
                 'photo' => $validated['photo'] ?? $staff->photo,
+                'role' => $validated['role'],
             ]);
         } else {
             Staff::create([
@@ -116,6 +118,7 @@ class StaffsTable extends Component
                 'password' => Hash::make($validated['password']),
                 'facebook_profile' => $validated['facebook_profile'],
                 'photo' => $validated['photo'] ?? null,
+                'role' => $validated['role'],
             ]);
         }
 
@@ -123,7 +126,7 @@ class StaffsTable extends Component
 
         $this->reset([
             'editingStaffId','staff_name','staff_username','email',
-            'password', 'facebook_profile','photo','existingPhoto'
+            'password', 'facebook_profile','photo','existingPhoto' , 'role'
         ]);
     }
 

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Staff extends Authenticatable
 {
@@ -19,6 +20,7 @@ class Staff extends Authenticatable
         'staff_plain_password',
         'facebook_profile',
         'photo',
+        'role',
     ];
 
     protected $hidden = [
@@ -30,5 +32,21 @@ class Staff extends Authenticatable
     public function getAuthPassword()
     {
         return $this->password;
+    }
+
+    /**
+     * Players created by this staff
+     */
+    public function players(): HasMany
+    {
+        return $this->hasMany(Player::class, 'created_by_id'); // adjust 'created_by_id' if your column is different
+    }
+
+    /**
+     * Transactions created by this staff
+     */
+    public function transactions(): HasMany
+    {
+        return $this->hasMany(Transaction::class, 'created_by_id'); // adjust if your column differs
     }
 }

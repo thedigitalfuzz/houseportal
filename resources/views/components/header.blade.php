@@ -48,8 +48,15 @@
                     </x-slot>
 
                     <x-slot name="content">
-                        @if(auth()->guard('web')->check() && optional(auth()->guard('web')->user())->role === 'admin')
-                            <a href="{{ route('admin.editprofile') }}" class="w-full text-left px-4 py-2">Edit Profile</a>
+                        @php
+                            $user = auth()->guard('web')->user();
+                        @endphp
+
+                        @if($user)
+                            <a href="{{ $user->role === 'admin' ? route('admin.editprofile') : route('staff-profile') }}"
+                               class="w-full text-left px-4 py-2">
+                                {{ $user->role === 'admin' ? 'Edit Profile' : 'My Profile' }}
+                            </a>
                         @endif
 
                         <form method="POST" action="{{ route('logout') }}">

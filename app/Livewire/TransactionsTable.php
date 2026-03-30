@@ -8,6 +8,7 @@ use App\Models\Transaction;
 use App\Models\Game;
 use App\Models\WalletDetail;
 use App\Models\Player;
+use App\Models\PlayerAgent;
 use App\Models\Staff;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -21,6 +22,7 @@ class TransactionsTable extends Component
     public $search = '';
     public $game_id = null;
     public $staff_id = null;
+    public $agent_id = null;
     public $date_from = null;
     public $date_to = null;
     public $perPage = 15;
@@ -311,7 +313,7 @@ class TransactionsTable extends Component
         $user = $this->currentUser();
 
         // Base query with all filters
-        $query = Transaction::with(['player.assignedStaff','game'])
+        $query = Transaction::with(['player.assignedAgent','game'])
             //->when($user->role !== 'admin', fn($q) => $q->whereHas('player', fn($p) => $p->where('staff_id', $user->id)))
             ->when($this->game_id, fn($q) => $q->where('game_id', $this->game_id))
             ->when($this->date_from, fn($q) => $q->whereDate('transaction_date', '>=', $this->date_from))
@@ -321,8 +323,8 @@ class TransactionsTable extends Component
                     ->orWhere('player_name','like','%'.$this->search.'%');
             }))
             //->when($this->staff_id && $user->role === 'admin', fn($q) => $q->whereHas('player', fn($p) => $p->where('staff_id', $this->staff_id)))
-            ->when($this->staff_id, fn($q) =>
-            $q->whereHas('player', fn($p) => $p->where('staff_id', $this->staff_id))
+            ->when($this->agent_id, fn($q) =>
+            $q->whereHas('player', fn($p) => $p->where('agent_id', $this->agent_id))
             )
             ->when($this->wallet_agent, fn ($q) =>
     $q->where('agent', $this->wallet_agent)
@@ -360,7 +362,7 @@ class TransactionsTable extends Component
         $transactionsByDate = $allTransactions->filter(fn($t) => $t->transaction_date !== null && in_array($t->transaction_date->format('Y-m-d'), $currentDates->toArray()))
             ->groupBy(fn($t) => $t->transaction_date->format('Y-m-d'));
 
-        $allStaffs = Staff::all();
+        $allAgents = PlayerAgent::all();
         $players = Player::all();
 
         return view('livewire.transactions-table', [
@@ -369,7 +371,7 @@ class TransactionsTable extends Component
             'games' => Game::all(),
             'players' => $players,
             'currentUser' => $user,
-            'allStaffs' => $allStaffs,
+            'allAgents' => $allAgents,
             'walletAgents' => $this->walletAgents,
             'walletNames' => $this->walletNames,
             'walletRemarksOptions' => $this->walletRemarksOptions,

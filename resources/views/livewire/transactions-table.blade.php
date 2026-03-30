@@ -13,10 +13,10 @@
 
                 <div class="flex gap-2 flex-col md:flex-row">
                     @if($currentUser->role === 'admin')
-                        <select wire:model="staff_id" class="border rounded px-2 py-1">
-                            <option value="">All Staffs</option>
-                            @foreach($allStaffs as $staff)
-                                <option value="{{ $staff->id }}">{{ $staff->staff_name }}</option>
+                        <select wire:model="agent_id" class="border rounded px-2 py-1">
+                            <option value="">All Agents</option>
+                            @foreach($allAgents as $agent)
+                                <option value="{{ $agent->id }}">{{ $agent->player_agent_name }}</option>
                             @endforeach
                         </select>
                     @endif
@@ -149,7 +149,7 @@
                             <td class="p-3">{{ $t->agent }}</td>
                             <td class="p-3">{{ $t->wallet_name }}</td>
                             <td class="p-3">{{ $t->wallet_remarks }}</td>
-                            <td class="p-3">{{ $t->player->assignedStaff->staff_name ?? '-' }}</td>
+                            <td class="p-3">{{ $t->player->assignedAgent->player_agent_name ?? '-' }}</td>
                             @if($this->canDelete())
                             <td class="p-3">{{ $t->created_by_name }}</td>
                             <td class="p-3">{{ $t->updated_by_name }}</td>

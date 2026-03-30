@@ -266,21 +266,21 @@
         </thead>
         <tbody>
         @php $st = $sc = $so = $sn = 0; @endphp
-        @foreach($chunk['summary']['topStaffs'] as $s)
+        @foreach($chunk['summary']['topStaffs'] as $a)
             <tr>
-                <td>{{ $s->staff_name }}</td>
-                <td class="text-right">{{ $s->transactions }}</td>
-                <td class="text-right">${{ number_format($s->cashin,2) }}</td>
-                <td class="text-right">${{ number_format($s->cashout,2) }}</td>
-                <td class="text-right {{ $s->net < 0 ? 'net-negative' : 'net-positive' }}">
-                    {{ $s->net < 0 ? '-$'.number_format(abs($s->net),2) : '$'.number_format($s->net,2) }}
+                <td>{{ $a->player_agent_name }}</td>
+                <td class="text-right">{{ $a->transactions }}</td>
+                <td class="text-right">${{ number_format($a->cashin,2) }}</td>
+                <td class="text-right">${{ number_format($a->cashout,2) }}</td>
+                <td class="text-right {{ $a->net < 0 ? 'net-negative' : 'net-positive' }}">
+                    {{ $a->net < 0 ? '-$'.number_format(abs($a->net),2) : '$'.number_format($a->net,2) }}
                 </td>
             </tr>
             @php
-                $st += $s->transactions;
-                $sc += $s->cashin;
-                $so += $s->cashout;
-                $sn += $s->net;
+                $st += $a->transactions;
+                $sc += $a->cashin;
+                $so += $a->cashout;
+                $sn += $a->net;
             @endphp
         @endforeach
         <tr style="font-weight:bold">

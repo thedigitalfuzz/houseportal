@@ -13,7 +13,8 @@ class Player extends Model
         'username',
         'facebook_profile',
         'player_name',
-        'staff_id',
+        'agent_id',
+        'assigned_staff',
         'phone',
         'created_by_id',
         'created_by_type',
@@ -25,9 +26,9 @@ class Player extends Model
     {
         return $this->hasMany(Transaction::class);
     }
-    public function assignedStaff()
+    public function assignedAgent()
     {
-        return $this->belongsTo(Staff::class, 'staff_id');
+        return $this->belongsTo(PlayerAgent::class, 'agent_id');
     }
     public function createdBy(): MorphTo
     {

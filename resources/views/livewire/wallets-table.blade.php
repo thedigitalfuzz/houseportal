@@ -6,12 +6,12 @@
                     class="px-4 py-2 bg-green-600 text-white rounded">
                 Add Record
             </button>
-            @if(auth()->check() && auth()->user()->role === 'admin')
+
                 <button wire:click="openAddWalletDetailModal"
                         class="px-4 py-2 bg-indigo-600 text-white rounded">
                     Add Wallet
                 </button>
-            @endif
+
         </div>
 
         <div class="flex gap-2 flex-wrap">

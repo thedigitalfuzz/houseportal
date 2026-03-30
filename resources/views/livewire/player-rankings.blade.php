@@ -60,7 +60,7 @@
                         {{ $row->player_name }}
                     </td>
                     <td class="p-3">
-                        {{ $row->assigned_staffs ?: '-' }}
+                        {{ $row->assigned_agent ?: '-' }}
                     </td>
 
                     <td class="p-3 text-right">

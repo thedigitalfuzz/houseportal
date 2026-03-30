@@ -12,6 +12,7 @@ use App\Models\Wallet;
 use App\Observers\WalletObserver;
 use App\Models\Transaction;
 use App\Observers\TransactionObserver;
+use App\Http\Middleware\CheckStaffRole;
 
 
 
@@ -32,6 +33,7 @@ class AppServiceProvider extends ServiceProvider
     {
         Blade::component('components.sidebar-link', 'sidebar-link');
         Route::aliasMiddleware('auth.any', AuthAnyGuard::class);
+        Route::aliasMiddleware('staff.role', CheckStaffRole::class);
         Auth::provider('staffs', function ($app, array $config) {
             return new \App\Providers\StaffUserProvider();
         });
