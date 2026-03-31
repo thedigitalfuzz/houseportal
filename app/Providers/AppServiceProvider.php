@@ -39,5 +39,10 @@ class AppServiceProvider extends ServiceProvider
         });
         Wallet::observe(WalletObserver::class);
         Transaction::observe(TransactionObserver::class);
+
+        \Illuminate\Database\Eloquent\Relations\Relation::morphMap([
+            'staff' => \App\Models\Staff::class,
+            'user'  => \App\Models\User::class,
+        ]);
     }
 }

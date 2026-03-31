@@ -39,7 +39,7 @@
             </summary>
 
             <div class="ml-4 mt-1 space-y-1">
-                {{-- Player Details always visible for entry staff and above --}}
+                {{-- Player Details always visible for support staff and above --}}
                 <a href="{{ route('players.index') }}"
                    class="block py-2 px-6 text-sm hover:bg-gray-700 {{ request()->routeIs('players.index') ? 'bg-gray-700' : '' }}">
                     Player Details
@@ -83,7 +83,7 @@
                     Game Details
                 </a>
 
-                {{-- Game Points visible for entry staff and above --}}
+                {{-- Game Points visible for support staff and above --}}
 
 
                 {{-- Game Credits & Performance → wallet manager and admin only --}}
@@ -145,7 +145,7 @@
            class="block py-2 px-6 hover:bg-gray-700 {{ request()->routeIs('transactions') ? 'bg-gray-700' : '' }}">
             Transactions
         </a>
-        @if(in_array($role, ['wallet_manager', 'entry_staff']))
+        @if(in_array($role, ['wallet_manager', 'support_agent']))
             <a href="{{ route('staff-profile') }}"
                class="block py-2 px-6 hover:bg-gray-700 {{ request()->routeIs('staff-profile') ? 'bg-gray-700' : '' }}">
                 Staff Profile

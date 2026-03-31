@@ -377,10 +377,17 @@ class WalletsTable extends Component
             return;
         }
 
+        $user = $this->currentUser();
+
         WalletDetail::create([
             'agent' => $this->detail_agent,
             'wallet_name' => $this->detail_wallet_name,
             'wallet_remarks' => $this->detail_wallet_remarks,
+
+            'created_by_id' => $user->id,
+            'created_by_type' => $user instanceof \App\Models\User
+                ? 'App\Models\User'
+                : 'App\Models\Staff',
         ]);
 
         $this->agents = WalletDetail::select('agent')

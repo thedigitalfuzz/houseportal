@@ -30,7 +30,7 @@ class Dashboard extends Component
     public $totalNet = 0;
 
     // STAFF
-    public $isEntryStaff = false;
+    public $isSupportAgent = false;
     public $isWalletManager = false;
     public $staffPlayersCount = 0;
     public $staffTransactionsCount = 0;
@@ -47,6 +47,12 @@ class Dashboard extends Component
     public $gamePieData = [];
     public $highestCashinTxn;
     public $highestCashoutTxn;
+
+    public $allTimeCashinLabels = [];
+    public $allTimeCashinData = [];
+
+    public $allTimeNetLabels = [];
+    public $allTimeNetData = [];
 public $gameStats;
     public $last5DaysDetailed = [];
 
@@ -54,7 +60,7 @@ public $gameStats;
     {
         $user = Auth::guard('web')->user() ?? Auth::guard('staff')->user();
 
-        $this->isEntryStaff = $user && $user->role === 'entry_staff';
+        $this->isSupportAgent = $user && $user->role === 'support_agent';
         $this->isWalletManager = $user && $user->role === 'wallet_manager';
 
 
@@ -105,7 +111,7 @@ public $gameStats;
         $this->dailyCashinData = $last10Days->pluck('total')->toArray();
 
         // STAFF DATA
-        if ($this->isEntryStaff || $this->isWalletManager) {
+        if ($this->isSupportAgent || $this->isWalletManager) {
             $userId = $user->id;
             $now = Carbon::now();
 
@@ -196,6 +202,54 @@ public $gameStats;
 
 // For Table
         $this->gameStatsTable = $gameStats;
+
+        if ($this->isSupportAgent || $this->isWalletManager) {
+            $userId = $user->id;
+
+            $allTime = Transaction::selectRaw('
+            DATE(transaction_date) as day,
+            SUM(cashin) as total_cashin,
+            SUM(cashout) as total_cashout
+        ')
+                ->where('created_by_id', $userId)
+                ->groupBy('day')
+                ->orderBy('day')
+                ->get();
+
+            $this->allTimeCashinLabels = $allTime->pluck('day')
+                ->map(fn ($d) => \Carbon\Carbon::parse($d)->format('d M Y'))
+                ->toArray();
+
+            $this->allTimeCashinData = $allTime->pluck('total_cashin')->toArray();
+
+            $this->allTimeNetLabels = $this->allTimeCashinLabels;
+
+            $this->allTimeNetData = $allTime->map(function ($row) {
+                return $row->total_cashin - $row->total_cashout;
+            })->toArray();
+        }
+        else {
+            $allTime = Transaction::selectRaw('
+            DATE(transaction_date) as day,
+            SUM(cashin) as total_cashin,
+            SUM(cashout) as total_cashout
+        ')
+                ->groupBy('day')
+                ->orderBy('day')
+                ->get();
+
+            $this->allTimeCashinLabels = $allTime->pluck('day')
+                ->map(fn ($d) => \Carbon\Carbon::parse($d)->format('d M Y'))
+                ->toArray();
+
+            $this->allTimeCashinData = $allTime->pluck('total_cashin')->toArray();
+
+            $this->allTimeNetLabels = $this->allTimeCashinLabels;
+
+            $this->allTimeNetData = $allTime->map(function ($row) {
+                return $row->total_cashin - $row->total_cashout;
+            })->toArray();
+        }
     }
 
     public function render()

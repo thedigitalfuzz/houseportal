@@ -15,6 +15,8 @@
                 <th class="p-3 text-left">Status</th>
                 <th class="p-3 text-left">Active / Disabled Since</th>
                 <th class="p-3 text-left">Created At</th>
+                <th class="p-3 text-left">Created By</th>
+                <th class="p-3 text-left">Last Edited By</th>
                 <th class="p-3 text-center">Actions</th>
             </tr>
             </thead>
@@ -39,7 +41,8 @@
 
                     <td class="p-2">{{ $wd->created_at->format('Y-m-d') }}</td>
 
-
+                    <td class="p-3">{{ $wd->created_by_name }}</td>
+                    <td class="p-3">{{ $wd->updated_by_name }}</td>
                     <td class="p-3 text-center space-x-2">
                         <button wire:click="openEditModal({{ $wd->id }})"
                                 class="px-2 py-1 bg-blue-600 text-white rounded">

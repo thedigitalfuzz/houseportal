@@ -46,7 +46,7 @@ class TransactionsCreate extends Component
         'bonus_added' => 'nullable|numeric|min:0',
         'notes' => 'nullable|string',
         'cash_tag' => 'nullable|string|max:255',
-        'agent' => 'required|string|max:255',
+        'agent' => 'nullable|string|max:255',
         'wallet_name' => 'nullable|string|max:255',
         'wallet_remarks' => 'nullable|string',
         'transaction_date' => 'required|date',
@@ -76,7 +76,23 @@ class TransactionsCreate extends Component
             'transaction_date',
         ]);
 
+        $this->walletNames = WalletDetail::where('status', 'active')
+            ->select('wallet_name')
+            ->distinct()
+            ->orderBy('wallet_name')
+            ->pluck('wallet_name')
+            ->toArray();
+
+        // Only active wallets
+        $this->walletRemarks = WalletDetail::where('wallet_name', $this->wallet_name)
+            ->where('status', 'active')
+            ->orderBy('wallet_remarks')
+            ->pluck('wallet_remarks')
+            ->toArray();
+
+        $this->walletRemarks = [];
         $this->showModal = true;
+
     }
 
     public function closeModal()
@@ -86,52 +102,131 @@ class TransactionsCreate extends Component
 
     public function mount()
     {
-        $this->agents = WalletDetail::select('agent')
-            ->distinct()
-            ->orderBy('agent')
-            ->pluck('agent')
-            ->toArray();
-    }
-
-    public function updatedAgent()
-    {
-        $this->wallet_name = null;
-        $this->wallet_remarks = null;
-
-        if (!$this->agent) {
-            $this->walletNames = [];
-            $this->walletRemarks = [];
-            return;
-        }
-
-        $this->walletNames = WalletDetail::where('agent', $this->agent)
+       // $this->agents = WalletDetail::where(function ($q) {
+        //   $q->where('status', 'active')
+        //      ->orWhere(function ($q2) {
+        //          $q2->where('status', 'disabled')
+        //              ->whereDate('status_date', '>', now());
+        //      });
+        //})
+        //  ->select('agent')
+        //  ->distinct()
+        //  ->orderBy('agent')
+        //  ->pluck('agent')
+        //  ->toArray();
+// only active wallets
+        $this->walletNames = WalletDetail::where('status', 'active')
             ->select('wallet_name')
             ->distinct()
             ->orderBy('wallet_name')
             ->pluck('wallet_name')
             ->toArray();
 
+        // Only active wallets
+        $this->walletRemarks = WalletDetail::where('wallet_name', $this->wallet_name)
+            ->where('status', 'active')
+            ->orderBy('wallet_remarks')
+            ->pluck('wallet_remarks')
+            ->toArray();
+
         $this->walletRemarks = [];
     }
 
+    //  public function updatedAgent()
+    //{
+    //  $this->wallet_name = null;
+    //  $this->wallet_remarks = null;
+//
+    //      if (!$this->agent) {
+    //      $this->walletNames = [];
+    //      $this->walletRemarks = [];
+    //      return;
+    //  }
+//
+    //      $this->walletNames = WalletDetail::where('agent', $this->agent)
+    //      ->where(function ($q) {
+    //          $q->where('status', 'active')
+    //            ->orWhere(function ($q2) {
+    //                  $q2->where('status', 'disabled')
+    //                      ->whereDate('status_date', '>', $this->transaction_date ?? now());
+    //              });
+    //      })
+    //      ->select('wallet_name')
+    //      ->distinct()
+    //      ->orderBy('wallet_name')
+    //      ->pluck('wallet_name')
+    //      ->toArray();
+
+    //  $this->walletRemarks = [];
+    //}
+
+    // public function updatedWalletName()
+    // {
+    //  $this->wallet_remarks = null;
+
+    //  if (!$this->agent || !$this->wallet_name) {
+    //      $this->walletRemarks = [];
+    //      return;
+    //  }
+
+    //  $this->walletRemarks = WalletDetail::where('agent', $this->agent)
+    //      ->where('wallet_name', $this->wallet_name)
+    //      ->where(function ($q) {
+    //          $q->where('status', 'active')
+    //              ->orWhere(function ($q2) {
+    //                  $q2->where('status', 'disabled')
+                          //  ->whereDate('status_date', '>', $this->transaction_date ?? now());
+                        //  });
+                //     })
+     //       ->orderBy('wallet_remarks')
+   //         ->pluck('wallet_remarks')
+   //       ->toArray();
+   //
+//}
+  //  public function updatedWalletName()
+    //{
+    //  $this->wallet_remarks = null;
+//
+    //      if (!$this->wallet_name) {
+    //      $this->walletRemarks = [];
+    //      return;
+    //  }
+    //  $this->walletRemarks = WalletDetail::where('wallet_name', $this->wallet_name)
+    //      ->where('status', 'active')
+    //      ->orderBy('wallet_remarks')
+    //      ->pluck('wallet_remarks')
+    //      ->toArray();
+
+
+
+      //  $this->walletRemarks = WalletDetail::where('wallet_name', $this->wallet_name)
+        //    ->where(function ($q) {
+          //      $q->where('status', 'active')
+            //        ->orWhere(function ($q2) {
+              //          $q2->where('status', 'disabled')
+                //            ->whereDate('status_date', '>', $this->transaction_date ?? now());
+                  //  });
+           // })
+            //->orderBy('wallet_remarks')
+            //->pluck('wallet_remarks')
+            //->toArray()
+    //   }
     public function updatedWalletName()
     {
-        $this->wallet_remarks = null;
+        $this->wallet_remarks = null; // reset remarks when wallet changes
 
-        if (!$this->agent || !$this->wallet_name) {
+        if (!$this->wallet_name) {
             $this->walletRemarks = [];
             return;
         }
 
-        $this->walletRemarks = WalletDetail::where('agent', $this->agent)
-            ->where('wallet_name', $this->wallet_name)
+        // Only active wallets
+        $this->walletRemarks = WalletDetail::where('wallet_name', $this->wallet_name)
+            ->where('status', 'active')
             ->orderBy('wallet_remarks')
             ->pluck('wallet_remarks')
             ->toArray();
     }
-
-
-
     public function save()
     {
         $this->player_id = Player::where(
@@ -166,7 +261,23 @@ class TransactionsCreate extends Component
                // return;
             //}
         //}
+        $walletDetail = WalletDetail::where('wallet_name', $this->wallet_name)
+            ->where(function ($q) {
+                if ($this->wallet_remarks === null || $this->wallet_remarks === '') {
+                    $q->whereNull('wallet_remarks');
+                } else {
+                    $q->where('wallet_remarks', $this->wallet_remarks);
+                }
+            })
+            ->orderByDesc('id') // 🔥 important
+            ->first();
 
+        if (!$walletDetail) {
+            $this->addError('wallet_name', 'Invalid wallet selection.');
+            return;
+        }
+
+        $agent = $walletDetail->agent;
         Transaction::create([
             'player_id' => $this->player_id,
             'game_id' => $this->game_id,
@@ -175,7 +286,7 @@ class TransactionsCreate extends Component
             'total_transaction' => $this->transaction_type === 'cashin' ? floatval($this->amount) : -floatval($this->amount),
             'bonus_added' => floatval($bonusAdded),
             'cash_tag' => $this->cash_tag,
-            'agent' => $this->agent,
+            'agent' => $agent,
             'wallet_name' => $this->wallet_name,
             'wallet_remarks' => $this->wallet_remarks,
             'notes' => $this->notes,

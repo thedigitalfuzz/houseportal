@@ -11,9 +11,14 @@ use App\Http\Middleware\CheckStaffRole; // <-- new middleware
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\HouseReportsPdfController;
 use App\Livewire\StaffProfile;
+use App\Livewire\ChatApp;
 
 // Public routes
 Route::view('/', 'welcome');
+
+
+
+
 
 // Auth-protected routes for all logged-in users
 Route::middleware(['auth.any', 'verified'])->group(function () {
@@ -27,7 +32,7 @@ Route::middleware(['auth.any', 'verified'])->group(function () {
     Route::get('/players', fn() => view('players.index'))->name('players.index');
     Route::get('/transactions', fn() => view('pages.transactions'))->name('transactions');
     Route::get('/games', fn() => view('pages.games'))->name('games');
-
+    Route::get('/chat', fn() => view('pages.chat-app-page'))->name('chat');
     Route::middleware('auth:staff')->group(function () {
         ;    Route::get('/staff-profile', fn() => view('pages.staff-profile-page'))->name('staff-profile');
     });
@@ -38,7 +43,7 @@ Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
     ->middleware('auth.any')
     ->name('logout');
 
-// Shared pages accessible by both entry_staff & wallet_manager
+// Shared pages accessible by both support_agent & wallet_manager
 
 
 // Wallet manager exclusive pages

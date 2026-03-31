@@ -37,23 +37,18 @@
                                        <input type="text" wire:model="cash_tag" class="border rounded w-full px-2 py-1" placeholder="Cash Tag">
                      -->
 
-                    <select wire:model.live="agent" class="w-full border rounded p-2">
-                        <option value="">Select Agent</option>
-                        @foreach($agents as $a)
-                            <option value="{{ $a }}">{{ $a }}</option>
-                        @endforeach
-                    </select>
 
-                    <!-- Wallet Name Dropdown -->
-                    <select wire:model.live="wallet_name" class="w-full border rounded p-2">
+
+                    <!-- Wallet Name -->
+                    <select wire:model.live="wallet_name" class="border rounded p-2 w-full">
                         <option value="">Select Wallet Name</option>
                         @foreach($walletNames as $w)
                             <option value="{{ $w }}">{{ $w }}</option>
                         @endforeach
                     </select>
 
-                    <!-- Wallet Remarks Dropdown -->
-                    <select wire:model.live="wallet_remarks" class="w-full border rounded p-2">
+                    <!-- Wallet Remarks -->
+                    <select wire:model.live="wallet_remarks" class="border rounded p-2 w-full">
                         <option value="">Select Wallet Remarks</option>
                         @foreach($walletRemarks as $r)
                             <option value="{{ $r }}">{{ $r }}</option>

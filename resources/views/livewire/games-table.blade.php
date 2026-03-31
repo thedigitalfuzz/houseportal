@@ -27,6 +27,7 @@
                 <th class="p-3 text-left">Name</th>
                 <th class="p-3 text-left">Game Code</th>
                 <th class="p-3 text-left">Backend Link</th>
+                <th class="p-3 text-left">Game Link</th>
                 <th class="p-3 text-left">Created At</th>
                 @if($this->canEdit())
                     <th class="px-4 py-2 text-right">Actions</th>
@@ -39,7 +40,24 @@
                     <td class="p-3">{{ $game->id }}</td>
                     <td class="p-3">{{ $game->name }}</td>
                     <td class="p-3">{{ $game->game_code ?? '-' }}</td>
-                    <td class="p-3">{{ $game->backend_link ?? '-' }}</td>
+                    <td class="p-3">
+                        @if($game->backend_link)
+                            <a href="{{ $game->backend_link }}" target="_blank" class="text-blue-600">
+                                Open
+                            </a>
+                        @else
+                            -
+                        @endif
+                    </td>
+                    <td class="p-3">
+                        @if($game->game_link)
+                            <a href="{{ $game->game_link }}" target="_blank" class="text-blue-600">
+                                Open
+                            </a>
+                        @else
+                            -
+                        @endif
+                    </td>
                     <td class="p-3">{{ $game->created_at->format('Y-m-d H:i') }}</td>
                     <td class="p-3 text-right flex justify-end gap-2">
                         @if($this->canEdit())
@@ -52,7 +70,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="5" class="p-3 text-center">No games found.</td>
+                    <td colspan="6" class="p-3 text-center">No games found.</td>
                 </tr>
             @endforelse
             </tbody>
@@ -77,6 +95,7 @@
                     <input type="text" wire:model="name" placeholder="Game Name" class="w-full border rounded p-2" />
                     <input type="text" wire:model="game_code" placeholder="Game Code / Invite Code" class="w-full border rounded p-2" />
                     <input type="text" wire:model="backend_link" placeholder="Backend Link of Game" class="w-full border rounded p-2" />
+                    <input type="text" wire:model="game_link" placeholder="Link of Game" class="w-full border rounded p-2" />
                 </div>
                 <div class="mt-4 flex justify-end gap-2">
                     <button wire:click="$set('modalOpen', false)" class="px-4 py-2 border rounded bg-gray-500 text-white">Cancel</button>

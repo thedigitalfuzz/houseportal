@@ -50,7 +50,8 @@ public $editModal = false;
 
     public function loadData()
     {
-        $this->walletDetails = WalletDetail::orderBy('agent')
+        $this->walletDetails = WalletDetail::with(['createdBy', 'updatedBy'])
+            ->orderBy('agent')
             ->orderBy('wallet_name')
             ->get();
     }
@@ -119,6 +120,13 @@ public $editModal = false;
         $wd->status_date = $this->status === 'disabled'
             ? $this->status_date
             : null;
+
+        $user = $this->currentUser();
+
+        $wd->updated_by_id = $user->id;
+        $wd->updated_by_type = $user instanceof \App\Models\User
+            ? 'App\Models\User'
+            : 'App\Models\Staff';
 
         $wd->save();
 

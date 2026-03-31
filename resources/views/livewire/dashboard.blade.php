@@ -40,7 +40,7 @@
 
 
     </div>
-    @if($isEntryStaff || $isWalletManager)
+    @if($isSupportAgent || $isWalletManager)
         <div class="font-bold text-xl mb-2"> YOUR {{ $monthLabel }} Summary:</div>
         <div class="flex gap-4 flex-col md:flex-row mb-4">
 
@@ -115,7 +115,7 @@
 
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
-        @if($isEntryStaff || $isWalletManager)
+        @if($isSupportAgent || $isWalletManager)
             <!-- Top Cashin -->
             <div class="bg-white shadow rounded p-4 overflow-x-auto">
                 <div class="flex justify-between mb-2 items-center">
@@ -248,8 +248,12 @@
                 </table>
             </div>
         @endif
-        @if($isWalletManager)
+        @if($isSupportAgent)
 
+
+
+
+            @elseif($isWalletManager)
                 <!-- KEEP YOUR ORIGINAL FIRST TWO BOXES -->
                 <div class="bg-white shadow rounded p-4 overflow-x-auto">
                     <div class="flex justify-between mb-2 items-center">
@@ -312,108 +316,210 @@
                         </tbody>
                     </table>
                 </div>
-        @endif
 
-        <!-- Recent Transactions -->
-        <div class="bg-white shadow rounded p-4 overflow-x-auto">
-            <div class="flex justify-between items-center mb-2">
-                <h2 class="font-bold mb-3">Recent Transactions</h2>
-                <a href="{{ route('transactions') }}" class="inline-block px-2 py-1 text-sm bg-blue-200 rounded-lg sm:px-3 sm:py-2 sm:text-base">
-                    Transactions
-                </a>
+                <div class="bg-white shadow rounded p-4 overflow-x-auto">
+                    <div class="flex justify-between items-center mb-2">
+                        <h2 class="font-bold mb-3">Recent Transactions</h2>
+                        <a href="{{ route('transactions') }}" class="inline-block px-2 py-1 text-sm bg-blue-200 rounded-lg sm:px-3 sm:py-2 sm:text-base">
+                            Transactions
+                        </a>
+                    </div>
+
+                    <table class="min-w-full table-auto">
+                        <thead>
+                        <tr class="bg-gray-100">
+                            <th class="p-2 text-left">Player</th>
+                            <th class="p-2 text-left">Transaction</th>
+                            <th class="p-2 text-left">Amount</th>
+                            <th class="p-2 text-left">Remarks</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @foreach($recentTransactions as $txn)
+                            <tr class="border-t">
+                                <td class="p-2">{{ optional($txn->player)->name ?? optional($txn->player)->player_name ?? '-' }}</td>
+                                <td class="p-2">
+                                    {{ $txn->cashin > 0 ? 'Cash In' : 'Cash Out' }}
+                                </td>
+
+                                <td class="p-2">
+                                    ${{ number_format($txn->cashin > 0 ? $txn->cashin : $txn->cashout, 2) }}
+                                </td>
+
+                                <td class="p-2">
+                                    {{ $txn->wallet_remarks ?? '-' }}
+                                </td>
+                            </tr>
+                        @endforeach
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Top Players (Current Month) -->
+                <div class="bg-white shadow rounded p-4 overflow-x-auto">
+                    <div class="flex justify-between items-center mb-2">
+                        <h2 class="font-bold mb-3">
+                            Top Players – {{ now()->format('F Y') }}
+                        </h2>
+                        @if($isSupportAgent)
+                            <a href="{{ route('players.index') }}"
+                               class="inline-block px-2 py-1 text-sm bg-blue-200 rounded-lg sm:px-3 sm:py-2 sm:text-base">
+                                Players
+                            </a>
+                        @else
+                            <a href="{{ route('player-leaderboard') }}"
+                               class="inline-block px-2 py-1 text-sm bg-blue-200 rounded-lg sm:px-3 sm:py-2 sm:text-base">
+                                Leaderboard
+                            </a>
+                        @endif
+                    </div>
+
+                    <table class="min-w-full table-auto">
+                        <thead>
+                        <tr class="bg-gray-100">
+                            <th class="p-2 text-left">Rank</th>
+                            <th class="p-2 text-left">Player</th>
+                            <th class="p-2 text-right">Cash In</th>
+                            <th class="p-2 text-right">Cash Out</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        @forelse($topPlayersCurrentMonth as $index => $player)
+                            <tr class="border-t">
+                                <td class="p-2 font-semibold">
+                                    #{{ $index + 1 }}
+                                </td>
+
+                                <td class="p-2">
+                                    {{ $player->player_name }}
+                                </td>
+
+                                <td class="p-2 text-right text-green-600">
+                                    ${{ number_format($player->total_cashin, 2) }}
+                                </td>
+
+                                <td class="p-2 text-right text-red-600">
+                                    ${{ number_format($player->total_cashout, 2) }}
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="4" class="p-4 text-center text-gray-500">
+                                    No player data for this month
+                                </td>
+                            </tr>
+                        @endforelse
+                        </tbody>
+                    </table>
+                </div>
+
+            @else
+            <!-- Recent Transactions -->
+            <div class="bg-white shadow rounded p-4 overflow-x-auto">
+                <div class="flex justify-between items-center mb-2">
+                    <h2 class="font-bold mb-3">Recent Transactions</h2>
+                    <a href="{{ route('transactions') }}" class="inline-block px-2 py-1 text-sm bg-blue-200 rounded-lg sm:px-3 sm:py-2 sm:text-base">
+                        Transactions
+                    </a>
+                </div>
+
+                <table class="min-w-full table-auto">
+                    <thead>
+                    <tr class="bg-gray-100">
+                        <th class="p-2 text-left">Player</th>
+                        <th class="p-2 text-left">Transaction</th>
+                        <th class="p-2 text-left">Amount</th>
+                        <th class="p-2 text-left">Remarks</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach($recentTransactions as $txn)
+                        <tr class="border-t">
+                            <td class="p-2">{{ optional($txn->player)->name ?? optional($txn->player)->player_name ?? '-' }}</td>
+                            <td class="p-2">
+                                {{ $txn->cashin > 0 ? 'Cash In' : 'Cash Out' }}
+                            </td>
+
+                            <td class="p-2">
+                                ${{ number_format($txn->cashin > 0 ? $txn->cashin : $txn->cashout, 2) }}
+                            </td>
+
+                            <td class="p-2">
+                                {{ $txn->wallet_remarks ?? '-' }}
+                            </td>
+                        </tr>
+                    @endforeach
+                    </tbody>
+                </table>
             </div>
 
-            <table class="min-w-full table-auto">
-                <thead>
-                <tr class="bg-gray-100">
-                    <th class="p-2 text-left">Player</th>
-                    <th class="p-2 text-left">Transaction</th>
-                    <th class="p-2 text-left">Amount</th>
-                    <th class="p-2 text-left">Remarks</th>
-                </tr>
-                </thead>
-                <tbody>
-                @foreach($recentTransactions as $txn)
-                    <tr class="border-t">
-                        <td class="p-2">{{ optional($txn->player)->name ?? optional($txn->player)->player_name ?? '-' }}</td>
-                        <td class="p-2">
-                            {{ $txn->cashin > 0 ? 'Cash In' : 'Cash Out' }}
-                        </td>
+            <!-- Top Players (Current Month) -->
+            <div class="bg-white shadow rounded p-4 overflow-x-auto">
+                <div class="flex justify-between items-center mb-2">
+                    <h2 class="font-bold mb-3">
+                        Top Players – {{ now()->format('F Y') }}
+                    </h2>
+                    @if($isSupportAgent)
+                        <a href="{{ route('players.index') }}"
+                           class="inline-block px-2 py-1 text-sm bg-blue-200 rounded-lg sm:px-3 sm:py-2 sm:text-base">
+                            Players
+                        </a>
+                    @else
+                        <a href="{{ route('player-leaderboard') }}"
+                           class="inline-block px-2 py-1 text-sm bg-blue-200 rounded-lg sm:px-3 sm:py-2 sm:text-base">
+                            Leaderboard
+                        </a>
+                    @endif
+                </div>
 
-                        <td class="p-2">
-                            ${{ number_format($txn->cashin > 0 ? $txn->cashin : $txn->cashout, 2) }}
-                        </td>
-
-                        <td class="p-2">
-                            {{ $txn->wallet_remarks ?? '-' }}
-                        </td>
+                <table class="min-w-full table-auto">
+                    <thead>
+                    <tr class="bg-gray-100">
+                        <th class="p-2 text-left">Rank</th>
+                        <th class="p-2 text-left">Player</th>
+                        <th class="p-2 text-right">Cash In</th>
+                        <th class="p-2 text-right">Cash Out</th>
                     </tr>
-                @endforeach
-                </tbody>
-            </table>
-        </div>
+                    </thead>
 
-        <!-- Top Players (Current Month) -->
-        <div class="bg-white shadow rounded p-4 overflow-x-auto">
-            <div class="flex justify-between items-center mb-2">
-                <h2 class="font-bold mb-3">
-                    Top Players – {{ now()->format('F Y') }}
-                </h2>
-@if($isEntryStaff)
-               <a href="{{ route('players.index') }}"
-                  class="inline-block px-2 py-1 text-sm bg-blue-200 rounded-lg sm:px-3 sm:py-2 sm:text-base">
-                   Players
-               </a>
-                @else
-                    <a href="{{ route('player-leaderboard') }}"
-                       class="inline-block px-2 py-1 text-sm bg-blue-200 rounded-lg sm:px-3 sm:py-2 sm:text-base">
-                        Leaderboard
-                    </a>
-    @endif
-           </div>
+                    <tbody>
+                    @forelse($topPlayersCurrentMonth as $index => $player)
+                        <tr class="border-t">
+                            <td class="p-2 font-semibold">
+                                #{{ $index + 1 }}
+                            </td>
 
-           <table class="min-w-full table-auto">
-               <thead>
-               <tr class="bg-gray-100">
-                   <th class="p-2 text-left">Rank</th>
-                   <th class="p-2 text-left">Player</th>
-                   <th class="p-2 text-right">Cash In</th>
-                   <th class="p-2 text-right">Cash Out</th>
-               </tr>
-               </thead>
+                            <td class="p-2">
+                                {{ $player->player_name }}
+                            </td>
 
-               <tbody>
-               @forelse($topPlayersCurrentMonth as $index => $player)
-                   <tr class="border-t">
-                       <td class="p-2 font-semibold">
-                           #{{ $index + 1 }}
-                       </td>
+                            <td class="p-2 text-right text-green-600">
+                                ${{ number_format($player->total_cashin, 2) }}
+                            </td>
 
-                       <td class="p-2">
-                           {{ $player->player_name }}
-                       </td>
+                            <td class="p-2 text-right text-red-600">
+                                ${{ number_format($player->total_cashout, 2) }}
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="4" class="p-4 text-center text-gray-500">
+                                No player data for this month
+                            </td>
+                        </tr>
+                    @endforelse
+                    </tbody>
+                </table>
+            </div>
 
-                       <td class="p-2 text-right text-green-600">
-                           ${{ number_format($player->total_cashin, 2) }}
-                       </td>
 
-                       <td class="p-2 text-right text-red-600">
-                           ${{ number_format($player->total_cashout, 2) }}
-                       </td>
-                   </tr>
-               @empty
-                   <tr>
-                       <td colspan="4" class="p-4 text-center text-gray-500">
-                           No player data for this month
-                       </td>
-                   </tr>
-               @endforelse
-               </tbody>
-           </table>
-       </div>
 
+@endif
 
    </div>
+    @if($isSupportAgent || $isWalletManager)
+    @else
    <div class="grid grid-cols-1  gap-4">
        <div wire:ignore class="bg-white shadow rounded p-4 mt-6 mb-6" style="height: 600px;" >
            <h2 class="font-bold mb-4">
@@ -423,16 +529,27 @@
            <canvas id="cashinChart" style="height: 100%; width: 100%;"></canvas>
        </div>
    </div>
+    @endif
    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
-       @if($isEntryStaff || $isWalletManager)
+       @if($isSupportAgent || $isWalletManager)
 
-                   <div class="bg-white shadow rounded p-4" wire:ignore style="height: 450px;">
-                       <h2 class="font-bold mb-2">Your last 5 Days Transactions</h2>
-                       <canvas id="txnChart"></canvas>
-                   </div>
-       @endif
+           <div class="bg-white shadow rounded p-4" wire:ignore style="height: 450px;">
+               <h2 class="font-bold mb-2">Your last 5 Days Transactions</h2>
+               <canvas id="txnChart"></canvas>
+           </div>
+
+           <div class="bg-white shadow rounded p-4" wire:ignore style="height: 450px;">
+               <h2 class="font-bold mb-2">Your Cash In Trend (All Time)</h2>
+               <canvas id="allTimeCashinChart"></canvas>
+           </div>
+
+           <div class="bg-white shadow rounded p-4" wire:ignore style="height: 450px;">
+               <h2 class="font-bold mb-2">Your Net Trend (All Time)</h2>
+               <canvas id="allTimeNetChart"></canvas>
+           </div>
 
 
+           @else
                <div class="bg-white shadow rounded p-4 ">
 
                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 items-start">
@@ -469,10 +586,20 @@
                    </div>
 
                </div>
+           <div class="bg-white shadow rounded p-4" wire:ignore style="height: 450px;">
+               <h2 class="font-bold mb-2">System Cash In Trend (All Time)</h2>
+               <canvas id="allTimeCashinChart"></canvas>
+           </div>
 
+           <div class="bg-white shadow rounded p-4" wire:ignore style="height: 450px;">
+               <h2 class="font-bold mb-2">System Net Trend (All Time)</h2>
+               <canvas id="allTimeNetChart"></canvas>
+           </div>
+       @endif
 
 
    </div>
+
 
    <script>
        window.cashinChartData = {
@@ -609,7 +736,84 @@
            renderTxnChart(@json($last5DaysTxnLabels), @json($last5DaysTxnData));
        });
    </script>
+    <script>
+        let allTimeCashinChartInstance = null;
+        let allTimeNetChartInstance = null;
 
+        function renderAllTimeCharts() {
+            const cashinCtx = document.getElementById('allTimeCashinChart');
+            const netCtx = document.getElementById('allTimeNetChart');
+
+            // CASHIN CHART
+            if (cashinCtx) {
+                if (allTimeCashinChartInstance) {
+                    allTimeCashinChartInstance.destroy();
+                }
+
+                allTimeCashinChartInstance = new Chart(cashinCtx.getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: @json($allTimeCashinLabels),
+                        datasets: [{
+                            label: 'Cash In',
+                            data: @json($allTimeCashinData),
+                            borderWidth: 2,
+                            tension: 0.3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return '$' + context.raw.toLocaleString();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // NET CHART
+            if (netCtx) {
+                if (allTimeNetChartInstance) {
+                    allTimeNetChartInstance.destroy();
+                }
+
+                allTimeNetChartInstance = new Chart(netCtx.getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: @json($allTimeNetLabels),
+                        datasets: [{
+                            label: 'Net',
+                            data: @json($allTimeNetData),
+                            borderWidth: 2,
+                            tension: 0.3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return '$' + context.raw.toLocaleString();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', renderAllTimeCharts);
+        Livewire.hook('message.processed', renderAllTimeCharts);
+    </script>
 
 
 

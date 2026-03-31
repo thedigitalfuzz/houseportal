@@ -27,22 +27,19 @@
                             <option value="{{ $g->id }}">{{ $g->name }}</option>
                         @endforeach
                     </select>
-                        <select wire:model.live="wallet_agent" class="border rounded px-2 py-1">
-                            <option value="">All Wallet Agents</option>
-                            @foreach($walletAgents as $a)
-                                <option value="{{ $a }}">{{ $a }}</option>
-                            @endforeach
-                        </select>
 
-                        <select wire:model.live="wallet_name" class="border rounded px-2 py-1">
-                            <option value="">All Wallet Names</option>
+
+                        <!-- Wallet Name -->
+                        <select wire:model.live="wallet_name" class="border rounded p-2 w-full">
+                            <option value="">Select Wallet Name</option>
                             @foreach($walletNames as $w)
                                 <option value="{{ $w }}">{{ $w }}</option>
                             @endforeach
                         </select>
 
-                        <select wire:model.live="wallet_remarks" class="border rounded px-2 py-1">
-                            <option value="">All Wallet Remarks</option>
+                        <!-- Wallet Remarks -->
+                        <select wire:model.live="wallet_remarks" class="border rounded p-2 w-full">
+                            <option value="">Select Wallet Remarks</option>
                             @foreach($walletRemarksOptions as $r)
                                 <option value="{{ $r }}">{{ $r }}</option>
                             @endforeach
@@ -110,8 +107,9 @@
                         <!-- bonus and cashtag tables:
                         <th class="p-3 text-left">Bonus</th>
                         <th class="p-3 text-left">Cash Tag</th>
-                        -->
                         <th class="p-3 text-left">Wallet Agent</th>
+                        -->
+
                         <th class="p-3 text-left">Wallet Name</th>
                         <th class="p-3 text-left">Wallet Remarks</th>
                         <th class="p-3 text-left">Player Agent</th>
@@ -132,7 +130,15 @@
                             <td class="p-3">#{{ $t->id }}</td>
                             <td class="p-3">{{ $t->player->username ?? '-' }}</td>
                             <td class="p-3">{{ $t->player->player_name ?? '-' }}</td>
-                            <td class="p-3">{{ $t->player->facebook_profile ?? '-' }}</td>
+                            <td class="p-3">
+                                @if(optional($t->player)->facebook_profile)
+                                    <a href="{{ $t->player->facebook_profile }}" target="_blank" class="text-blue-600 underline">
+                                        View
+                                    </a>
+                                @else
+                                    -
+                                @endif
+                            </td>
                             <td class="p-3">{{ $t->game->name ?? '-' }}</td>
                             <td class="p-3">
                                 {{ $t->cashin > 0 ? 'Cash In' : 'Cash Out' }}
@@ -145,11 +151,19 @@
                             <!-- BONUS AND CASHTAG TABLE VIEW:
                             <td class="p-3">$ {{ number_format($t->bonus_added,2) }}</td>
                             <td class="p-3">{{ $t->cash_tag }}</td>
-                            -->
                             <td class="p-3">{{ $t->agent }}</td>
+                            -->
+
                             <td class="p-3">{{ $t->wallet_name }}</td>
                             <td class="p-3">{{ $t->wallet_remarks }}</td>
-                            <td class="p-3">{{ $t->player->assignedAgent->player_agent_name ?? '-' }}</td>
+                            <!-- <td class="p-3">{{ $t->player->assignedAgent->player_agent_name ?? '-' }}</td> -->
+                            <td class="p-3">
+                                @if($t->player->assignedAgent?->facebook_profile)
+                                    <a href="{{ $t->player->assignedAgent?->facebook_profile }}" target="_blank" class="text-blue-600">{{ $t->player->assignedAgent->player_agent_name ?? '-' }}</a>
+                                @else
+                                    -
+                                @endif
+                            </td>
                             @if($this->canDelete())
                             <td class="p-3">{{ $t->created_by_name }}</td>
                             <td class="p-3">{{ $t->updated_by_name }}</td>
@@ -231,15 +245,7 @@
                     <input type="text" wire:model="editCashTag" placeholder="Cash Tag" class="border rounded w-full px-2 py-1" />
                    -->
                     <!-- Agent -->
-                    <div class="flex items-center justify-between">
-                        <label class="text-xs">Wallet Agent:</label>
-                        <select wire:model.live="editAgent" class="w-full border rounded p-2">
-                            <option value="">Select Agent</option>
-                            @foreach($editAgents as $a)
-                                <option value="{{ $a }}">{{ $a }}</option>
-                            @endforeach
-                        </select>
-                    </div>
+
 
 
                     <!-- Wallet Name -->
@@ -255,7 +261,7 @@
                     <!-- Wallet Remarks -->
                     <div class="flex items-center">
                     <label class="text-xs">Wallet Remarks:</label>
-                    <select wire:model.live="editWalletRemarks" class="w-full border rounded p-2">
+                    <select wire:model="editWalletRemarks" class="w-full border rounded p-2">
                         <option value="">Select Wallet Remarks</option>
                         @foreach($editWalletRemarksOptions as $r)
                             <option value="{{ $r }}">{{ $r }}</option>

@@ -97,7 +97,7 @@
                         <select wire:model="role" class="w-full border rounded p-2">
                             <option value="">Select role</option>
                             <option value="wallet_manager">Wallet Manager</option>
-                            <option value="entry_staff">Entry Staff</option>
+                            <option value="support_agent">Support Agent</option>
                         </select>
                         @error('role') <span class="text-red-600 text-sm">{{ $message }}</span> @enderror
                     </div>

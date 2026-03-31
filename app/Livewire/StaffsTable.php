@@ -56,7 +56,7 @@ class StaffsTable extends Component
     {
         $this->reset([
             'editingStaffId','staff_name','staff_username','email',
-            'password','photo','existingPhoto'
+            'password','photo','existingPhoto' ,'role',
         ]);
 
         $this->modalOpen = true;
@@ -87,7 +87,7 @@ class StaffsTable extends Component
             'password' => $this->editingStaffId ? 'nullable|string|min:4' : 'required|string|min:4',
             'facebook_profile' => 'nullable|string|max:255',
             'photo' => 'nullable|image|max:2048',
-            'role' => 'required|string|in:entry_staff,wallet_manager', // <-- new
+            'role' => 'required|string|in:support_agent,wallet_manager', // <-- new
         ];
 
         $validated = $this->validate($rules);

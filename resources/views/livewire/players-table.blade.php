@@ -48,10 +48,22 @@
                     <td class="p-3">{{ $player->id }}</td>
                     <td class="p-3">{{ $player->username }}</td>
                     <td class="p-3">{{ $player->player_name }}</td>
-                    <td class="p-3">{{ $player->facebook_profile ?? '-' }}</td>
+                    <td class="p-3">
+                        @if($player->facebook_profile)
+                            <a href="{{ $player->facebook_profile }}" target="_blank" class="text-blue-600 underline">View</a>
+                        @else
+                            -
+                        @endif
+                    </td>
                   <!--  <td class="p-3">{{ $player->phone ?? '-' }}</td> -->
                     <td class="p-3">{{ $player->assignedAgent?->player_agent_name ?? '-' }}</td>
-                    <td class="p-3">{{ $player->assignedAgent->facebook_profile ?? '-' }}</td>
+                    <td class="p-3">
+                        @if($player->assignedAgent?->facebook_profile)
+                            <a href="{{ $player->assignedAgent?->facebook_profile }}" target="_blank" class="text-blue-600 underline">View</a>
+                        @else
+                            -
+                        @endif
+                    </td>
                     @if($this->canDelete())
                     <td class="p-3">{{ $player->created_by_name }}</td>
                     <td class="p-3">{{ $player->updated_by_name }}</td>
