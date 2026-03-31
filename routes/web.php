@@ -32,7 +32,7 @@ Route::middleware(['auth.any', 'verified'])->group(function () {
     Route::get('/players', fn() => view('players.index'))->name('players.index');
     Route::get('/transactions', fn() => view('pages.transactions'))->name('transactions');
     Route::get('/games', fn() => view('pages.games'))->name('games');
-    Route::get('/chat', fn() => view('pages.chat-app-page'))->name('chat');
+    //Route::get('/chat', fn() => view('pages.chat-app-page'))->name('chat');
     Route::middleware('auth:staff')->group(function () {
         ;    Route::get('/staff-profile', fn() => view('pages.staff-profile-page'))->name('staff-profile');
     });
