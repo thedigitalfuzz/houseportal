@@ -49,4 +49,8 @@ class Staff extends Authenticatable
     {
         return $this->hasMany(Transaction::class, 'created_by_id'); // adjust if your column differs
     }
+    public function isOnline(): bool
+    {
+        return cache()->has('user-is-online-' . ($this->staff_id ?? $this->id));
+    }
 }

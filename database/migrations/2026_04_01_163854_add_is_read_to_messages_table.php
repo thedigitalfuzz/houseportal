@@ -9,10 +9,10 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
+    public function up()
     {
         Schema::table('messages', function (Blueprint $table) {
-            $table->json('reactions')->nullable(); // store as {"👍":[1,2], "❤️":[3]}
+            $table->boolean('is_read')->default(false);
         });
     }
 

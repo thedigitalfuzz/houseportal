@@ -17,10 +17,37 @@ class Channel extends Model
     public function users()
     {
         return $this->belongsToMany(Staff::class, 'channel_user', 'channel_id', 'user_id')
-            ->withPivot('role')
+            ->wherePivot('user_type', \App\Models\Staff::class)
+            ->withPivot('user_type','role')
+            ->withTimestamps();
+    }
+   // public function allUsers()
+    //{
+      //  return $this->morphToMany(
+        //    \App\Models\User::class,
+          //  'user',
+           // 'channel_user',
+            //'channel_id',
+            //'user_id'
+       // )->withPivot('role')->withTimestamps();
+    //}
+    // Admin users
+    public function adminUsers()
+    {
+        return $this->belongsToMany(User::class, 'channel_user', 'channel_id', 'user_id')
+            ->wherePivot('user_type', User::class)
+            ->withPivot('user_type','role')
             ->withTimestamps();
     }
 
+// Staff users
+    public function staffUsers()
+    {
+        return $this->belongsToMany(Staff::class, 'channel_user', 'channel_id', 'user_id')
+            ->wherePivot('user_type', Staff::class)
+            ->withPivot('user_type','role')
+            ->withTimestamps();
+    }
     public function messages()
     {
         return $this->hasMany(Message::class);

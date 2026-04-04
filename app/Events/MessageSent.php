@@ -13,7 +13,7 @@ use App\Models\Message;
 
 class MessageSent implements ShouldBroadcast
 {
-    use InteractsWithSockets, SerializesModels;
+    use Dispatchable, InteractsWithSockets, SerializesModels;
 
     /**
      * Create a new event instance.
@@ -27,8 +27,13 @@ class MessageSent implements ShouldBroadcast
 
     public function broadcastOn()
     {
-        return new Channel('chat.' . $this->message->channel_id);
+        return new  \Illuminate\Broadcasting\Channel('chat.' . (string)$this->message->channel_id);
     }
+    //public function broadcastAs()
+    //{
+      //  return 'MessageSent';
+    //}
+
 
     public function broadcastWith()
     {
@@ -38,6 +43,7 @@ class MessageSent implements ShouldBroadcast
             'sender_id' => $this->message->sender_id,
             'sender_type' => $this->message->sender_type,
             'message' => $this->message->message,
+            'reactions' => $this->message->reactions,
             'created_at' => $this->message->created_at->format('Y-m-d H:i:s'),
         ];
     }

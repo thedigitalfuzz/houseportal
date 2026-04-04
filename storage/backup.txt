@@ -21,3 +21,32 @@
                                                 <option value="{{ $a }}">{{ $a }}</option>
                                             @endforeach
                                         </select>
+ <!-- Channel Creation (Admin Only) -->
+        @php
+            $isAdmin = auth()->check(); // admin only
+        $isStaff = auth()->guard('staff')->check(); // staff
+        @endphp
+
+        @if($isAdmin)
+            <div class="flex items-center gap-2 mb-2">
+                <input type="text" wire:model.defer="newChannelName" placeholder="New channel name"
+                       class="border rounded px-2 py-1 w-full"/>
+                <button wire:click="createChannel" class="bg-green-600 text-white px-2 py-1 mt-1 rounded w-full">Create</button>
+            </div>
+        @endif
+
+        <ul>
+            @foreach($channels as $channel)
+                <li class="cursor-pointer flex justify-between p-1 hover:bg-gray-200 {{ $selectedChannel == $channel->id ? 'bg-gray-300 font-bold' : '' }}"
+                    wire:click="selectChannel({{ $channel->id }})">
+                    #{{ $channel->name }}
+
+                    <!-- Delete icon only for admin -->
+                    @if($isAdmin)
+                        <button wire:click="deleteChannel({{ $channel->id }})"
+                                onclick="confirm('Do you want to delete this channel and all messages?') || event.stopImmediatePropagation()"
+                                class="text-red-600 ml-2">🗑</button>
+                    @endif
+                </li>
+            @endforeach
+        </ul>

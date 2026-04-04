@@ -4,7 +4,7 @@
 @endphp
 <aside
     id="sidebar"
-    class="w-64 bg-gray-800 text-white fixed inset-y-0 left-0 z-40 transform -translate-x-full transition-transform duration-300 lg:translate-x-0 lg:static lg:block flex-shrink-0 overflow-y-auto"
+    class="w-64 bg-gray-800 fixed top-0 left-0 text-white inset-y-0 z-40 transform -translate-x-full transition-transform duration-300 lg:translate-x-0 lg:static lg:block flex-shrink-0 overflow-y-auto"
 >
     <a href="{{ route('dashboard') }}" class="block">
         <div class="p-6 font-bold text-xl border-b border-gray-700 cursor-pointer">
@@ -93,11 +93,18 @@
                        class="block py-2 px-6 text-sm hover:bg-gray-700 {{ request()->routeIs('game-points') ? 'bg-gray-700' : '' }}">
                         Game Points
                     </a>
-                    <a href="{{ route('game-credits') }}"
-                       class="block py-2 px-6 text-sm hover:bg-gray-700 {{ request()->routeIs('game-credits') ? 'bg-gray-700' : '' }}">
-                        Game Credits
-                    </a>
 
+
+                    @if($role === 'admin')
+                        <a href="{{ route('game-credits') }}"
+                           class="block py-2 px-6 text-sm hover:bg-gray-700 {{ request()->routeIs('game-credits') ? 'bg-gray-700' : '' }}">
+                            Game Credits
+                        </a>
+                        <a href="{{ route('game-credits-credentials') }}"
+                           class="block py-2 px-6 text-sm hover:bg-gray-700 {{ request()->routeIs('game-credits-credentials') ? 'bg-gray-700' : '' }}">
+                            Game Credentials
+                        </a>
+                    @endif
                     <a href="{{ route('game-performance') }}"
                        class="block py-2 px-6 text-sm hover:bg-gray-700 {{ request()->routeIs('game-performance') ? 'bg-gray-700' : '' }}">
                         Game Performance
@@ -145,6 +152,10 @@
            class="block py-2 px-6 hover:bg-gray-700 {{ request()->routeIs('transactions') ? 'bg-gray-700' : '' }}">
             Transactions
         </a>
+        <a href="{{ route('chat') }}"
+           class="block py-2 px-6 hover:bg-gray-700 {{ request()->routeIs('chat') ? 'bg-gray-700' : '' }}">
+            Chat
+        </a>
         @if(in_array($role, ['wallet_manager', 'support_agent']))
             <a href="{{ route('staff-profile') }}"
                class="block py-2 px-6 hover:bg-gray-700 {{ request()->routeIs('staff-profile') ? 'bg-gray-700' : '' }}">
@@ -153,6 +164,10 @@
         @endif
 
         @if($currentUser?->role === 'admin')
+            <a href="{{ route('chat.management') }}"
+               class="block py-2 px-6 hover:bg-gray-700 {{ request()->routeIs('chat.management') ? 'bg-gray-700' : '' }}">
+                Chat Management
+            </a>
             <a href="{{ route('staffs.index') }}"
                class="block py-2 px-6 hover:bg-gray-700 {{ request()->routeIs('staffs.index') ? 'bg-gray-700' : '' }}">
                 Staff Management
