@@ -36,7 +36,7 @@
             <tbody>
             @forelse($staffs as $staff)
                 <tr class="border-t">
-                    <td class="p-3">{{ $staff->id }}</td>
+                    <td class="p-3">{{ $loop->iteration }}</td>
                     <td class="p-3">{{ $staff->staff_name }}</td>
                     <td class="p-3">
                         <img src="{{ asset('storage/' . $staff->photo) }}" class="w-24 h-24 rounded-full mt-1 object-cover" alt="Staff Photo">
@@ -50,7 +50,7 @@
 
                     <td class="p-3 text-right flex justify-end gap-2">
                         <button wire:click="openEditModal({{ $staff->id }})"
-                                class="bg-yellow-500 text-white px-3 py-1 rounded">Edit</button>
+                                class="bg-blue-200 px-3 py-1 rounded">Edit</button>
 
                         <!-- Custom Delete modal button -->
                         <button wire:click="confirmDelete({{ $staff->id }})"

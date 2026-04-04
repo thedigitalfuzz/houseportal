@@ -1,3 +1,29 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+     /* MINI SIDEBAR */
+ #sidebar.collapsed {
+     width: 80px !important;
+ }
+
+/* Hide text when collapsed */
+#sidebar.collapsed .sidebar-text {
+    display: none;
+}
+
+/* Center icons */
+#sidebar.collapsed a {
+    justify-content: center;
+}
+
+/* Logo shrink */
+#sidebar.collapsed #sidebarLogo {
+    width: 40px;
+}
+
+/* Hide title */
+#sidebar.collapsed #sidebarTitle {
+    display: none;
+}
+

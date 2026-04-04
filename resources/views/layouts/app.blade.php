@@ -17,9 +17,39 @@
     <script>
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('overlay');
-            sidebar.classList.toggle('-translate-x-full');
-            overlay.classList.toggle('hidden');
+            const overlay = document.getElementById('sidebarOverlay');
+            const content = document.getElementById('mainContent');
+            const btn = document.getElementById('sidebarToggleBtn');
+
+            // MOBILE
+            if (window.innerWidth < 1024) {
+                sidebar.classList.remove('-translate-x-full');
+                overlay.classList.remove('hidden');
+                return;
+            }
+
+            // DESKTOP COLLAPSE
+            sidebar.classList.toggle('collapsed');
+
+            content.classList.toggle('lg:ml-64');
+            content.classList.toggle('lg:ml-20');
+
+            // MOVE BUTTON WITH SIDEBAR
+            if (sidebar.classList.contains('collapsed')) {
+                btn.classList.remove('lg:left-64');
+                btn.classList.add('lg:left-20');
+            } else {
+                btn.classList.remove('lg:left-20');
+                btn.classList.add('lg:left-64');
+            }
+        }
+
+        function closeSidebarMobile() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+
+            sidebar.classList.add('-translate-x-full');
+            overlay.classList.add('hidden');
         }
     </script>
 </head>
@@ -39,7 +69,8 @@
     <!-- Header -->
 
     @include('components.header')
-    <main class="p-4 sm:p-6 flex-1">
+    <main id="mainContent" class="p-4 sm:p-6 flex-1 md:mt-[72px]  transition-all duration-300 lg:ml-64">
+
         @yield('content')
     </main>
     @include('components.footer')
@@ -64,5 +95,26 @@
     });
 </script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+    function loadLucideIcons() {
+        if (window.lucide) {
+            lucide.createIcons();
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", loadLucideIcons);
+    document.addEventListener("livewire:navigated", loadLucideIcons);
+    document.addEventListener("livewire:updated", loadLucideIcons);
+
+    // IMPORTANT: when details dropdown opens
+    document.querySelectorAll("details").forEach((detail) => {
+        detail.addEventListener("toggle", function () {
+            if (this.open) {
+                setTimeout(loadLucideIcons, 50);
+            }
+        });
+    });
+</script>
 </body>
 </html>

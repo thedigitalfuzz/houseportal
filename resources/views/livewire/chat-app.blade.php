@@ -10,11 +10,23 @@
                                                                 class="text-lg font-bold">×</button> </div> @endif
             <!-- HEADER -->
             <div class="flex gap-2 items-center bg-white border-b border-gray-200 px-4 py-2 shadow-sm">
-                <div class="w-10 h-10 rounded-full overflow-hidden border border-gray-300 shrink-0"> @foreach($messages
-                    as $msg) @if($msg->sender_type === \App\Models\Staff::class) <img
-                        src="{{ asset('storage/' . ($msg->sender->photo ?? 'images/default-avatar.png')) }}"
-                        class="w-full h-full object-cover"> @else <img src="/images/default-avatar.png"
-                                                                       class="w-full h-full object-cover"> @endif @endforeach </div>
+                <div class="w-10 h-10 rounded-full overflow-hidden border border-gray-300 shrink-0">
+                    @php
+                        $headerPhoto = asset('/images/hslogo.png'); // fallback
+                        foreach($staffs as $user) {
+                            if($selectedChannelName == $user['name']) {
+                                // Check if photo exists and the file is present in storage
+                                if(!empty($user['photo']) && file_exists(storage_path('app/public/' . $user['photo']))) {
+                                    $headerPhoto = asset('storage/' . $user['photo']);
+                                }
+                                break;
+                            }
+                        }
+                    @endphp
+
+                    <img src="{{ $headerPhoto }}" class="w-full h-full object-cover">
+                </div>
+
                 <div class="flex-1 flex items-center justify-between">
                     <h3 class="font-semibold text-lg text-gray-900 truncate"> {{ $selectedChannelName }} </h3>
                     @foreach($staffs as $user) @if($selectedChannelName == $user['name'] && ($user['isOnline'] ??
@@ -31,10 +43,18 @@
                 <div class="group flex items-start gap-3 min-w-0" wire:key="msg-{{ $msg->id }}">
                     <!-- AVATAR -->
                     <div class="w-10 h-10 rounded-full overflow-hidden border border-gray-300 shrink-0">
-                        @if($msg->sender_type === \App\Models\Staff::class) <img
-                            src="{{ asset('storage/' . ($msg->sender->photo ?? 'images/default-avatar.png')) }}"
-                            class="w-full h-full object-cover"> @else <img src="/images/default-avatar.png"
-                                                                           class="w-full h-full object-cover"> @endif </div> <!-- BUBBLE CONTENT -->
+                        @php
+                            $photoPath = asset('/images/hslogo.png'); // fallback
+
+                            if($msg->sender) {
+                                // Check if photo exists and the file actually exists in storage
+                                if(!empty($msg->sender->photo) && file_exists(storage_path('app/public/' . $msg->sender->photo))) {
+                                    $photoPath = asset('storage/' . $msg->sender->photo);
+                                }
+                            }
+                        @endphp
+
+                        <img src="{{ $photoPath }}" class="w-full h-full object-cover"></div> <!-- BUBBLE CONTENT -->
                     <div class="flex-1 min-w-0">
                         <div class="text-sm font-semibold text-gray-900 truncate"> @if($msg->sender_type ===
                             \App\Models\Staff::class) {{ $msg->sender->staff_name ?? 'Unknown Staff' }}
@@ -66,9 +86,10 @@
                     class="italic">{{ $name }} is typing...</span> @endforeach </div> <!-- INPUT -->
             <div
                 class="p-4 border-t border-gray-200 flex items-center gap-3 bg-white shrink-0 shadow-inner rounded-t-lg">
-                <input type="text" wire:model.live="newMessage" placeholder="Message #{{ $selectedChannelName }}"
+                <input type="text" wire:model.live="newMessage" wire:keydown.enter="sendMessage"  placeholder="Message {{ $selectedChannelName }}"
                        class="flex-1 min-w-0 bg-gray-100 border border-gray-200 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
-                <button class="text-xl text-gray-500 hover:text-gray-700 shrink-0">😊</button> <button
+                <!--<button class="text-xl text-gray-500 hover:text-gray-700 shrink-0">😊</button> -->
+                <button
                     wire:click="sendMessage"
                     class="bg-blue-600 hover:bg-blue-500 px-5 py-2 rounded-full text-sm font-medium shrink-0 text-white">
                     Send </button> </div>
@@ -85,10 +106,10 @@
 
                         <li wire:click="selectChannel({{ $channel->id }})"
                             class="flex justify-between items-center px-3 py-2 rounded cursor-pointer
-    {{ $selectedChannel == $channel->id ? 'bg-blue-50' : 'hover:bg-gray-100' }}">
+    {{ $selectedChannel == $channel->id ? 'bg-blue-200' : 'hover:bg-gray-100' }}">
 
    <span class="{{ isset($newMessages[$channel->id]) ? 'font-bold' : '' }}">
-        {{ $channel->name }}
+        #{{ $channel->name }}
     </span>
 
                             @if(isset($newMessages[$channel->id]))
@@ -96,23 +117,64 @@
                             @endif
                         </li>
                     @endforeach </ul> <!-- PRIVATE CHATS -->
-                <h3 class="text-xs uppercase text-gray-500 mt-6 mb-2">Direct Messages</h3> @foreach($staffs as $user)
-                    @php $name = $user['name']; $photo = $user['photo'] ?? '/images/default-avatar.png'; $isActive =
-                $user['isOnline'] ?? false; @endphp <li wire:click="startPrivateChat('{{ $user['id'] }}')"
-                                                        class="flex items-center gap-3 px-3 py-2 rounded cursor-pointer {{ $selectedChannelName == $name ? 'bg-blue-50' : 'hover:bg-gray-100' }}">
-                        <div class="relative"> <img src="{{ asset('storage/' . $photo) }}"
-                                                    class="w-10 h-10 rounded-full border-2 {{ $isActive ? 'border-green-500' : 'border-gray-200' }}">
-                            @if($isActive) <span
+                <h3 class="text-xs uppercase text-gray-500 mt-6 mb-2">Direct Messages</h3>
+                @foreach($staffs as $user)
+                    @php $name = $user['name']; $photo = $user['photo'] ?? '/images/hslogo.png'; $isActive =
+                $user['isOnline'] ?? false;
+// Fallback logic for photo
+        $photoPath = asset('/images/hslogo.png'); // default fallback
+        if(!empty($user['photo']) && file_exists(storage_path('app/public/' . $user['photo']))) {
+            $photoPath = asset('storage/' . $user['photo']);
+        }
+
+ @endphp
+                    <li wire:click="startPrivateChat('{{ $user['id'] }}')"
+                                                        class="flex items-center gap-3 px-3 py-2 rounded cursor-pointer {{ $selectedChannelName == $name ? 'bg-blue-200' : 'hover:bg-gray-100' }}">
+                        <div class="relative">
+                            <img src="{{ $photoPath }}"
+                                                    class="w-10 h-10 rounded-full border-4 {{ $isActive ? 'border-green-500' : 'border-gray-200' }}">
+                            @if($isActive)
+                                <span
                                 class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border border-white rounded-full"></span>
-                            @endif </div>
+                            @endif
+                        </div>
                         <div class="flex-1">
                             <div class="text-sm font-medium">{{ $name }}</div>
                             <div class="text-xs text-gray-500 truncate"> {{ $user['last_message'] ?? 'No messages yet' }}
                             </div>
+                            @if(!empty($user['last_message_time']))
+                                <div class="text-xs text-gray-400"> {{
+                                        \Carbon\Carbon::parse($user['last_message_time'])->diffForHumans() }}
+                                </div>
+                            @endif
                         </div> @if(($user['unread_count'] ?? 0) > 0) <span
-                            class="bg-red-500 text-xs px-2 py-1 rounded-full"> {{ $user['unread_count'] }} </span> @endif
+                            class="bg-red-500 text-white text-xs px-2 py-1 rounded-full"> {{ $user['unread_count'] }} </span> @endif
                     </li> @endforeach
             </div>
         </div>
     </div>
+
+
+    <script>
+        Livewire.on('hideReactionBar', data => { const bar = document.querySelector(#reaction-bar-${data.messageId}); if(bar) bar.style.display = 'none'; }); Livewire.on('hideDeletedMessageAlert', () => { setTimeout(() => { const alert = document.getElementById('deletedMessageAlert'); if(alert) alert.style.display = 'none'; }, 5000); });
+    </script>
+    <script>
+        window.addEventListener('removeTyping', event => { const name = event.detail.name; const typingElements = document.querySelectorAll('.typing-indicator span'); typingElements.forEach(el => { if(el.textContent.includes(name)) { el.remove(); // remove typing after 5 sec } }); });
+    </script>
+    <script>
+        window.addEventListener('scrollChatToBottom', () => {
+            const chatContainer = document.getElementById('chatContainer');
+            if (chatContainer) {
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+        });
+
+        // Optional: scroll to bottom on initial page load
+        document.addEventListener('DOMContentLoaded', () => {
+            const chatContainer = document.getElementById('chatContainer');
+            if (chatContainer) {
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+        });
+    </script>
 </div>

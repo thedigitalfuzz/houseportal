@@ -256,8 +256,8 @@ class ChatApp extends Component
         $this->loadMessages();
         $this->loadLastMessages();
         $this->staffs = array_values($this->staffs);
-
         $this->refreshOnlineStatus($currentId, $currentType);
+        $this->dispatch('scrollChatToBottom');
     }
 
     public function updatedSelectedChannel()
@@ -305,6 +305,7 @@ class ChatApp extends Component
         $this->messages->push($message);
         $this->newMessage = '';
         $this->loadLastMessages();
+        $this->dispatch('scrollChatToBottom');
     }
 
     public function react($messageId, $emoji)

@@ -35,7 +35,7 @@
                 <tbody>
                 @forelse($agents as $agent)
                     <tr class="border-t">
-                        <td class="p-3">{{ $agent->id }}</td>
+                        <td class="p-3">{{ $loop->iteration }}</td>
                         <td class="p-3">{{ $agent->player_agent_name }}</td>
                         <td class="p-3">
                             <img src="{{ asset('storage/' . $agent->photo) }}" class="w-24 h-24 rounded-full mt-1 object-cover" alt="Agent Photo">
@@ -48,7 +48,7 @@
                         <td class="p-3">{{ $agent->created_at->format('Y-m-d H:i') }}</td>
 
                         <td class="p-3 text-right flex justify-end gap-2">
-                            <button wire:click="openEditModal({{ $agent->id }})" class="bg-yellow-500 text-white px-3 py-1 rounded">Edit</button>
+                            <button wire:click="openEditModal({{ $agent->id }})" class="bg-blue-200 px-3 py-1 rounded">Edit</button>
 
                             <!-- Custom Delete modal button -->
                             <button wire:click="confirmDelete({{ $agent->id }})" class="bg-red-600 text-white px-3 py-1 rounded">Delete</button>

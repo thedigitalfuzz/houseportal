@@ -37,7 +37,7 @@
             <tbody>
             @forelse($games as $game)
                 <tr class="border-t">
-                    <td class="p-3">{{ $game->id }}</td>
+                    <td class="p-3">{{ $loop->iteration }}</td>
                     <td class="p-3">{{ $game->name }}</td>
                     <td class="p-3">{{ $game->game_code ?? '-' }}</td>
                     <td class="p-3">

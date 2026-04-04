@@ -67,12 +67,19 @@
                         @endif </div>
                     <div class="flex flex-col"> <span>{{ $name }}</span>
                         <div class="text-xs text-gray-500 truncate"> {{ $user['last_message'] ?? 'No messages yet' }}
-                        </div> @if(!empty($user['last_message_time'])) <div class="text-xs text-gray-400"> {{
-                            \Carbon\Carbon::parse($user['last_message_time'])->diffForHumans() }} </div> @endif
-                    </div> @if(($user['unread_count'] ?? 0) > 0) <span
-                        class="bg-red-500 text-white text-xs px-2 py-1 rounded-full"> {{ $user['unread_count'] }}
-                    </span> @endif
-                </li> @endforeach
+                        </div>
+                            @if(!empty($user['last_message_time']))
+                                <div class="text-xs text-gray-400"> {{
+                                        \Carbon\Carbon::parse($user['last_message_time'])->diffForHumans() }}
+                                </div>
+                            @endif
+
+                                    @if(($user['unread_count'] ?? 0) > 0) <span
+                                             class="bg-red-500 text-white text-xs px-2 py-1 rounded-full"> {{ $user['unread_count'] }}
+                                 </span>
+                             @endif
+                         </li>
+                @endforeach
             </div>
         </div>
         <script>

@@ -97,7 +97,8 @@
                 <table class="min-w-full table-auto">
                     <thead class="bg-gray-50">
                     <tr>
-                        <th class="p-3 text-left">ID</th>
+                        <th class="p-3 text-left">S.N.</th>
+                        <th class="p-3 text-left">Transaction ID</th>
                         <th class="p-3 text-left">Username</th>
                         <th class="p-3 text-left">Player Name</th>
                         <th class="p-3 text-left">Player Profile</th>
@@ -127,7 +128,10 @@
                     @forelse($transactionsByDate[$date] ?? [] as $t)
 
                         <tr class="border-t {{ ($t->cashin + $t->cashout) == 0 ? 'bg-red-50' : '' }}">
-                            <td class="p-3">#{{ $t->id }}</td>
+                            <td class="p-3">{{  $loop->iteration  }}</td>
+                            @if($this->canDelete())
+                                <td class="p-3">#{{  $t->id  }}</td>
+                            @endif
                             <td class="p-3">{{ $t->player->username ?? '-' }}</td>
                             <td class="p-3">{{ $t->player->player_name ?? '-' }}</td>
                             <td class="p-3">

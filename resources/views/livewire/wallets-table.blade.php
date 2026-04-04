@@ -90,7 +90,7 @@
             && $wallet->date->gte($disabled->status_date ?? $wallet->date);
                         @endphp
                         <tr class="border-t  {{ $highlight ? 'bg-red-200' : '' }}">
-                            <td class="p-3">{{ $wallet->id }}</td>
+                            <td class="p-3">{{ $loop->iteration }}</td>
                             <td class="p-3">{{ $wallet->agent }}</td>
                             <td class="p-3">{{ $wallet->wallet_name }}</td>
                             <td class="p-3">{{ $wallet->wallet_remarks ?? '-' }}</td>
