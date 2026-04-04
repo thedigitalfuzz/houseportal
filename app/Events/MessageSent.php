@@ -45,6 +45,11 @@ class MessageSent implements ShouldBroadcast
             'message' => $this->message->message,
             'reactions' => $this->message->reactions,
             'created_at' => $this->message->created_at->format('Y-m-d H:i:s'),
+            'sender' => [
+                'staff_name' => $this->message->sender->staff_name ?? null,
+                'name' => $this->message->sender->name ?? 'Administrator',
+                'photo' => $this->message->sender->photo ?? null,
+            ],
         ];
     }
 }

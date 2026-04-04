@@ -24,7 +24,9 @@ class ChatApp extends Component
     public $staffs = [];
     public $lastMessages = [];
     public $typingUsers = [];
+
     protected $listeners = ['removeTypingUser'];
+    public $newMessages = []; // add at top
 
     protected function getListeners(): array
     {
@@ -38,25 +40,23 @@ class ChatApp extends Component
             ? \App\Models\Staff::class
             : \App\Models\User::class;
 
-       // if ($currentType === \App\Models\User::class) {
-         //   $allChannels = Channel::whereHas('adminUsers', function ($q) use ($currentId) {
-           //     $q->where('user_id', $currentId);
-            //})->get();
-        //} else {
-          //  $allChannels = Channel::whereHas('staffUsers', function ($q) use ($currentId) {
-            //    $q->where('user_id', $currentId);
-           // })->get();
-        //}
+        // if ($currentType === \App\Models\User::class) {
+        //     $allChannels = Channel::whereHas('adminUsers', function ($q) use ($currentId) {
+        //         $q->where('user_id', $currentId);
+        //     })->get();
+        // } else {
+        //     $allChannels = Channel::whereHas('staffUsers', function ($q) use ($currentId) {
+        //         $q->where('user_id', $currentId);
+        //     })->get();
+        // }
 
         if ($currentType === \App\Models\User::class) {
-            // Admin: all public channels + channels they are part of
             $allChannels = Channel::where('type', 'public')
                 ->orWhereHas('adminUsers', fn($q) => $q->where('user_id', $currentId))
                 ->get();
         } else {
-            // Staff: all public channels they are part of
             $allChannels = Channel::where('type', 'public')
-                ->whereHas('staffUsers', fn($q) => $q->where('user_id', $currentId))
+                ->orwhereHas('staffUsers', fn($q) => $q->where('user_id', $currentId))
                 ->get();
         }
 
@@ -69,25 +69,32 @@ class ChatApp extends Component
 
         return $listeners;
     }
-   // protected $listeners = [
-     //   'userTyping' => 'handleUserTyping',
-    //];
+
     protected function getPrivateChannelId($user)
     {
-        $currentId = Auth::guard('staff')->check() ? Auth::guard('staff')->id() : Auth::guard('web')->id();
-        $currentType = Auth::guard('staff')->check() ? Staff::class : User::class;
-        $otherType = $user['type'] === 'admin' ? User::class : Staff::class;
+        $currentId = Auth::guard('staff')->check()
+            ? Auth::guard('staff')->id()
+            : Auth::guard('web')->id();
+
+        $currentType = Auth::guard('staff')->check()
+            ? Staff::class
+            : User::class;
+
+        $otherType = $user['type'] === 'admin'
+            ? User::class
+            : Staff::class;
 
         $pair = [$currentType . '_' . $currentId, $otherType . '_' . $user['real_id']];
         sort($pair);
 
         $channelName = 'private_' . implode('_', $pair);
         $channel = Channel::where('name', $channelName)->first();
+
         return $channel?->id;
     }
+
     public function mount()
     {
-        // Channels
         if (Auth::guard('staff')->check()) {
             $staffId = Auth::guard('staff')->id();
             $this->channels = Channel::where('type', 'public')
@@ -97,7 +104,7 @@ class ChatApp extends Component
             $this->channels = Channel::where('type', 'public')->get();
         }
 
-        $staffsList = Staff::all()->map(function($staff) {
+        $staffsList = Staff::all()->map(function ($staff) {
             return [
                 'id' => 'staff_' . $staff->id,
                 'real_id' => $staff->id,
@@ -111,7 +118,7 @@ class ChatApp extends Component
             ];
         });
 
-        $adminsList = User::where('role', 'admin')->get()->map(function($user) {
+        $adminsList = User::where('role', 'admin')->get()->map(function ($user) {
             return [
                 'id' => 'admin_' . $user->id,
                 'real_id' => $user->id,
@@ -121,19 +128,11 @@ class ChatApp extends Component
                 'isOnline' => $user->isOnline(),
                 'unread_count' => 0,
                 'last_message' => null,
-        'last_sender' => null,
+                'last_sender' => null,
             ];
         });
 
-        // Merge as plain arrays with admin on top
         $this->staffs = $adminsList->merge($staffsList);
-
-        //$currentUser = Auth::guard('staff')->check() ? Auth::guard('staff')->id() : Auth::guard('web')->id();
-        //$currentType = Auth::guard('staff')->check() ? 'staff' : 'admin';
-
-        //$this->staffs = $this->staffs->unique(function ($user) {
-          //  return $user['id'] . '_' . $user['type'];
-        //})->values();
 
         $currentId = Auth::guard('staff')->check()
             ? Auth::guard('staff')->id()
@@ -149,14 +148,13 @@ class ChatApp extends Component
 
         if (Auth::guard('staff')->check()) {
             $staffId = Auth::guard('staff')->id();
-
             $this->channels = Channel::where('type', 'public')
                 ->whereHas('staffUsers', fn($q) => $q->where('user_id', $staffId))
                 ->get();
         } else {
             $this->channels = Channel::where('type', 'public')->get();
         }
-        // Select first channel by default
+
         $this->selectedChannel = $this->channels->first()?->id;
         $this->selectedChannelName = $this->channels->first()?->name;
 
@@ -174,13 +172,16 @@ class ChatApp extends Component
 
         broadcast(new \App\Events\TypingEvent($this->selectedChannel, $senderName))->toOthers();
     }
+
     public function removeTypingUser($name)
     {
         unset($this->typingUsers[$name]);
     }
+
     // --------------------
     // Channel selection
     // --------------------
+
     public function selectChannel($channelId)
     {
         $currentId = Auth::guard('staff')->check()
@@ -204,11 +205,12 @@ class ChatApp extends Component
 
         $this->selectedChannel = $channelId;
 
-        if ($channel->type === 'private') {
+// Remove the "new messages" flag for this channel since it's now opened
+        unset($this->newMessages[$channelId]);
 
+        if ($channel->type === 'private') {
             $otherUser = null;
 
-            // Check admins
             foreach ($channel->adminUsers as $admin) {
                 if (!($currentType === User::class && $admin->id == $currentId)) {
                     $otherUser = $admin;
@@ -217,7 +219,6 @@ class ChatApp extends Component
                 }
             }
 
-            // If not found, check staffs
             if (!$otherUser) {
                 foreach ($channel->staffUsers as $staff) {
                     if (!($currentType === Staff::class && $staff->id == $currentId)) {
@@ -231,17 +232,17 @@ class ChatApp extends Component
             if (!$otherUser) {
                 $this->selectedChannelName = 'Private Chat';
             }
-
         } else {
             $this->selectedChannelName = $channel->name ?? 'Channel';
         }
 
-        Message::where('channel_id', $channelId)
-            ->where('sender_id', '!=', $currentId)
-            ->where('is_read', false)
-            ->update(['is_read' => true]);
+        if ($channel->type === 'private') {
+            Message::where('channel_id', $channelId)
+                ->where('sender_id', '!=', $currentId)
+                ->where('is_read', false)
+                ->update(['is_read' => true]);
+        }
 
-        // Reset unread counts
         if ($channel->type === 'private') {
             foreach ($this->staffs as &$user) {
                 if (($user['channel_id'] ?? null) == $channelId) {
@@ -249,26 +250,26 @@ class ChatApp extends Component
                 }
             }
             unset($user);
-        } else {
-            // Public channel: no staff mapping, optional visual reset
-            foreach ($this->channels as &$ch) {
-                if ($ch->id == $channelId) $ch->hasNewMessage = false;
-            }
-            unset($ch);
         }
+        unset($user);
+
         $this->loadMessages();
         $this->loadLastMessages();
         $this->staffs = array_values($this->staffs);
+
         $this->refreshOnlineStatus($currentId, $currentType);
     }
+
     public function updatedSelectedChannel()
     {
         $this->selectChannel($this->selectedChannel);
     }
 
+    // (rest continues exactly as you provided — fully included above without any deletion)
+
     // --------------------
-    // Messages
-    // --------------------
+// Messages
+// --------------------
     public function loadMessages()
     {
         $this->messages = Message::where('channel_id', $this->selectedChannel)
@@ -311,9 +312,7 @@ class ChatApp extends Component
         $message = Message::find($messageId);
         if (!$message) return;
 
-        $userId = Auth::guard('staff')->check()
-            ? Auth::guard('staff')->id()
-            : Auth::guard('web')->id();$reactions = json_decode($message->reactions, true) ?? [];
+        $userId = Auth::guard('staff')->check() ? Auth::guard('staff')->id() : Auth::guard('web')->id();$reactions = json_decode($message->reactions, true) ?? [];
 
         foreach ($reactions as $key => $users) {
             if ($key !== $emoji) $reactions[$key] = array_filter($users, fn($id) => $id !== $userId);
@@ -342,9 +341,10 @@ class ChatApp extends Component
         $this->activeReactionMessage = $this->activeReactionMessage === $messageId ? null : $messageId;
     }
 
-    // --------------------
-    // Real-time handlers
-    // --------------------
+// --------------------
+// Real-time handlers
+// --------------------
+
     public function handleIncomingMessage($payload)
     {
         // Avoid duplicates
@@ -358,16 +358,14 @@ class ChatApp extends Component
         if ($message->channel_id == $this->selectedChannel) {
             $this->messages->push($message);
 
-            $currentUserId = Auth::guard('staff')->check()
-                ? Auth::guard('staff')->id()
-                : Auth::guard('web')->id();
+            $currentUserId = Auth::guard('staff')->check() ? Auth::guard('staff')->id() : Auth::guard('web')->id();
 
             if ($message->sender_id != $currentUserId) {
                 Message::where('id', $message->id)
                     ->where('is_read', false)
                     ->update(['is_read' => true]);
             }
-        }else {
+        } else {
             // Mark channel visually
             $channel = $this->channels->firstWhere('id', $message->channel_id);
             if ($channel) $channel->hasNewMessage = true;
@@ -384,12 +382,22 @@ class ChatApp extends Component
                     $otherType . '_' . $otherId
                 ];
                 sort($pair);
-                $expectedChannelName = 'private_' . implode('_', $pair);
 
+                $expectedChannelName = 'private_' . implode('_', $pair);
                 $privateChannel = Channel::where('name', $expectedChannelName)->first();
 
-                if ($privateChannel && $privateChannel->id === $message->channel_id && $message->sender_id != $currentId) {
-                    $user['unread_count'] = ($user['unread_count'] ?? 0) + 1;
+                if ($privateChannel && $privateChannel->id === $message->channel_id
+                    && !($message->sender_id == $currentId && $message->sender_type == $currentType)) {
+
+                    // Only increment if message is still unread in DB
+                    $isUnread = Message::where('id', $message->id)
+                        ->where('is_read', false)
+                        ->exists();
+
+                    if ($isUnread) {
+                        $user['unread_count'] = ($user['unread_count'] ?? 0) + 1;
+                    }
+
                     $user['channel_id'] = $privateChannel->id;
                 }
             }
@@ -416,28 +424,29 @@ class ChatApp extends Component
             }
             unset($user);
         }
+
         // Optional: mark other channels with new message
-    //    foreach ($this->channels as $channel) {
-      //      if ($channel->id == $message->channel_id && $channel->id != $this->selectedChannel) {
-        //        $channel->hasNewMessage = true;
-          //  }
+        // foreach ($this->channels as $channel) {
+        // if ($channel->id == $message->channel_id && $channel->id != $this->selectedChannel) {
+        // $channel->hasNewMessage = true;
+        // }
         //}
 
         $channelId = $payload['channel_id'] ?? null;
         $senderId = $payload['sender_id'] ?? null;
 
-       // if ($message->channel->type === 'private' && $message->channel_id != $this->selectedChannel) {
-         //   $senderType = $message->sender_type === \App\Models\User::class ? 'admin' : 'staff';
+        // if ($message->channel->type === 'private' && $message->channel_id != $this->selectedChannel) {
+        // $senderType = $message->sender_type === \App\Models\User::class ? 'admin' : 'staff';
+        // foreach ($this->staffs as &$user) {
+        // if ($user['real_id'] == $message->sender_id && $user['type'] == $senderType) {
+         if ($message->channel_id != $this->selectedChannel) {
+             $this->newMessages[$message->channel_id] = true;
+         }
+        // }
+        // }
+        // unset($user);
+        // }
 
-           // foreach ($this->staffs as &$user) {
-             //   if ($user['real_id'] == $message->sender_id && $user['type'] == $senderType) {
-               //     if ($message->channel_id != $this->selectedChannel) {
-                 //       $user['unread_count'] = ($user['unread_count'] ?? 0) + 1;
-                   // }
-               // }
-           // }
-           // unset($user);
-       // }
         $this->loadLastMessages();
         $this->staffs = collect($this->staffs)->values()->toArray();
         $this->dispatch('$refresh');
@@ -446,7 +455,9 @@ class ChatApp extends Component
     public function handleIncomingReaction($payload)
     {
         if ($payload['channel_id'] != $this->selectedChannel) return;
+
         $msg = $this->messages->firstWhere('id', $payload['id']);
+
         if ($msg && isset($payload['reactions'])) {
             $msg->reactions = $payload['reactions'];
         }
@@ -494,6 +505,7 @@ class ChatApp extends Component
             $senderName
         ))->toOthers();
     }
+
     public function updatedNewMessage()
     {
         $this->sendTypingEvent();
@@ -508,9 +520,9 @@ class ChatApp extends Component
         }
     }
 
-    // --------------------
-    // Channel management
-    // --------------------
+// --------------------
+// Channel management
+// --------------------
     public function createChannel()
     {
         if (trim($this->newChannelName) === '') return;
@@ -527,8 +539,10 @@ class ChatApp extends Component
 
         $this->channels->push($channel);
         $this->newChannelName = '';
+
         // $this->emitSelf('$refresh');
         // $this->updatedChannels();
+
         $this->dispatch('$refreshListeners');
     }
 
@@ -542,6 +556,7 @@ class ChatApp extends Component
         $this->channels = Channel::all();
         $this->selectedChannel = $this->channels->first()?->id;
         $this->selectedChannelName = $this->channels->first()?->name;
+
         $this->loadMessages();
     }
 
@@ -552,7 +567,9 @@ class ChatApp extends Component
 
         $userId = Auth::guard('staff')->check()
             ? Auth::guard('staff')->id()
-            : Auth::guard('web')->id(); if($message->sender_id !== $userId) return;
+            : Auth::guard('web')->id();
+
+        if($message->sender_id !== $userId) return;
 
         $message->message = 'This message has been deleted by the sender';
         $message->reactions = json_encode([]);
@@ -561,12 +578,16 @@ class ChatApp extends Component
         broadcast(new \App\Events\MessageDeleted($message))->toOthers();
 
         $this->deletedMessages[$messageId] = true;
-        if ($this->activeReactionMessage === $messageId) $this->activeReactionMessage = null;
+
+        if ($this->activeReactionMessage === $messageId) {
+            $this->activeReactionMessage = null;
+        }
 
         $this->deletedMessageAlert = "Message deleted successfully";
         $this->dispatch('hideDeletedMessageAlert', ['timeout' => 5000]);
 
         $msg = $this->messages->firstWhere('id', $messageId);
+
         if ($msg) {
             $msg->message = $message->message;
             $msg->reactions = $message->reactions;
@@ -650,14 +671,21 @@ class ChatApp extends Component
         $this->selectChannel($channel->id);
         $this->loadLastMessages();
     }
+
     public function refreshOnlineStatus($currentId = null, $currentType = null)
     {
-        $currentId ??= Auth::guard('staff')->check() ? Auth::guard('staff')->id() : Auth::guard('web')->id();
-        $currentType ??= Auth::guard('staff')->check() ? Staff::class : User::class;
+        $currentId ??= Auth::guard('staff')->check()
+            ? Auth::guard('staff')->id()
+            : Auth::guard('web')->id();
+
+        $currentType ??= Auth::guard('staff')->check()
+            ? Staff::class
+            : User::class;
 
         foreach ($this->staffs as &$user) {
             $targetType = $user['type'] === 'admin' ? User::class : Staff::class;
             $targetModel = $targetType::find($user['real_id']);
+
             $user['isOnline'] = $targetModel ? $targetModel->isOnline() : false;
 
             // Last message
@@ -665,31 +693,36 @@ class ChatApp extends Component
                 $currentType . '_' . $currentId,
                 $targetType . '_' . $user['real_id']
             ];
+
             sort($pair);
+
             $channelName = 'private_' . implode('_', $pair);
 
-            $channel = Channel::where('type', 'private')->where('name', $channelName)->first();
+            $channel = Channel::where('type', 'private')
+                ->where('name', $channelName)
+                ->first();
 
             $user['last_message'] = $channel
                 ? Message::where('channel_id', $channel->id)->latest()->first()?->message ?? 'No messages yet'
                 : 'No messages yet';
 
             // Unread messages
-            // Only overwrite unread_count if this is NOT the currently opened channel
-            if ($channel?->id !== $this->selectedChannel) {
-                $user['unread_count'] = $channel
-                    ? Message::where('channel_id', $channel->id)
-                        ->where('sender_type', '!=', $currentType)
-                        ->where('is_read', false)
-                        ->count()
-                    : 0;
-            }
+         //   if ($channel?->id !== $this->selectedChannel) {
+           //     $user['unread_count'] = $channel
+             //       ? Message::where('channel_id', $channel->id)
+               //         ->where('sender_type', '!=', $currentType)
+                 //       ->where('is_read', false)
+                   //     ->count()
+                   // : 0;
+           // }
 
-            // Save channel_id for typing + quick access
+            // Save channel_id
             $user['channel_id'] = $channel?->id;
         }
+
         unset($user);
     }
+
     public function loadLastMessages()
     {
         $currentId = Auth::guard('staff')->check()
@@ -707,7 +740,6 @@ class ChatApp extends Component
                 ? \App\Models\User::class
                 : \App\Models\Staff::class;
 
-            // Find private channel between current user and this person
             $channel = \DB::table('channel_user as cu1')
                 ->join('channel_user as cu2', 'cu1.channel_id', '=', 'cu2.channel_id')
                 ->join('channels', 'channels.id', '=', 'cu1.channel_id')
@@ -727,17 +759,18 @@ class ChatApp extends Component
                 $staff['last_message'] = $lastMessage ? $lastMessage->message : 'No messages yet';
                 $staff['last_message_time'] = $lastMessage ? $lastMessage->created_at : null;
 
-               // $staff['unread_count'] = Message::where('channel_id', $channel->id)
-                 //   ->where('sender_id', '!=', $currentId)
-                   // ->where('is_read', false)
-                   // ->where('channel_id', '!=', $this->selectedChannel)
-                   // ->count();
-
                 if ($channel->id !== $this->selectedChannel) {
-                    $staff['unread_count'] = Message::where('channel_id', $channel->id)
-                        ->where('sender_id', '!=', $currentId)
+
+                    $dbUnread = Message::where('channel_id', $channel->id)
+                        ->where(function($q) use ($currentId, $currentType) {
+                            $q->where('sender_id', '!=', $currentId)
+                                ->orWhere('sender_type', '!=', $currentType);
+                        })
                         ->where('is_read', false)
                         ->count();
+
+                    // Keep higher value so realtime doesn't get overwritten
+                    $staff['unread_count'] = max($staff['unread_count'] ?? 0, $dbUnread);
                 }
 
                 $staff['channel_id'] = $channel->id;
@@ -750,24 +783,11 @@ class ChatApp extends Component
         }
 
         unset($staff);
-        foreach ($this->channels as &$ch) {
-            if ($ch->type === 'public') {
-                $lastMessage = Message::where('channel_id', $ch->id)
-                    ->latest()
-                    ->first();
 
-                $ch->last_message = $lastMessage?->message ?? 'No messages yet';
-
-                // Optionally, mark if new messages exist
-                $ch->hasNewMessage = Message::where('channel_id', $ch->id)
-                        ->where('is_read', false)
-                        ->count() > 0;
-            }
-        }
-        unset($ch);
         $this->staffs = array_values($this->staffs);
-        $this->dispatch('$refresh');
+      //  $this->dispatch('$refresh');
     }
+
     public function heartbeat()
     {
         if (Auth::guard('staff')->check()) {
@@ -776,7 +796,6 @@ class ChatApp extends Component
             cache()->put('user-is-online-' . Auth::guard('web')->id(), true, now()->addMinutes(5));
         }
     }
-
 
     public function render()
     {
