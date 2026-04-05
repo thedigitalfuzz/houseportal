@@ -26,7 +26,16 @@
 
     <!-- Right Section -->
     <div>
-        <div class="flex items-center gap-4">
+        <div class="flex items-center gap-4 ">
+            <div class="text-gray-800 font-bold relative">
+                <i data-lucide="bell"></i>
+                <div class="absolute rounded-full px-1.5 py-1.5 top-0 right-0 bg-red-600"></div>
+
+            </div>
+            <div class="text-gray-800 font-bold relative">
+                <i data-lucide="message-circle-more"></i>
+                <div class="absolute rounded-full px-1.5 py-1.5 top-0 right-0 bg-red-600"></div>
+            </div>
             <div>
                 <x-dropdown align="right">
                     <x-slot name="trigger">
@@ -69,15 +78,25 @@ if (!empty($photoPath) && file_exists(storage_path('app/public/' . $photoPath)))
                         @endphp
 
                         @if($user)
+                            <div class="hover:bg-gray-100 transition-all py-2">
                             <a href="{{ $user->role === 'admin' ? route('admin.editprofile') : route('staff-profile') }}"
-                               class="w-full text-left px-4 py-2">
+                                class="w-full text-left px-4 py-2">
                                 {{ $user->role === 'admin' ? 'Edit Profile' : 'My Profile' }}
                             </a>
+                            </div>
+                        @endif
+                        @if(!$user)
+                            <div class="hover:bg-gray-100 transition-all py-2">
+                                <a href="{{route('staff-profile')}}" class="w-full text-left px-4 py-2">
+                                    My Profile
+                                </a>
+                            </div>
+
                         @endif
 
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
-                            <button type="submit" class="w-full text-left px-4 py-2">Logout</button>
+                            <button type="submit" class="w-full text-left px-4 py-2 hover:bg-gray-100 transition-all">Logout</button>
                         </form>
                     </x-slot>
                 </x-dropdown>
