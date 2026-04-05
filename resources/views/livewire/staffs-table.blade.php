@@ -39,7 +39,14 @@
                     <td class="p-3">{{ $loop->iteration }}</td>
                     <td class="p-3">{{ $staff->staff_name }}</td>
                     <td class="p-3">
-                        <img src="{{ asset('storage/' . $staff->photo) }}" class="w-24 h-24 rounded-full mt-1 object-cover" alt="Staff Photo">
+                        @php
+                            $photoPath = asset('/images/hslogo.png');
+                            if(!empty($staff->photo) && file_exists(storage_path('app/public/' . $staff->photo))) {
+                                $photoPath = asset('storage/' . $staff->photo);
+                            }
+                        @endphp
+
+                        <img src="{{ $photoPath }}" class="w-24 h-24 rounded-full mt-1 object-cover" alt="Staff Photo">
                     </td>
                     <td class="p-3">{{ $staff->role }}</td>
                     <td class="p-3">{{ $staff->staff_username }}</td>
@@ -116,7 +123,14 @@
                         @elseif($editingStaffId && $existingPhoto)
                             <div class="mt-2">
                                 <span class="text-sm text-gray-600">Current Photo:</span>
-                                <img src="{{ asset('storage/' . $existingPhoto) }}" class="w-[160px] h-[160px] rounded-full mt-1 object-cover" alt="Staff Photo">
+                                @php
+                                    $photoPath = asset('/images/hslogo.png');
+                                    if(!empty($existingPhoto) && file_exists(storage_path('app/public/' . $existingPhoto))) {
+                                        $photoPath = asset('storage/' . $existingPhoto);
+                                    }
+                                @endphp
+
+                                <img src="{{ $photoPath }}" class="w-[160px] h-[160px] rounded-full mt-1 object-cover" alt="Staff Photo">
                             </div>
                         @endif
                     </div>

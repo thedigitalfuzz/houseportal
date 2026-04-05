@@ -50,9 +50,11 @@
                                 $photoPath = null;
                             }
 
-                            $photoUrl = $photoPath
-                                ? asset('storage/' . $photoPath) . '?v=' . now()->timestamp
-                                : asset('assets/images/admin-avatar.png');
+                            $photoUrl = asset('/images/hslogo.png'); // fallback
+
+if (!empty($photoPath) && file_exists(storage_path('app/public/' . $photoPath))) {
+    $photoUrl = asset('storage/' . $photoPath) . '?v=' . now()->timestamp;
+}
                         @endphp
 
                         <button class="flex items-center gap-2 p-2 rounded hover:bg-gray-50">

@@ -247,6 +247,50 @@
                     </tbody>
                 </table>
             </div>
+            <div class="bg-white shadow rounded p-4 overflow-x-auto">
+                <div class="flex justify-between items-center mb-2">
+                    <h2 class="font-bold mb-3">Top Game Performance - {{ now()->format('F Y') }} </h2>
+                    <a href="{{ route('game-performance') }}"
+                       class="inline-block px-2 py-1 text-sm bg-blue-200 rounded-lg sm:px-3 sm:py-2 sm:text-base">
+                        Game Performance
+                    </a>
+                </div>
+
+                <table class="min-w-full table-auto">
+                    <thead>
+                    <tr class="bg-gray-100">
+                        <th class="p-2 text-left">Game</th>
+                        <th class="p-2 text-right">Used Points</th>
+                        <th class="p-2 text-right">Transactions</th>
+                        <th class="p-2 text-right">Cash In</th>
+                        <th class="p-2 text-right">Cash Out</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach($topGamePerformance as $g)
+                        <tr class="border-t">
+                            <td class="p-2">{{ $g->game_name }}</td>
+
+                            <td class="p-2 text-right">
+                                {{ number_format($g->used_points) }}
+                            </td>
+
+                            <td class="p-2 text-right">
+                                {{ number_format($g->total_transactions) }}
+                            </td>
+
+                            <td class="p-2 text-right text-green-600">
+                                ${{ number_format($g->total_cashin, 2) }}
+                            </td>
+
+                            <td class="p-2 text-right text-red-600">
+                                ${{ number_format($g->total_cashout, 2) }}
+                            </td>
+                        </tr>
+                    @endforeach
+                    </tbody>
+                </table>
+            </div>
         @endif
         @if($isSupportAgent)
 
@@ -286,12 +330,12 @@
                     </table>
                 </div>
 
-                <!-- Recent Game Credits -->
                 <div class="bg-white shadow rounded p-4 overflow-x-auto">
                     <div class="flex justify-between items-center mb-2">
-                        <h2 class="font-bold mb-3">Recent Game Credits</h2>
-                        <a href="{{ route('game-credits') }}" class="inline-block px-2 py-1 text-sm bg-blue-200 rounded-lg sm:px-3 sm:py-2 sm:text-base">
-                            Game Credits
+                        <h2 class="font-bold mb-3">Top Game Performance - {{ now()->format('F Y') }}</h2>
+                        <a href="{{ route('game-performance') }}"
+                           class="inline-block px-2 py-1 text-sm bg-blue-200 rounded-lg sm:px-3 sm:py-2 sm:text-base">
+                            Game Performance
                         </a>
                     </div>
 
@@ -299,18 +343,32 @@
                         <thead>
                         <tr class="bg-gray-100">
                             <th class="p-2 text-left">Game</th>
-                            <th class="p-2 text-left">Sub Balance</th>
-                            <th class="p-2 text-left">Store Name</th>
-                            <th class="p-2 text-left">Store Balance</th>
+                            <th class="p-2 text-right">Used Points</th>
+                            <th class="p-2 text-right">Transactions</th>
+                            <th class="p-2 text-right">Cash In</th>
+                            <th class="p-2 text-right">Cash Out</th>
                         </tr>
                         </thead>
                         <tbody>
-                        @foreach($recentGameCredits as $gc)
+                        @foreach($topGamePerformance as $g)
                             <tr class="border-t">
-                                <td class="p-2">{{ optional($gc->game)->name ?? '-' }}</td>
-                                <td class="p-2">$ {{ number_format($gc->subdistributor_balance, 2) }}</td>
-                                <td class="p-2">{{ $gc->store_name }}</td>
-                                <td class="p-2">$ {{ number_format($gc->store_balance, 2) }}</td>
+                                <td class="p-2">{{ $g->game_name }}</td>
+
+                                <td class="p-2 text-right">
+                                    {{ number_format($g->used_points) }}
+                                </td>
+
+                                <td class="p-2 text-right">
+                                    {{ number_format($g->total_transactions) }}
+                                </td>
+
+                                <td class="p-2 text-right text-green-600">
+                                    ${{ number_format($g->total_cashin, 2) }}
+                                </td>
+
+                                <td class="p-2 text-right text-red-600">
+                                    ${{ number_format($g->total_cashout, 2) }}
+                                </td>
                             </tr>
                         @endforeach
                         </tbody>

@@ -637,7 +637,8 @@ class ChatApp extends Component
             $channel = Channel::create([
                 'name' => $channelName,
                 'type' => 'private',
-                'created_by' => $currentId,
+                //'created_by' => $currentId,
+                'created_by' => Auth::guard('staff')->check() ? Auth::guard('staff')->id() : null
             ]);
 
             // attach current

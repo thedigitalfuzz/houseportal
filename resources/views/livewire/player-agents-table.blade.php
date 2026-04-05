@@ -38,7 +38,14 @@
                         <td class="p-3">{{ $loop->iteration }}</td>
                         <td class="p-3">{{ $agent->player_agent_name }}</td>
                         <td class="p-3">
-                            <img src="{{ asset('storage/' . $agent->photo) }}" class="w-24 h-24 rounded-full mt-1 object-cover" alt="Agent Photo">
+                            @php
+                                $photoPath = asset('/images/hslogo.png');
+                                if(!empty($agent->photo) && file_exists(storage_path('app/public/' . $agent->photo))) {
+                                    $photoPath = asset('storage/' . $agent->photo);
+                                }
+                            @endphp
+
+                            <img src="{{ $photoPath }}" class="w-24 h-24 rounded-full mt-1 object-cover" alt="Agent Photo">
                         </td>
                         <td class="p-3">{{ $agent->facebook_profile }}</td>
                         <td class="p-3">{{ $agent->facebook_password }}</td>
@@ -95,7 +102,14 @@
                         @elseif($editingAgentId && $existingPhoto)
                             <div class="mt-2">
                                 <span class="text-sm text-gray-600">Current Photo:</span>
-                                <img src="{{ asset('storage/' . $existingPhoto) }}" class="w-[160px] h-[160px] rounded-full mt-1 object-cover" alt="Agent Photo">
+                                @php
+                                    $photoPath = asset('/images/hslogo.png');
+                                    if(!empty($existingPhoto) && file_exists(storage_path('app/public/' . $existingPhoto))) {
+                                        $photoPath = asset('storage/' . $existingPhoto);
+                                    }
+                                @endphp
+
+                                <img src="{{ $photoPath }}" class="w-[160px] h-[160px] rounded-full mt-1 object-cover" alt="Agent Photo">
                             </div>
                         @endif
                     </div>

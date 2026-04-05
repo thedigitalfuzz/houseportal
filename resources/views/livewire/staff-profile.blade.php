@@ -14,13 +14,14 @@
         {{ Auth::user()->role ?? Auth::user()->staff_role ?? 'Staff' }}
     </span>
             </span>
-            @if($existingPhoto)
-                <img src="{{ asset('storage/' . $existingPhoto) }}" class="w-28 h-28 rounded-full object-cover border-gray-800"/>
-            @else
-                <div class="w-28 h-28 bg-gray-300 rounded-full flex items-center justify-center text-gray-600">
-                    No Photo
-                </div>
-            @endif
+            @php
+                $photoPath = asset('/images/hslogo.png');
+                if(!empty($existingPhoto) && file_exists(storage_path('app/public/' . $existingPhoto))) {
+                    $photoPath = asset('storage/' . $existingPhoto);
+                }
+            @endphp
+
+            <img src="{{ $photoPath }}" class="w-28 h-28 rounded-full object-cover border-gray-800"/>
         </div>
         {{-- Profile Section --}}
         <div class="flex gap-6 flex-col md:flex-row">

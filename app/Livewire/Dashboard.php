@@ -47,6 +47,7 @@ class Dashboard extends Component
     public $gamePieData = [];
     public $highestCashinTxn;
     public $highestCashoutTxn;
+    public $topGamePerformance=[];
 
     public $allTimeCashinLabels = [];
     public $allTimeCashinData = [];
@@ -202,6 +203,30 @@ public $gameStats;
 
 // For Table
         $this->gameStatsTable = $gameStats;
+        // TOP GAME PERFORMANCE (Top 5 by transactions)
+        $start = now()->startOfMonth();
+        $end = now()->endOfMonth();
+
+        $this->topGamePerformance = \App\Models\Transaction::join('games', 'transactions.game_id', '=', 'games.id')
+            ->whereBetween('transactions.transaction_date', [$start, $end]) // ✅ ADD THIS
+            ->selectRaw('
+        games.id as game_id,
+        games.name as game_name,
+        COUNT(transactions.id) as total_transactions,
+        SUM(transactions.cashin) as total_cashin,
+        SUM(transactions.cashout) as total_cashout
+    ')
+            ->groupBy('games.id', 'games.name')
+            ->orderByDesc('total_transactions')
+            ->limit(5)
+            ->get()
+            ->map(function ($row) use ($start, $end) {
+                $row->used_points = \App\Models\GamePoint::where('game_id', $row->game_id)
+                    ->whereBetween('date', [$start, $end]) // ✅ already correct
+                    ->sum('used_points') ?? 0;
+
+                return $row;
+            });
 
         if ($this->isSupportAgent || $this->isWalletManager) {
             $userId = $user->id;
