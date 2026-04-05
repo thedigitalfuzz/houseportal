@@ -20,6 +20,9 @@ class ChatManagement extends Component
     public $channelStaffList = [];
 
     public $alertMessage = null;
+    public $deleteModal = false;
+    public $deleteType = null; // 'channel' or 'staff'
+    public $deleteId = null;
 
     public function mount()
     {
@@ -76,39 +79,95 @@ class ChatManagement extends Component
 
         $channelName = $channel->name;
         $this->alertMessage = "Staff added to {$channelName} channel successfully";
+        $this->channels = Channel::where('type','public')->get();
+        $this->viewChannelId = $this->selectedChannelId;
+        $this->refreshChannelStaff();
 
-        $this->loadChannelStaff($this->selectedChannelId);
     }
 
-    public function loadChannelStaff($channelId)
+    public function toggleChannelStaff($channelId)
     {
-        $this->viewChannelId = $channelId;
+        if ($this->viewChannelId === $channelId) {
+            $this->viewChannelId = null;
+            $this->channelStaffList = [];
+            return;
+        }
 
-        $channel = Channel::find($channelId);
+        $this->viewChannelId = $channelId;
+        $this->refreshChannelStaff();
+    }
+    public function refreshChannelStaff()
+    {
+        if (!$this->viewChannelId) return;
+
+        $channel = Channel::find($this->viewChannelId);
         $this->channelStaffList = $channel->users()->get();
     }
 
-    public function removeStaff($staffId)
+ //   public function removeStaff($staffId)
+   // {
+     //   $channel = Channel::find($this->viewChannelId);
+       // $channel->users()->detach($staffId);
+
+      //  $this->refreshChannelStaff();
+
+        //$this->alertMessage = "Staff removed from channel";
+    //}
+
+   // public function deleteChannel($channelId)
+   // {
+     //   $channel = Channel::where('type','public')->find($channelId);
+       // if ($channel) {
+         //   $channel->delete();
+       // }
+
+       // $this->channels = Channel::where('type','public')->get();
+       // $this->viewChannelId = null;
+
+     //   $this->alertMessage = "Channel deleted";
+   // }
+
+
+    public function confirmDeleteChannel($channelId)
     {
-        $channel = Channel::find($this->viewChannelId);
-        $channel->users()->detach($staffId);
-
-        $this->loadChannelStaff($this->viewChannelId);
-
-        $this->alertMessage = "Staff removed from channel";
+        $this->deleteType = 'channel';
+        $this->deleteId = $channelId;
+        $this->deleteModal = true;
     }
 
-    public function deleteChannel($channelId)
+    public function confirmRemoveStaff($staffId)
     {
-        $channel = Channel::where('type','public')->find($channelId);
-        if ($channel) {
-            $channel->delete();
+        $this->deleteType = 'staff';
+        $this->deleteId = $staffId;
+        $this->deleteModal = true;
+    }
+
+    public function deleteConfirmed()
+    {
+        if ($this->deleteType === 'channel') {
+            $channel = Channel::where('type','public')->find($this->deleteId);
+            if ($channel) $channel->delete();
+
+            $this->channels = Channel::where('type','public')->get();
+            $this->viewChannelId = null;
+            $this->alertMessage = "Channel deleted";
         }
 
-        $this->channels = Channel::where('type','public')->get();
-        $this->viewChannelId = null;
+        if ($this->deleteType === 'staff') {
+            $channel = Channel::find($this->viewChannelId);
+            $channel->users()->detach($this->deleteId);
 
-        $this->alertMessage = "Channel deleted";
+            $this->refreshChannelStaff();
+            $this->alertMessage = "Staff removed from channel";
+        }
+
+        $this->deleteModal = false;
+        $this->deleteId = null;
+        $this->deleteType = null;
+    }
+    public function isChannelOpen($channelId)
+    {
+        return $this->viewChannelId === $channelId;
     }
 
     public function render()

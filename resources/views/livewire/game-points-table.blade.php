@@ -219,7 +219,7 @@
                             <td class="p-2 text-right">{{ number_format($r->recharge_points,2) }}</td>
                             <td class="p-2 text-right flex gap-2 justify-end">
 
-                                <button wire:click="editRecharge({{ $r->id }})" class="px-3 py-1 bg-yellow-400 rounded">Edit</button>
+                                <button wire:click="editRecharge({{ $r->id }})"  class="bg-blue-200 text-black px-3 py-1 rounded">Edit</button>
 
                                 <button wire:click="confirmDeleteRecharge({{ $r->id }})" class="px-3 py-1 bg-red-600 text-white rounded">Delete</button>
                             </td>

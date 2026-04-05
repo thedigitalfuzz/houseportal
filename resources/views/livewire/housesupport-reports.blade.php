@@ -315,4 +315,26 @@
     @empty
         <div class="text-center p-4">No data found.</div>
     @endforelse
+    <div class="mt-3 flex justify-end space-x-1">
+        @if($currentPage > 1)
+            <button wire:click="goToPage({{ $currentPage - 1 }})"
+                    class="px-3 py-1 border rounded bg-white text-gray-700 hover:bg-gray-100">
+                Prev
+            </button>
+        @endif
+
+        @for($i = 1; $i <= $totalPages; $i++)
+            <button wire:click="goToPage({{ $i }})"
+                    class="px-3 py-1 border rounded {{ $currentPage === $i ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-100' }}">
+                {{ $i }}
+            </button>
+        @endfor
+
+        @if($currentPage < $totalPages)
+            <button wire:click="goToPage({{ $currentPage + 1 }})"
+                    class="px-3 py-1 border rounded bg-white text-gray-700 hover:bg-gray-100">
+                Next
+            </button>
+        @endif
+    </div>
 </div>

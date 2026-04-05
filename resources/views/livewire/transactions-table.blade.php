@@ -98,7 +98,9 @@
                     <thead class="bg-gray-50">
                     <tr>
                         <th class="p-3 text-left">S.N.</th>
+                        @if($this->canDelete())
                         <th class="p-3 text-left">Transaction ID</th>
+                        @endif
                         <th class="p-3 text-left">Username</th>
                         <th class="p-3 text-left">Player Name</th>
                         <th class="p-3 text-left">Player Profile</th>
@@ -120,7 +122,7 @@
                         @endif
                         <!--
                         <th class="p-3 text-left">Player Agent Profile</th> -->
-                        <th class="p-3 text-left">Time</th>
+                        <th class="p-3 text-left">Entry Time</th>
                         <th class="px-4 py-2 text-right">Actions</th>
                     </tr>
                     </thead>

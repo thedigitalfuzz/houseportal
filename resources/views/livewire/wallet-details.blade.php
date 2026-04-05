@@ -17,7 +17,7 @@
                 <th class="p-3 text-left">Created At</th>
                 <th class="p-3 text-left">Created By</th>
                 <th class="p-3 text-left">Last Edited By</th>
-                <th class="p-3 text-center">Actions</th>
+                <th class="p-3 text-right">Actions</th>
             </tr>
             </thead>
 
@@ -43,16 +43,13 @@
 
                     <td class="p-3">{{ $wd->created_by_name }}</td>
                     <td class="p-3">{{ $wd->updated_by_name }}</td>
-                    <td class="p-3 text-center space-x-2">
-                        <button wire:click="openEditModal({{ $wd->id }})"
-                                class="px-2 py-1 bg-blue-600 text-white rounded">
-                            Edit
-                        </button>
+
+                    <td class="p-3 text-right flex justify-end gap-2">
+
+                        <button wire:click="openEditModal({{ $wd->id }})" class="bg-blue-200 text-black px-3 py-1 rounded">Edit</button>
+
                         @if($this->canDelete())
-                        <button wire:click="confirmDelete({{ $wd->id }})"
-                                class="px-2 py-1 bg-red-600 text-white rounded">
-                            Delete
-                        </button>
+                            <button wire:click="confirmDelete({{ $wd->id }})" class="bg-red-600 text-white px-3 py-1 rounded">Delete</button>
                         @endif
                     </td>
                 </tr>

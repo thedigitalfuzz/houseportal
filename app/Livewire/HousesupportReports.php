@@ -13,10 +13,16 @@ class HousesupportReports extends Component
 {
     public $activeTab = 'daily';
     public $searchDate = null;
+    public $perPage = 4; // number of chunks per page
+    public $currentPage = 1; // current page
 
     public function setTab($tab)
     {
         $this->activeTab = $tab;
+    }
+    public function goToPage($page)
+    {
+        $this->currentPage = $page;
     }
 
     protected function baseQuery($start = null, $end = null)
@@ -259,6 +265,23 @@ class HousesupportReports extends Component
                 'summary' => $this->calculateSummary($q),
             ];
         }
+        // -----------------------
+        // Pagination: slice chunks
+        // -----------------------
+        $totalChunks = count($chunks);
+        $paginatedChunks = array_slice(
+            $chunks,
+            ($this->currentPage - 1) * $this->perPage,
+            $this->perPage
+        );
+
+        $totalPages = ceil($totalChunks / $this->perPage);
+
+        return view('livewire.housesupport-reports', [
+            'chunks' => $paginatedChunks,
+            'searchDate' => $searchDate,
+            'totalPages' => $totalPages,
+        ]);
 
         return view('livewire.housesupport-reports', compact('chunks', 'searchDate'));
     }
