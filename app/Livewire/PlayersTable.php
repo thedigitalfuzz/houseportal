@@ -87,7 +87,7 @@ class PlayersTable extends Component
         $this->username = $player->username;
         $this->facebook_profile = $player->facebook_profile ?? '';
         $this->phone = $player->phone ?? '';
-        $this->agent_id = $player->staff_id; // Use `staff_id` for agent_id
+        $this->agent_id = $player->agent_id ? (int) $player->agent_id : null;
 
         $this->allAgents = PlayerAgent::all();
 
@@ -106,7 +106,7 @@ class PlayersTable extends Component
         $this->duplicateUsernameError = null;
 
         $rules = [
-            'username' => 'required|string|max:255|unique:players,username' . ($this->editingPlayerId ? ',' . $this->editingPlayerId : ''),
+            'username' => 'required|string|max:255|unique:players,username,' . $this->editingPlayerId,
             'player_name' => 'required|string|max:255',
             'facebook_profile' => 'nullable|string|max:255',
             'phone' => 'nullable|string|max:50',
@@ -133,6 +133,7 @@ class PlayersTable extends Component
                 ->update(array_merge($validated, [
                     'staff_id' => $this->agent_id, // Store agent_id in `staff_id` column
                     'assigned_staff' => $playerAgentName, // Store player_agent_name in `assigned_staff`
+                    'username' => $this->username,
                     'updated_by_id' => $user->id,
                     'updated_by_type' => $userType,
                 ]));
@@ -143,6 +144,7 @@ class PlayersTable extends Component
             Player::create(array_merge($validated, [
                 'staff_id' => $this->agent_id, // Store agent_id in `staff_id` column
                 'assigned_staff' => $playerAgentName, // Store player_agent_name in `assigned_staff`
+                'username' => $this->username,
                 'created_by_id' => $user->id,
                 'created_by_type' => $userType,
             ]));

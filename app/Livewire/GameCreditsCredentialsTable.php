@@ -4,6 +4,8 @@ namespace App\Livewire;
 use Livewire\Component;
 use App\Models\Game;
 use App\Models\GameCreditCredential;
+use App\Models\Subdistributor;
+use Illuminate\Support\Facades\Crypt;
 
 class GameCreditsCredentialsTable extends Component
 {
@@ -58,6 +60,8 @@ class GameCreditsCredentialsTable extends Component
             'password' => 'required|string|max:255',
         ]);
 
+        // Encrypt the password before saving
+
         if ($this->editingId) {
             GameCreditCredential::findOrFail($this->editingId)->update($validated);
             $this->editModal = false;
@@ -83,19 +87,35 @@ class GameCreditsCredentialsTable extends Component
         $this->confirmDeleteId = null;
     }
 
+
     public function render()
     {
+        $subdistributors = GameCreditCredential::with('game')
+            ->when($this->filterGame, fn($q) => $q->where('game_id', $this->filterGame))
+            ->where('type','subdistributor')
+            ->get()
+            ->map(function($row) {
+
+                $sub = Subdistributor::where('game_id', $row->game_id)
+                    ->where('sub_username', $row->username)
+                    ->first();
+
+                $row->status = $sub?->status ?? 'active';
+
+
+
+                return $row;
+            });
+
+        $stores = GameCreditCredential::with('game')
+            ->when($this->filterGame, fn($q) => $q->where('game_id', $this->filterGame))
+            ->where('type','store')
+            ->get();
+
+
         return view('livewire.game-credits-credentials-table', [
-
-            'subdistributors' => GameCreditCredential::with('game')
-                ->when($this->filterGame, fn($q) => $q->where('game_id', $this->filterGame))
-                ->where('type','subdistributor')
-                ->get(),
-
-            'stores' => GameCreditCredential::with('game')
-                ->when($this->filterGame, fn($q) => $q->where('game_id', $this->filterGame))
-                ->where('type','store')
-                ->get(),
+            'subdistributors' => $subdistributors,
+            'stores' => $stores,
         ]);
     }
 }

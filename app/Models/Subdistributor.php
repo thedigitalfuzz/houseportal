@@ -1,17 +1,17 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class GameCreditCredential extends Model
+class Subdistributor extends Model
 {
     protected $fillable = [
         'game_id',
-        'type',
-        'username',
-        'password',
+        'sub_username',
+        'status'
     ];
-    protected $appends = ['plain_password'];
+
     public function game()
     {
         return $this->belongsTo(Game::class);

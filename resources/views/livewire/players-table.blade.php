@@ -102,7 +102,7 @@
                         </div>
                     @endif
 
-                    <input type="text" wire:model="username" placeholder="Username" class="w-full border rounded p-2" @if($editModal) readonly @endif  />
+                    <input type="text" wire:model="username" placeholder="Username" class="w-full border rounded p-2"  />
                     <input type="text" wire:model="player_name" placeholder="Player Name" class="w-full border rounded p-2" />
                     <input type="text" wire:model="facebook_profile" placeholder="Facebook Link" class="w-full border rounded p-2" />
                   <!--  <input type="text" wire:model="phone" placeholder="Phone" class="w-full border rounded p-2" /> -->
@@ -110,7 +110,7 @@
                         <select wire:model="agent_id" class="border rounded w-full px-2 py-1">
                             <option value="">Select Agent</option>
                             @foreach($allAgents as $agent)
-                                <option value="{{ $agent->id }}">{{ $agent->player_agent_name }}</option>
+                                <option value="{{ (int)$agent->id }}">{{ $agent->player_agent_name }}</option>
                             @endforeach
                         </select>
                 </div>

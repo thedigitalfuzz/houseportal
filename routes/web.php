@@ -71,6 +71,12 @@ Route::middleware(['auth', CheckRole::class.':admin'])->group(function () {
     Route::get('/chat-management', fn() => view('pages.chat-management-page'))->name('chat.management');
     Route::get('/game-credits-credentials', fn() => view('pages.game-credits-credentials-page'))
         ->name('game-credits-credentials');
+    Route::get('/subdistributors', fn() => view('pages.subdistributors-page'))
+        ->name('subdistributors');
+    Route::get('/sub-recharge', fn() => view('pages.sub-recharge-information-page'))
+        ->name('sub-recharge');
+    Route::get('/monthly-sub-recharge-records', fn() => view('pages.monthly-sub-recharge-info-page'))
+        ->name('monthly-sub-recharge-records');
 });
 /*
 |--------------------------------------------------------------------------

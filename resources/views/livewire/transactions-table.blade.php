@@ -116,8 +116,9 @@
                         <th class="p-3 text-left">Wallet Name</th>
                         <th class="p-3 text-left">Wallet Remarks</th>
                         <th class="p-3 text-left">Player Agent</th>
-                        @if($this->canDelete())
                         <th class="p-3 text-left">Created By</th>
+                        @if($this->canDelete())
+
                         <th class="p-3 text-left">Last Edited By</th>
                         @endif
                         <!--
@@ -162,16 +163,11 @@
 
                             <td class="p-3">{{ $t->wallet_name }}</td>
                             <td class="p-3">{{ $t->wallet_remarks }}</td>
-                            <!-- <td class="p-3">{{ $t->player->assignedAgent->player_agent_name ?? '-' }}</td> -->
-                            <td class="p-3">
-                                @if($t->player->assignedAgent?->facebook_profile)
-                                    <a href="{{ $t->player->assignedAgent?->facebook_profile }}" target="_blank" class="text-blue-600">{{ $t->player->assignedAgent->player_agent_name ?? '-' }}</a>
-                                @else
-                                    -
-                                @endif
-                            </td>
-                            @if($this->canDelete())
+                            <td class="p-3">{{ $t->player->assignedAgent->player_agent_name ?? '-' }}</td>
+
                             <td class="p-3">{{ $t->created_by_name }}</td>
+
+                            @if($this->canDelete())
                             <td class="p-3">{{ $t->updated_by_name }}</td>
                             @endif
                             <!--

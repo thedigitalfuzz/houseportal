@@ -23,10 +23,12 @@
         <table class="min-w-full table-auto">
             <thead class="bg-gray-50">
             <tr>
-                <th class="p-3 text-left">ID</th>
+                <th class="p-3 text-left">SN</th>
                 <th class="p-3 text-left">Name</th>
+                @if($this->canEdit())
                 <th class="p-3 text-left">Game Code</th>
                 <th class="p-3 text-left">Backend Link</th>
+                @endif
                 <th class="p-3 text-left">Game Link</th>
                 <th class="p-3 text-left">Created At</th>
                 @if($this->canEdit())
@@ -39,6 +41,7 @@
                 <tr class="border-t">
                     <td class="p-3">{{ $loop->iteration }}</td>
                     <td class="p-3">{{ $game->name }}</td>
+                    @if($this->canEdit())
                     <td class="p-3">{{ $game->game_code ?? '-' }}</td>
                     <td class="p-3">
                         @if($game->backend_link)
@@ -48,7 +51,8 @@
                         @else
                             -
                         @endif
-                    </td>
+
+                    @endif
                     <td class="p-3">
                         @if($game->game_link)
                             <a href="{{ $game->game_link }}" target="_blank" class="text-blue-600">
@@ -58,7 +62,7 @@
                             -
                         @endif
                     </td>
-                    <td class="p-3">{{ $game->created_at->format('Y-m-d H:i') }}</td>
+                    <td class="p-3">{{ $game->created_at->format('Y-m-d') }}</td>
                     <td class="p-3 text-right flex justify-end gap-2">
                         @if($this->canEdit())
                             <button wire:click="openEditModal({{ $game->id }})" class="bg-blue-200 text-black px-3 py-1 rounded">Edit</button>

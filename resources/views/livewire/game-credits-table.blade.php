@@ -15,7 +15,7 @@
                 <input type="date" wire:model="filterDateInput" class="border rounded px-2 w-full py-1" />
             </div>
             <div class="flex items-center gap-2">
-                <select wire:model="game_id" class="border rounded w-full px-2 py-1">
+                <select wire:model.live="game_id" class="border rounded w-full px-2 py-1">
                     <option value="">All Games</option>
                     @foreach($games as $g)
                         <option value="{{ $g->id }}">{{ $g->name }}</option>

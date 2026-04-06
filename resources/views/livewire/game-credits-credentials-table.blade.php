@@ -1,4 +1,5 @@
 <div>
+
     <script src="//unpkg.com/alpinejs" defer></script>
     <div class="mb-4 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
 
@@ -32,6 +33,7 @@
                 <th class="p-3 text-left">Game</th>
                 <th class="p-3 text-left">Username</th>
                 <th class="p-3 text-left">Password</th>
+                <th class="p-3 text-left">Status</th>
                 <th class="p-3 text-right">Actions</th>
             </tr>
             </thead>
@@ -40,7 +42,7 @@
                 <tr class="border-t"  wire:key="subdis-{{ $row->id }}">
                     <td class="p-3">{{ $row->game->name }}</td>
                     <td class="p-3">{{ $row->username }}</td>
-
+                    <!-- NEW -->
                     <td class="p-3" x-data="{ show: false }">
                         <span x-text="show ? '{{ $row->password }}' : '••••••••'"></span>
                         <button
@@ -49,6 +51,8 @@
                             x-text="show ? 'Hide' : 'Show'">
                         </button>
                     </td>
+
+                    <td class="p-3">{{ $row->status }}</td>
 
                     <td class="p-3 text-right flex justify-end gap-2">
                         <button wire:click.prevent="openEditModal({{ $row->id }})"
@@ -91,15 +95,17 @@
                     <td class="p-3">{{ $row->game->name }}</td>
                     <td class="p-3">{{ $row->username }}</td>
 
-                    <td class="p-3" x-data="{ show: false }">
-                        <span x-text="show ? '{{ $row->password }}' : '••••••••'"></span>
 
+
+                    <td class="p-3" x-data="{ show: false}">
+                        <span x-text="show ? '{{ $row->password }}' : '••••••••'"></span>
                         <button
                             @click="show = !show"
                             class="text-blue-500 text-xs ml-2"
                             x-text="show ? 'Hide' : 'Show'">
                         </button>
                     </td>
+
 
                     <td class="p-3 text-right flex justify-end gap-2">
                         <button wire:click.prevent="openEditModal({{ $row->id }})"

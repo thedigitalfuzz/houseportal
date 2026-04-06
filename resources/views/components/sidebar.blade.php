@@ -39,7 +39,7 @@
         </a>
 
         @php
-            $playersOpen = request()->routeIs('players.index', 'player-rankings', 'player-leaderboard');
+            $playersOpen = request()->routeIs('players.index', 'player-rankings', 'player-leaderboard','daily-player-leaderboard');
         @endphp
 
         <details class="group" {{ $playersOpen ? 'open' : '' }}>
@@ -76,7 +76,7 @@
                     </a>
 
                     <a href="{{ route('player-leaderboard') }}"
-                       class="flex items-center gap-3 py-2 px-3 text-sm rounded-md hover:bg-gray-700 {{ request()->routeIs('player-leaderboard') ? 'bg-gray-700' : '' }}">
+                       class="flex items-center gap-3 py-2 px-3 text-sm rounded-md hover:bg-gray-700 {{ request()->routeIs('player-leaderboard') || request()->routeIs('daily-player-leaderboard')  ? 'bg-gray-700' : '' }}">
 
                         <i data-lucide="medal" class="w-4 h-4  shrink-0 text-gray-300"></i>
                         <span class="sidebar-text">Leaderboard</span>
@@ -88,7 +88,7 @@
 
 
         @php
-            $gamesOpen = request()->routeIs('games', 'game-credits', 'game-points', 'game-performance');
+            $gamesOpen = request()->routeIs('games', 'game-credits', 'game-points', 'game-performance','game-credits-credentials');
         @endphp
 
         <details class="group" {{ $gamesOpen ? 'open' : '' }}>
@@ -225,6 +225,47 @@
                 <span class="sidebar-text">Chat Management</span>
             </a>
 
+            @php
+                $subOpen = request()->routeIs('subdistributors', 'sub-recharge', 'monthly-sub-recharge-records');
+            @endphp
+
+            <details class="group" {{ $subOpen ? 'open' : '' }}>
+                <summary
+                    class="flex items-center justify-between py-2 px-4 cursor-pointer list-none hover:bg-gray-700 rounded-lg {{ $subOpen ? 'bg-gray-700' : '' }}"
+                >
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="layers" class="w-5 h-5"></i>
+                        <span class="sidebar-text">Subdistributors</span>
+                    </div>
+
+                    <svg class="w-4 h-4 transition-transform duration-300 group-open:rotate-180"
+                         fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </summary>
+
+                <div class="ml-4 mt-1 space-y-1">
+                    <a href="{{ route('subdistributors') }}"
+                       class="flex items-center gap-3 py-2 px-3 text-sm rounded-md hover:bg-gray-700 {{ request()->routeIs('subdistributors') ? 'bg-gray-700' : '' }}">
+
+                        <i data-lucide="file-text" class="w-4 h-4  shrink-0 text-gray-300"></i>
+                        <span class="sidebar-text">Subdistributors List</span>
+                    </a>
+                    <a href="{{ route('sub-recharge') }}"
+                       class="flex items-center gap-3 py-2 px-3 text-sm rounded-md hover:bg-gray-700 {{ request()->routeIs('sub-recharge') ? 'bg-gray-700' : '' }}">
+
+                        <i data-lucide="info" class="w-4 h-4  shrink-0 text-gray-300"></i>
+                        <span class="sidebar-text">Recharge List</span>
+                    </a>
+                    <a href="{{ route('monthly-sub-recharge-records') }}"
+                       class="flex items-center gap-3 py-2 px-3 text-sm rounded-md hover:bg-gray-700 {{ request()->routeIs('monthly-sub-recharge-records') ? 'bg-gray-700' : '' }}">
+
+                        <i data-lucide="calendar" class="w-4 h-4  shrink-0 text-gray-300"></i>
+                        <span class="sidebar-text">Monthly Recharge Updates</span>
+                    </a>
+                </div>
+            </details>
+
             <a href="{{ route('staffs.index') }}"
                class="flex items-center gap-3 py-2 px-4 rounded-lg hover:bg-gray-700 {{ request()->routeIs('staffs.index') ? 'bg-gray-700' : '' }}">
                 <i data-lucide="users-2" class="w-5 h-5"></i>
@@ -242,6 +283,7 @@
                 <i data-lucide="user-check" class="w-5 h-5"></i>
                 <span class="sidebar-text">Player Agents</span>
             </a>
+
 
         @endif
 
