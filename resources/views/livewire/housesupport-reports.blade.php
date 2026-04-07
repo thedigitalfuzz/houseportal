@@ -262,6 +262,41 @@
                 </div>
             </div>
 
+            {{-- Staff Performance --}}
+            <div class="grid grid-cols-1 md:grid-cols-1 gap-6">
+                <div class="overflow-x-auto bg-white shadow rounded p-2">
+                    <h3 class="font-bold mb-2">Staff Performance</h3>
+
+                    <table class="min-w-full table-auto">
+                        <thead class="bg-gray-100">
+                        <tr>
+                            <th class="p-2 text-left">Staff</th>
+                            <th class="p-2 text-right">Players Added</th>
+                            <th class="p-2 text-right">Transactions</th>
+                            <th class="p-2 text-right">Cashin</th>
+                            <th class="p-2 text-right">Cashout</th>
+                            <th class="p-2 text-right">Net</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        @foreach($chunk['summary']['staffPerformance'] as $s)
+                            <tr class="border-t">
+                                <td class="p-2">{{ $s->staff_name }}</td>
+                                <td class="p-2 text-right">{{ $s->players_added }}</td>
+                                <td class="p-2 text-right">{{ $s->transactions }}</td>
+                                <td class="p-2 text-right">{{ number_format($s->cashin,2) }}</td>
+                                <td class="p-2 text-right">{{ number_format($s->cashout,2) }}</td>
+                                <td class="p-2 text-right {{ $s->net < 0 ? 'text-red-600' : 'text-green-600' }}">
+                                    {{ number_format($s->net,2) }}
+                                </td>
+                            </tr>
+                        @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
             {{-- Agent --}}
             <div class="grid grid-cols-1 md:grid-cols-1 gap-6">
                 <div class="overflow-x-auto bg-white shadow rounded p-2">
@@ -315,26 +350,5 @@
     @empty
         <div class="text-center p-4">No data found.</div>
     @endforelse
-    <div class="mt-3 flex justify-end space-x-1">
-        @if($currentPage > 1)
-            <button wire:click="goToPage({{ $currentPage - 1 }})"
-                    class="px-3 py-1 border rounded bg-white text-gray-700 hover:bg-gray-100">
-                Prev
-            </button>
-        @endif
 
-        @for($i = 1; $i <= $totalPages; $i++)
-            <button wire:click="goToPage({{ $i }})"
-                    class="px-3 py-1 border rounded {{ $currentPage === $i ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-100' }}">
-                {{ $i }}
-            </button>
-        @endfor
-
-        @if($currentPage < $totalPages)
-            <button wire:click="goToPage({{ $currentPage + 1 }})"
-                    class="px-3 py-1 border rounded bg-white text-gray-700 hover:bg-gray-100">
-                Next
-            </button>
-        @endif
-    </div>
 </div>

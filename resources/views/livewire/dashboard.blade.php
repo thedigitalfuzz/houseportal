@@ -471,6 +471,51 @@
                         </tbody>
                     </table>
                 </div>
+                <div class="bg-white shadow rounded p-4 overflow-x-auto">
+                    <div class="flex justify-between items-center mb-2">
+                        <h2 class="font-bold mb-3">
+                            Staff Performance – {{ now()->format('d F Y') }}
+                        </h2>
+                        <a href="{{ route('staff-performance') }}"
+                           class="inline-block px-2 py-1 text-sm bg-blue-200 rounded-lg sm:px-3 sm:py-2 sm:text-base">
+                            Staff Performance
+                        </a>
+
+                    </div>
+                    @if(count($dailyStaffSummary) > 0)
+                        <table class="min-w-full table-auto">
+                            <thead>
+                            <tr class="bg-gray-100">
+                                <th class="p-2 text-left">Name</th>
+                                <th class="p-2 text-left">Txns</th>
+                                <th class="p-2 text-right">Players</th>
+                                <th class="p-2">In</th>
+                                <th class="p-2">Out</th>
+                                <th class="p-2 text-right">Net</th>
+                            </tr>
+                            </thead>
+
+                            <tbody>
+                            @forelse($dailyStaffSummary as $index => $staff)
+                                <tr>
+                                    <td class="p-2 font-bold">{{ $staff->staff_name }}</td>
+                                    <td class="p-2">{{ $staff->transactions }}</td>
+                                    <td class="p-2">{{ $staff->players_added }}</td>
+                                    <td class="p-2 text-green-600">${{ $staff->cashin }}</td>
+                                    <td class="p-2 text-red-600">${{ $staff->cashout }}</td>
+                                    <td class="p-2 font-semibold">${{ $staff->net }}</td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="4" class="p-4 text-center text-gray-500">
+                                        No staff data for today
+                                    </td>
+                                </tr>
+                            @endforelse
+                            </tbody>
+                        </table>
+                    @endif
+                </div>
 
             @else
             <!-- Recent Transactions -->
@@ -571,6 +616,52 @@
                 </table>
             </div>
 
+            <!-- Daily Staff Report -->
+                <div class="bg-white shadow rounded p-4 overflow-x-auto">
+                    <div class="flex justify-between items-center mb-2">
+                        <h2 class="font-bold mb-3">
+                            Staff Performance – {{ now()->format('d F Y') }}
+                        </h2>
+                            <a href="{{ route('staff-performance') }}"
+                               class="inline-block px-2 py-1 text-sm bg-blue-200 rounded-lg sm:px-3 sm:py-2 sm:text-base">
+                                Staff Performance
+                            </a>
+
+                    </div>
+                    @if(count($dailyStaffSummary) > 0)
+                    <table class="min-w-full table-auto">
+                        <thead>
+                        <tr class="bg-gray-100">
+                            <th class="p-2 text-left">Name</th>
+                            <th class="p-2 text-left">Txns</th>
+                            <th class="p-2 text-right">Players</th>
+                            <th class="p-2">In</th>
+                            <th class="p-2">Out</th>
+                            <th class="p-2 text-right">Net</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        @forelse($dailyStaffSummary as $index => $staff)
+                            <tr>
+                                <td class="p-2 font-bold">{{ $staff->staff_name }}</td>
+                                <td class="p-2">{{ $staff->transactions }}</td>
+                                <td class="p-2">{{ $staff->players_added }}</td>
+                                <td class="p-2 text-green-600">${{ $staff->cashin }}</td>
+                                <td class="p-2 text-red-600">${{ $staff->cashout }}</td>
+                                <td class="p-2 font-semibold">${{ $staff->net }}</td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="4" class="p-4 text-center text-gray-500">
+                                    No staff data for today
+                                </td>
+                            </tr>
+                        @endforelse
+                        </tbody>
+                    </table>
+                    @endif
+                </div>
 
 
 @endif

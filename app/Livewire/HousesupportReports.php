@@ -9,11 +9,12 @@ use App\Models\Player;
 use App\Models\Game;
 use Barryvdh\DomPDF\Facade\Pdf;
 
+
 class HousesupportReports extends Component
 {
     public $activeTab = 'daily';
     public $searchDate = null;
-    public $perPage = 4; // number of chunks per page
+    public $perPage = 15; // number of chunks per page
     public $currentPage = 1; // current page
 
     public function setTab($tab)
@@ -408,6 +409,53 @@ class HousesupportReports extends Component
                 ->groupBy('players.player_name')
                 ->orderByDesc('total')
                 ->first(),
+            'staffPerformance' => (function () use ($q) {
+
+                $start = $q->min('transaction_date');
+                $end   = $q->max('transaction_date');
+
+                return \App\Models\Staff::query()
+                    ->leftJoin('transactions', function ($join) use ($start, $end) {
+                        $join->on('transactions.created_by_id', '=', 'staffs.id');
+
+                        if ($start && $end) {
+                            $join->whereBetween('transactions.transaction_date', [$start, $end]);
+                        }
+                    })
+                    ->selectRaw('
+            staffs.id,
+            staffs.staff_name,
+            COUNT(transactions.id) as transactions,
+            COALESCE(SUM(transactions.cashin),0) as cashin,
+            COALESCE(SUM(transactions.cashout),0) as cashout,
+            (COALESCE(SUM(transactions.cashin),0) - COALESCE(SUM(transactions.cashout),0)) as net
+        ')
+                    ->groupBy('staffs.id', 'staffs.staff_name')
+                    ->get()
+                    ->map(function ($staff) use ($start, $end) {
+
+                        // ✅ IMPORTANT FIX HERE
+                        $playersQuery = \App\Models\Player::where('created_by_id', $staff->id)
+                            ->where('created_by_type', \App\Models\Staff::class);
+
+                        if ($start && $end) {
+                            // use whereDate for daily accuracy
+                            if ($start == $end) {
+                                $playersQuery->whereDate('created_at', $start);
+                            } else {
+                                $playersQuery->whereBetween('created_at', [$start, $end]);
+                            }
+                        }
+
+                        $staff->players_added = $playersQuery->count();
+
+                        return $staff;
+                    })
+                    ->filter(fn ($s) => $s->players_added > 0 || $s->transactions > 0)
+                    ->sortByDesc('cashin')
+                    ->values();
+
+            })(),
         ];
     }
     protected function getGamePointsPerformance($start = null, $end = null)

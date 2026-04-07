@@ -7,7 +7,8 @@
     <h2 class="font-bold text-xl mb-4">My Profile</h2>
     <div class="bg-gray-200 p-4 space-y-6">
         {{-- Staff Photo Display --}}
-        <div class="flex flex-col items-start gap-2">
+
+            <div class="flex flex-col items-start gap-2 max-w-md">
             <span class="font-bold">{{ $name }}</span>
             <span>Role:
                 <span class="text-gray-800">
@@ -23,6 +24,7 @@
 
             <img src="{{ $photoPath }}" class="w-28 h-28 rounded-full object-cover border-gray-800"/>
         </div>
+
         {{-- Profile Section --}}
         <div class="flex gap-6 flex-col md:flex-row">
 
@@ -120,7 +122,79 @@
             </div>
 
         </div>
+        <div class="flex-1 space-y-4">
 
+            <h2 class="font-bold text-xl mb-2">
+                Today's Summary ({{ now()->format('Y-F-j') }})
+            </h2>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+
+                {{-- Players Added --}}
+                <x-summary-card title="Players Added"
+                                :value="$staffDailyPlayersCount"
+                                :showDollar="false"
+                                color="blue"/>
+
+                {{-- Transactions Added --}}
+                <x-summary-card title="Transactions Added"
+                                :value="$staffDailyTransactionsCount"
+                                :showDollar="false"
+                                color="blue"/>
+
+                {{-- Cash In --}}
+                <x-summary-card title="Cash In"
+                                :value="number_format($staffDailyTotalCashin,2)"
+                                color="green"/>
+
+                {{-- Cash Out --}}
+                <x-summary-card title="Cash Out"
+                                :value="number_format($staffDailyTotalCashout,2)"
+                                color="red"/>
+
+                {{-- Net --}}
+                <x-summary-card title="Net Amount"
+                                :value="number_format(abs($staffDailyTotalCashin-$staffDailyTotalCashout),2)"
+                                :isNegative="($staffDailyTotalCashin-$staffDailyTotalCashout)<0"/>
+
+                {{-- Highest Cash In --}}
+                <div class="bg-white shadow rounded p-4">
+                    <div class="text-gray-500 text-sm font-bold">Highest Cash In</div>
+                    @if($highestDailyCashinTxn && $highestDailyCashinTxn->cashin > 0)
+                        <div class="mt-1 text-sm font-semibold">
+                            {{ optional($highestDailyCashinTxn->player)->player_name ?? '-' }}
+                        </div>
+                        <div class="text-xs text-gray-500">
+                            {{ optional($highestDailyCashinTxn->game)->name ?? '-' }}
+                        </div>
+                        <div class="mt-2 text-lg font-bold text-green-600">
+                            ${{ number_format($highestDailyCashinTxn->cashin,2) }}
+                        </div>
+                    @else
+                        <div class="text-sm text-gray-400 mt-2">No data</div>
+                    @endif
+                </div>
+
+                {{-- Highest Cash Out --}}
+                <div class="bg-white shadow rounded p-4">
+                    <div class="text-gray-500 text-sm font-bold">Highest Cash Out</div>
+                    @if($highestDailyCashoutTxn && $highestDailyCashoutTxn->cashout > 0)
+                        <div class="mt-1 text-sm font-semibold">
+                            {{ optional($highestDailyCashoutTxn->player)->player_name ?? '-' }}
+                        </div>
+                        <div class="text-xs text-gray-500">
+                            {{ optional($highestDailyCashoutTxn->game)->name ?? '-' }}
+                        </div>
+                        <div class="mt-2 text-lg font-bold text-red-600">
+                            ${{ number_format($highestDailyCashoutTxn->cashout,2) }}
+                        </div>
+                    @else
+                        <div class="text-sm text-gray-400 mt-2">No data</div>
+                    @endif
+                </div>
+
+            </div>
+        </div>
         {{-- All Time Summary & Highest Cash In/Out --}}
         <div class="flex-1 space-y-4">
 
@@ -176,108 +250,104 @@
 
         {{-- Players Table --}}
         <div class="grid grid-cols-1">
-            <div class="bg-white shadow rounded p-4 overflow-x-auto">
+            <div class="bg-white shadow rounded p-4">
                 <h2 class="font-bold mb-3">My Players</h2>
-                <table class="min-w-full table-auto">
-                    <thead class="bg-gray-100">
-                    <tr>
-                        <th class="p-2 text-left">ID</th>
-                        <th class="p-2 text-left">Username</th>
-                        <th class="p-2 text-left">Player Name</th>
-                        <th class="p-2 text-left">Social Media Link</th>
-                        <th class="p-2 text-left">Assigned Agent</th>
-                        <th class="p-2 text-left">Last Transaction Date</th>
-                        <th class="p-2 text-left">Created Date</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    @forelse($players as $player)
-                        <tr class="border-t">
-                            <td class="p-2">{{ $player->id }}</td>
-                            <td class="p-2">{{ $player->username ?? '-' }}</td>
-                            <td class="p-2">{{ $player->player_name }}</td>
-                            <td class="p-2">
-                                @if($player->facebook_profile)
-                                    <a href="{{ $player->facebook_profile }}" target="_blank" class="text-blue-600 underline">View</a>
-                                @else
-                                    -
-                                @endif
-                            </td>
-                            <td class="p-3">{{ $player->assignedAgent?->player_agent_name ?? '-' }}</td>
 
-                            <td class="p-2">
-                                @php
-                                    $lastTxn = $player->transactions()->latest('transaction_date')->first();
-                                @endphp
-                                @if($lastTxn)
-                                    {{ $lastTxn->transaction_date->format('Y-m-d') }}
-                                @else
-                                    -
-                                @endif
-                            </td>
-                            <td class="p-2"> {{-- Created Date --}}
-                                {{ $player->created_at->format('Y-m-d') }}
-                            </td>
-                        </tr>
-                    @empty
+                <!-- SCROLL CONTAINER -->
+                <div class="max-h-[400px] overflow-y-auto">
+                    <table class="min-w-full table-auto">
+                        <thead class="bg-gray-100 sticky top-0 z-10">
                         <tr>
-                            <td colspan="7" class="p-2 text-center text-gray-500">No players found</td>
+                            <th class="p-2 text-left">ID</th>
+                            <th class="p-2 text-left">Username</th>
+                            <th class="p-2 text-left">Player Name</th>
+                            <th class="p-2 text-left">Social Media Link</th>
+                            <th class="p-2 text-left">Assigned Agent</th>
+                            <th class="p-2 text-left">Last Transaction Date</th>
+                            <th class="p-2 text-left">Created Date</th>
                         </tr>
-                    @endforelse
-                    </tbody>
-                </table>
+                        </thead>
+
+                        <tbody>
+                        @foreach($players as $player)
+                            <tr class="border-t">
+                                <td class="p-2">{{ $player->id }}</td>
+                                <td class="p-2">{{ $player->username ?? '-' }}</td>
+                                <td class="p-2">{{ $player->player_name }}</td>
+                                <td class="p-2">
+                                    @if($player->facebook_profile)
+                                        <a href="{{ $player->facebook_profile }}" target="_blank" class="text-blue-600 underline">View</a>
+                                    @else
+                                        -
+                                    @endif
+                                </td>
+                                <td class="p-2">{{ $player->assignedAgent?->player_agent_name ?? '-' }}</td>
+                                <td class="p-2">
+                                    @php $lastTxn = $player->transactions()->latest('transaction_date')->first(); @endphp
+                                    {{ $lastTxn ? $lastTxn->transaction_date->format('Y-m-d') : '-' }}
+                                </td>
+                                <td class="p-2">{{ $player->created_at->format('Y-m-d') }}</td>
+                            </tr>
+                        @endforeach
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
         {{-- Transactions Table --}}
         <div class="grid grid-cols-1">
-            <div class="bg-white shadow rounded p-4 overflow-x-auto">
+            <div class="bg-white shadow rounded p-4">
                 <h2 class="font-bold mb-3">My Transactions</h2>
-                <table class="min-w-full table-auto">
-                    <thead class="bg-gray-100">
-                    <tr>
-                        <th class="p-2 text-left">ID</th>
-                        <th class="p-2 text-left">Username</th>
-                        <th class="p-2 text-left">Player Name</th>
-                        <th class="p-2 text-left">Player Profile</th>
-                        <th class="p-2 text-left">Game</th>
-                        <th class="p-2 text-left">Transaction Type</th>
-                        <th class="p-2 text-left">Amount</th>
-                        <th class="p-2 text-left">Wallet Remarks</th>
-                        <th class="p-2 text-left">Player Agent</th>
-                        <th class="p-2 text-left">Date</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    @forelse($transactions as $txn)
-                        <tr class="border-t">
-                            <td class="p-2">{{ $txn->id }}</td>
-                            <td class="p-2">{{ optional($txn->player)->username ?? '-' }}</td>
-                            <td class="p-2">{{ optional($txn->player)->player_name ?? '-' }}</td>
-                            <td class="p-2">
-                                @if(optional($txn->player)->facebook_profile)
-                                    <a href="{{ $txn->player->facebook_profile }}" target="_blank" class="text-blue-600 underline">
-                                        View
-                                    </a>
-                                @else
-                                    -
-                                @endif
-                            </td>
-                            <td class="p-2">{{ optional($txn->game)->name ?? '-' }}</td>
-                            <td class="p-2">{{ $txn->cashin > 0 ? 'Cash In' : 'Cash Out' }}</td>
-                            <td class="p-2">${{ number_format($txn->cashin > 0 ? $txn->cashin : $txn->cashout, 2) }}</td>
-                            <td class="p-2">{{ $txn->wallet_remarks ?? '-' }}</td>
-                            <td class="p-2">
-                                {{ optional($txn->player->assignedAgent)->player_agent_name ?? '-' }}
-                            </td>
-                            <td class="p-2">{{ $txn->transaction_date->format('Y-m-d') }}</td>
-                        </tr>
-                    @empty
+
+                <div class="max-h-[400px] overflow-y-auto">
+                    <!-- Header -->
+                    <table class="min-w-full table-auto">
+                        <thead class="bg-gray-100 sticky top-0 z-10">
                         <tr>
-                            <td colspan="12" class="p-2 text-center text-gray-500">No transactions found</td>
+                            <th class="p-2 text-left">SN</th>
+                            <th class="p-2 text-left">Username</th>
+                            <th class="p-2 text-left">Player Name</th>
+                            <th class="p-2 text-left">Player Profile</th>
+                            <th class="p-2 text-left">Game</th>
+                            <th class="p-2 text-left">Transaction Type</th>
+                            <th class="p-2 text-left">Amount</th>
+                            <th class="p-2 text-left">Wallet Remarks</th>
+                            <th class="p-2 text-left">Player Agent</th>
+                            <th class="p-2 text-left">Date</th>
                         </tr>
-                    @endforelse
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                        @forelse($transactions as $txn)
+                            <tr class="border-t">
+                                <td class="p-2">{{ $loop->iteration }}</td>
+                                <td class="p-2">{{ optional($txn->player)->username ?? '-' }}</td>
+                                <td class="p-2">{{ optional($txn->player)->player_name ?? '-' }}</td>
+                                <td class="p-2">
+                                    @if(optional($txn->player)->facebook_profile)
+                                        <a href="{{ $txn->player->facebook_profile }}" target="_blank" class="text-blue-600 underline">
+                                            View
+                                        </a>
+                                    @else
+                                        -
+                                    @endif
+                                </td>
+                                <td class="p-2">{{ optional($txn->game)->name ?? '-' }}</td>
+                                <td class="p-2">{{ $txn->cashin > 0 ? 'Cash In' : 'Cash Out' }}</td>
+                                <td class="p-2">${{ number_format($txn->cashin > 0 ? $txn->cashin : $txn->cashout, 2) }}</td>
+                                <td class="p-2">{{ $txn->wallet_remarks ?? '-' }}</td>
+                                <td class="p-2">
+                                    {{ optional($txn->player->assignedAgent)->player_agent_name ?? '-' }}
+                                </td>
+                                <td class="p-2">{{ $txn->transaction_date->format('Y-m-d') }}</td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="10" class="p-2 text-center text-gray-500">No transactions found</td>
+                            </tr>
+                        @endforelse
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>

@@ -54,6 +54,7 @@ class Dashboard extends Component
 
     public $allTimeNetLabels = [];
     public $allTimeNetData = [];
+    public $dailyStaffSummary = [];
 public $gameStats;
     public $last5DaysDetailed = [];
 
@@ -64,6 +65,41 @@ public $gameStats;
         $this->isSupportAgent = $user && $user->role === 'support_agent';
         $this->isWalletManager = $user && $user->role === 'wallet_manager';
 
+        // Only show for admin and wallet manager
+        if ($user && in_array($user->role, ['admin', 'wallet_manager'])) {
+            $start = now()->startOfDay();
+            $end = now()->endOfDay();
+
+            // Use the same logic as StaffPerformanceTable
+            $this->dailyStaffSummary = \App\Models\Staff::query()
+                ->leftJoin('transactions', function ($join) use ($start, $end) {
+                    $join->on('transactions.created_by_id', '=', 'staffs.id')
+                        ->whereBetween('transactions.transaction_date', [$start, $end]);
+                })
+                ->selectRaw('
+            staffs.id,
+            staffs.staff_name,
+            COUNT(transactions.id) as transactions,
+            COALESCE(SUM(transactions.cashin),0) as cashin,
+            COALESCE(SUM(transactions.cashout),0) as cashout,
+            (COALESCE(SUM(transactions.cashin),0) - COALESCE(SUM(transactions.cashout),0)) as net
+        ')
+                ->groupBy('staffs.id', 'staffs.staff_name')
+                ->get()
+                ->map(function ($staff) use ($start, $end) {
+
+                    $playersQuery = \App\Models\Player::where('created_by_id', $staff->id)
+                        ->where('created_by_type', \App\Models\Staff::class)
+                        ->whereDate('created_at', $start); // daily only
+
+                    $staff->players_added = $playersQuery->count();
+
+                    return $staff;
+                })
+                ->filter(fn ($s) => $s->players_added > 0 || $s->transactions > 0)
+                ->sortByDesc('cashin')
+                ->values();
+        }
 
         // ORIGINAL DATA (UNCHANGED)
         $this->recentWallets = Wallet::orderBy('date', 'desc')->take(5)->get();

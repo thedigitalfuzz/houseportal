@@ -12,7 +12,7 @@ use App\Models\Transaction;
 
 class StaffProfile extends Component
 {
-    use WithFileUploads, WithPagination;
+    use WithFileUploads;
 
     public $name;
     public $photo;
@@ -36,13 +36,20 @@ class StaffProfile extends Component
     public $playersSortDirection = 'desc';
     public $transactionsSortField = 'transaction_date';
     public $transactionsSortDirection = 'desc';
-    public $perPage = 10;
+    //public $perPage = 10;
     public $staffMonthlyPlayersCount;
     public $staffMonthlyTransactionsCount;
     public $staffMonthlyTotalCashin;
     public $staffMonthlyTotalCashout;
     public $highestMonthlyCashinTxn;
     public $highestMonthlyCashoutTxn;
+    public $staffDailyPlayersCount;
+    public $staffDailyTransactionsCount;
+    public $staffDailyTotalCashin;
+    public $staffDailyTotalCashout;
+
+    public $highestDailyCashinTxn;
+    public $highestDailyCashoutTxn;
 
     protected $updatesQueryString = ['playersSearch', 'transactionsSearch'];
 
@@ -57,6 +64,7 @@ class StaffProfile extends Component
 
         // All-time summary
         $this->updateSummary();
+        $this->updateDailySummary();
 
         // Monthly summary
         $this->updateMonthlySummary();
@@ -83,6 +91,39 @@ class StaffProfile extends Component
             ->first();
     }
 
+    public function updateDailySummary()
+    {
+        $staff = Auth::user();
+        $staffId = $staff->id;
+        $today = now();
+
+        // Players added today
+        $this->staffDailyPlayersCount = Player::where('created_by_id', $staffId)
+            ->whereDate('created_at', $today)
+            ->count();
+
+        // Transactions today
+        $staffTxn = Transaction::where('created_by_id', $staffId)
+            ->whereDate('transaction_date', $today);
+
+        $this->staffDailyTransactionsCount = $staffTxn->count();
+        $this->staffDailyTotalCashin = $staffTxn->sum('cashin');
+        $this->staffDailyTotalCashout = $staffTxn->sum('cashout');
+
+        $this->highestDailyCashinTxn = Transaction::where('created_by_id', $staffId)
+            ->whereDate('transaction_date', $today)
+            ->where('cashin', '>', 0)
+            ->with(['player','game'])
+            ->orderByDesc('cashin')
+            ->first();
+
+        $this->highestDailyCashoutTxn = Transaction::where('created_by_id', $staffId)
+            ->whereDate('transaction_date', $today)
+            ->where('cashout', '>', 0)
+            ->with(['player','game'])
+            ->orderByDesc('cashout')
+            ->first();
+    }
     public function updateMonthlySummary()
     {
         $staff = Auth::user();
@@ -181,13 +222,13 @@ class StaffProfile extends Component
         $players = Player::where('created_by_id', $staff->id)
             ->when($this->playersSearch, fn($q) => $q->where('player_name', 'like', '%'.$this->playersSearch.'%'))
             ->orderBy($this->playersSortField, $this->playersSortDirection)
-            ->paginate($this->perPage, ['*'], 'playersPage');
+            ->get();
 
         $transactions = Transaction::with(['player', 'game'])
             ->where('created_by_id', $staff->id)
             ->when($this->transactionsSearch, fn($q) => $q->whereHas('player', fn($q2) => $q2->where('player_name', 'like', '%'.$this->transactionsSearch.'%')))
             ->orderBy($this->transactionsSortField, $this->transactionsSortDirection)
-            ->paginate($this->perPage, ['*'], 'transactionsPage');
+            ->get();
 
         return view('livewire.staff-profile', [
             'players' => $players,
