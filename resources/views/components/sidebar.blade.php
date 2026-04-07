@@ -216,7 +216,13 @@
                 <span class="sidebar-text">Staff Profile</span>
             </a>
         @endif
-
+        @if(in_array($role, ['wallet_manager', 'admin']))
+            <a href="{{ route('staff-performance') }}"
+               class="flex items-center gap-3 py-2 px-4 rounded-lg hover:bg-gray-700 {{ request()->routeIs('staff-performance') ? 'bg-gray-700' : '' }}">
+                <i data-lucide="id-card" class="w-5 h-5"></i>
+                <span class="sidebar-text">Staff Performance</span>
+            </a>
+        @endif
         @if($currentUser?->role === 'admin')
 
             <a href="{{ route('chat.management') }}"
