@@ -55,6 +55,9 @@ class Dashboard extends Component
     public $allTimeNetLabels = [];
     public $allTimeNetData = [];
     public $dailyStaffSummary = [];
+    public $dailySummaryData = [];
+    public $allTimeSummaryData = [];
+
 public $gameStats;
     public $last5DaysDetailed = [];
 
@@ -99,6 +102,32 @@ public $gameStats;
                 ->filter(fn ($s) => $s->players_added > 0 || $s->transactions > 0)
                 ->sortByDesc('cashin')
                 ->values();
+            // ================= DASHBOARD SUMMARY (REPORT STYLE) =================
+
+// DAILY
+            $todayStart = now()->startOfDay();
+            $todayEnd = now()->endOfDay();
+
+            $dailyQ = \App\Models\Transaction::whereBetween('transaction_date', [$todayStart, $todayEnd]);
+
+            $this->dailySummaryData = [
+                'transactions' => $dailyQ->count(),
+                'cashin' => $dailyQ->sum('cashin'),
+                'cashout' => $dailyQ->sum('cashout'),
+                'net' => $dailyQ->sum('cashin') - $dailyQ->sum('cashout'),
+            ];
+
+// ALL TIME (ADMIN ONLY)
+            if ($user->role === 'admin') {
+                $allQ = \App\Models\Transaction::query();
+
+                $this->allTimeSummaryData = [
+                    'transactions' => $allQ->count(),
+                    'cashin' => $allQ->sum('cashin'),
+                    'cashout' => $allQ->sum('cashout'),
+                    'net' => $allQ->sum('cashin') - $allQ->sum('cashout'),
+                ];
+            }
         }
 
         // ORIGINAL DATA (UNCHANGED)
@@ -311,6 +340,21 @@ public $gameStats;
                 return $row->total_cashin - $row->total_cashout;
             })->toArray();
         }
+    }
+    private function getSummary($start = null, $end = null)
+    {
+        $q = \App\Models\Transaction::query();
+
+        if ($start && $end) {
+            $q->whereBetween('transaction_date', [$start, $end]);
+        }
+
+        return [
+            'totalTransactions' => $q->count(),
+            'totalCashin' => $q->sum('cashin'),
+            'totalCashout' => $q->sum('cashout'),
+            'net' => $q->sum('cashin') - $q->sum('cashout'),
+        ];
     }
 
     public function render()

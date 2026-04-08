@@ -281,7 +281,7 @@
             <a href="{{ route('admin.editprofile') }}"
                class="flex items-center gap-3 py-2 px-4 rounded-lg hover:bg-gray-700 {{ request()->routeIs('admin.editprofile') ? 'bg-gray-700' : '' }}">
                 <i data-lucide="user-cog" class="w-5 h-5"></i>
-                <span class="sidebar-text">Edit Profile</span>
+                <span class="sidebar-text">Admin Profile</span>
             </a>
 
             <a href="{{ route('player-agents') }}"

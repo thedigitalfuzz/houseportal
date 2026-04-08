@@ -2,112 +2,94 @@
     <h1 class="text-4xl text-blue-950 font-bold mb-1 text-center md:text-left">Welcome to Housesupport Portal</h1>
     <h2 class="text-2xl text-gray-600 font-semibold mb-3 text-center md:text-left">This is the dashboard</h2>
     <p class="text-lg mb-6 text-center md:text-left">Use sidebar to navigate</p>
-    <div class="font-bold text-xl mb-2"> {{ $monthLabel }} Summary:</div>
 
-    <div class="flex gap-4 flex-col md:flex-row mb-4">
-        <div class="flex flex-col md:flex-row gap-4">
-            <div class="bg-white shadow rounded p-4">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
 
-                <div class="text-gray-500 text-sm font-bold">Total Transactions</div>
-                <div class="text-2xl font-bold">
-                    {{ number_format($totalTransactions) }}
+        <!-- TODAY'S SUMMARY -->
+        @if(!$isSupportAgent && !empty($dailySummaryData))
+            <div class="bg-white shadow rounded-xl p-6">
+                <div class="font-bold text-lg mb-4">Today's Summary</div>
+                <div class="space-y-2 text-sm text-gray-600">
+                    <div class="flex justify-between"><span>Transactions:</span> <span>{{ number_format($dailySummaryData['transactions']) }}</span></div>
+                    <div class="flex justify-between"><span>Cash In:</span> <span class="text-green-600">${{ number_format($dailySummaryData['cashin'], 2) }}</span></div>
+                    <div class="flex justify-between"><span>Cash Out:</span> <span class="text-red-600">${{ number_format($dailySummaryData['cashout'], 2) }}</span></div>
+                    <div class="flex justify-between font-bold"><span>Net:</span> <span class="{{ $dailySummaryData['net'] < 0 ? 'text-red-600' : 'text-green-600' }}">${{ number_format(abs($dailySummaryData['net']), 2) }}</span></div>
                 </div>
             </div>
+        @endif
 
-            <div class="bg-white shadow rounded p-4">
-                <div class="text-gray-500 text-sm font-bold">Total Cash In</div>
-                <div class="text-2xl font-bold text-green-600">
-                    ${{ number_format($totalCashin, 2) }}
-                </div>
+        <!-- MONTHLY SUMMARY -->
+        <div class="bg-white shadow rounded-xl p-6">
+            <div class="font-bold text-lg mb-4">{{ $monthLabel }} Summary</div>
+            <div class="space-y-2 text-sm text-gray-600">
+                <div class="flex justify-between"><span>Total Transactions:</span> <span>{{ number_format($totalTransactions) }}</span></div>
+                <div class="flex justify-between"><span>Total Cash In:</span> <span class="text-green-600">${{ number_format($totalCashin, 2) }}</span></div>
+                <div class="flex justify-between"><span>Total Cash Out:</span> <span class="text-red-600">${{ number_format($totalCashout, 2) }}</span></div>
+                <div class="flex justify-between font-bold"><span>Net Total:</span> <span class="{{ $totalNet < 0 ? 'text-red-600' : 'text-green-600' }}">${{ number_format(abs($totalNet), 2) }}</span></div>
             </div>
         </div>
-       <div class="flex flex-col md:flex-row gap-4">
-           <div class="bg-white shadow rounded p-4">
-               <div class="text-gray-500 text-sm font-bold">Total Cash Out</div>
-               <div class="text-2xl font-bold text-red-600">
-                   ${{ number_format($totalCashout, 2) }}
-               </div>
-           </div>
 
-           <div class="bg-white shadow rounded p-4">
-               <div class="text-gray-500 text-sm font-bold">Net Total</div>
-               <div class="text-2xl font-bold {{ $totalNet < 0 ? 'text-red-600' : 'text-green-600' }}">
-                   {{ $totalNet < 0 ? '-' : '' }}${{ number_format(abs($totalNet), 2) }}
-               </div>
-           </div>
-       </div>
-
-
-
+        <!-- ALL TIME SUMMARY -->
+        @if(!$isSupportAgent && !$isWalletManager && !empty($allTimeSummaryData))
+            <div class="bg-white shadow rounded-xl p-6">
+                <div class="font-bold text-lg mb-4">All Time Summary</div>
+                <div class="space-y-2 text-sm text-gray-600">
+                    <div class="flex justify-between"><span>Transactions:</span> <span>{{ number_format($allTimeSummaryData['transactions']) }}</span></div>
+                    <div class="flex justify-between"><span>Cash In:</span> <span class="text-green-600">${{ number_format($allTimeSummaryData['cashin'], 2) }}</span></div>
+                    <div class="flex justify-between"><span>Cash Out:</span> <span class="text-red-600">${{ number_format($allTimeSummaryData['cashout'], 2) }}</span></div>
+                    <div class="flex justify-between font-bold"><span>Net:</span> <span class="{{ $allTimeSummaryData['net'] < 0 ? 'text-red-600' : 'text-green-600' }}">${{ number_format(abs($allTimeSummaryData['net']), 2) }}</span></div>
+                </div>
+            </div>
+        @endif
     </div>
+
+    <!-- STAFF ONLY: YOUR MONTH SUMMARY -->
     @if($isSupportAgent || $isWalletManager)
-        <div class="font-bold text-xl mb-2"> YOUR {{ $monthLabel }} Summary:</div>
-        <div class="flex gap-4 flex-col md:flex-row mb-4">
-
-            <div class="bg-white shadow rounded p-4">
-                <div class="text-gray-500 text-sm font-bold">Players Added</div>
-                <div class="text-2xl font-bold">{{ $staffPlayersCount }}</div>
-            </div>
-
-            <div class="bg-white shadow rounded p-4">
-                <div class="text-gray-500 text-sm font-bold">Transactions Added</div>
-                <div class="text-2xl font-bold">{{ $staffTransactionsCount }}</div>
-            </div>
-
-            <div class="bg-white shadow rounded p-4">
-                <div class="text-gray-500 text-sm font-bold">Cash In</div>
-                <div class="text-2xl font-bold text-green-600">
-                    ${{ number_format($staffTotalCashin, 2) }}
+        <div class="bg-white shadow rounded-xl p-6 mb-6">
+            <div class="font-bold text-lg mb-4">Your Summary- {{ $monthLabel }} </div>
+            <div class="">
+                <div class="flex flex-col gap-2 border-b p-2">
+                    <div class="flex justify-between"><span class="text-sm">Players Added:</span> <span>{{ $staffPlayersCount }}</span></div>
+                    <div class="flex justify-between"><span class="text-sm">Transactions Added:</span> <span>{{ $staffTransactionsCount }}</span></div>
+                    <div class="flex justify-between"><span class="text-sm">Cash In:</span> <span class="text-green-600">${{ number_format($staffTotalCashin, 2) }}</span></div>
+                    <div class="flex justify-between"><span class="text-sm">Cash Out:</span> <span class="text-red-600">${{ number_format($staffTotalCashout, 2) }}</span></div>
+                    <div class="flex justify-between font-bold"><span class="text-sm">Net Amount:</span> <span class="{{ ($staffTotalCashin - $staffTotalCashout) < 0 ? 'text-red-600' : 'text-green-600' }}">${{ number_format(abs($staffTotalCashin - $staffTotalCashout), 2) }}</span></div>
                 </div>
-            </div>
+                <div class="flex gap-4 p-4 bg-gray-100 rounded-xl">
+                    <div class="flex flex-col gap-2 bg-white rounded-xl p-2">
 
-            <div class="bg-white shadow rounded p-4">
-                <div class="text-gray-500 text-sm font-bold">Cash Out</div>
-                <div class="text-2xl font-bold text-red-600">
-                    ${{ number_format($staffTotalCashout, 2) }}
+                        <div class="text-lg font-bold">Highest Cash In</div>
+
+
+                            @if($highestCashinTxn && $highestCashinTxn->cashin > 0)
+                                <div class="text-lg font-bold text-green-600">${{ number_format($highestCashinTxn->cashin, 2) }}</div>
+                                <div class="text-sm font-semibold mt-1">{{ optional($highestCashinTxn->player)->player_name ?? '-' }}</div>
+                                <div class="text-xs">{{ optional($highestCashinTxn->game)->name ?? '-' }}</div>
+
+                            @else
+                                <div class="text-sm  text-white">No data</div>
+                            @endif
+
+
+
+                    </div>
+
+                    <div class="flex flex-col gap-2 p-2 bg-white rounded-xl">
+                        <div class="text-lg font-bold">Highest Cash Out</div>
+
+
+                            @if($highestCashoutTxn && $highestCashoutTxn->cashout > 0)
+                            <div class="text-lg font-bold text-red-600">${{ number_format($highestCashoutTxn->cashout, 2) }}</div>
+                                <div class="text-sm font-semibold mt-1">{{ optional($highestCashoutTxn->player)->player_name ?? '-' }}</div>
+                                <div class="text-xs">{{ optional($highestCashoutTxn->game)->name ?? '-' }}</div>
+
+                            @else
+                                <div class="text-sm  text-white">No data</div>
+                            @endif
+
+
+                    </div>
                 </div>
-            </div>
-            <div class="bg-white shadow rounded p-4">
-                <div class="text-gray-500 text-sm font-bold">Net Amount</div>
-                <div class="text-2xl font-bold {{ ($staffTotalCashin - $staffTotalCashout) < 0 ? 'text-red-600' : 'text-green-600' }}">
-                    {{ ($staffTotalCashin - $staffTotalCashout) < 0 ? '-' : '' }}
-                    ${{ number_format(abs($staffTotalCashin - $staffTotalCashout), 2) }}
-                </div>
-            </div>
-            <div class="bg-white shadow rounded p-4">
-                <div class="text-gray-500 text-sm font-bold">Highest Cash In</div>
-
-                @if($highestCashinTxn && $highestCashinTxn->cashin > 0)
-                    <div class="text-sm font-semibold mt-1">
-                        {{ optional($highestCashinTxn->player)->player_name ?? '-' }}
-                    </div>
-                    <div class="text-xs text-gray-500">
-                        {{ optional($highestCashinTxn->game)->name ?? '-' }}
-                    </div>
-                    <div class="text-lg font-bold text-green-600">
-                        ${{ number_format($highestCashinTxn->cashin, 2) }}
-                    </div>
-                @else
-                    <div class="text-sm text-gray-400">No data</div>
-                @endif
-            </div>
-
-            <div class="bg-white shadow rounded p-4">
-                <div class="text-gray-500 text-sm font-bold">Highest Cash Out</div>
-
-                @if($highestCashoutTxn && $highestCashoutTxn->cashout > 0)
-                    <div class="text-sm font-semibold mt-1">
-                        {{ optional($highestCashoutTxn->player)->player_name ?? '-' }}
-                    </div>
-                    <div class="text-xs text-gray-500">
-                        {{ optional($highestCashoutTxn->game)->name ?? '-' }}
-                    </div>
-                    <div class="text-lg font-bold text-red-600">
-                        ${{ number_format($highestCashoutTxn->cashout, 2) }}
-                    </div>
-                @else
-                    <div class="text-sm text-gray-400">No data</div>
-                @endif
             </div>
         </div>
     @endif
@@ -633,23 +615,23 @@
                         <thead>
                         <tr class="bg-gray-100">
                             <th class="p-2 text-left">Name</th>
-                            <th class="p-2 text-left">Txns</th>
+                            <th class="p-2 text-right">Transactions</th>
                             <th class="p-2 text-right">Players</th>
-                            <th class="p-2">In</th>
-                            <th class="p-2">Out</th>
-                            <th class="p-2 text-right">Net</th>
+                            <th class="p-2 text-right">Cash In</th>
+                            <th class="p-2 text-right">Cash Out</th>
+                          <!--  <th class="p-2 text-right">Net</th> -->
                         </tr>
                         </thead>
 
                         <tbody>
                         @forelse($dailyStaffSummary as $index => $staff)
-                            <tr>
+                            <tr class="border-t">
                                 <td class="p-2 font-bold">{{ $staff->staff_name }}</td>
-                                <td class="p-2">{{ $staff->transactions }}</td>
-                                <td class="p-2">{{ $staff->players_added }}</td>
-                                <td class="p-2 text-green-600">${{ $staff->cashin }}</td>
-                                <td class="p-2 text-red-600">${{ $staff->cashout }}</td>
-                                <td class="p-2 font-semibold">${{ $staff->net }}</td>
+                                <td class="p-2 text-right">{{ $staff->transactions }}</td>
+                                <td class="p-2 text-right">{{ $staff->players_added }}</td>
+                                <td class="p-2 text-green-600 text-right">${{ $staff->cashin }}</td>
+                                <td class="p-2 text-red-600 text-right">${{ $staff->cashout }}</td>
+                             <!--   <td class="p-2 font-semibold text-right">${{ $staff->net }}</td> -->
                             </tr>
                         @empty
                             <tr>

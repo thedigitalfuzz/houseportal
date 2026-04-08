@@ -253,6 +253,53 @@
     </table>
 
     {{-- Agent Performance --}}
+    <h3>Overall Staff Performance</h3>
+    <table>
+        <thead>
+        <tr>
+            <th class="text-left">Staff</th>
+            <th class="text-right">Players Added</th>
+            <th class="text-right">Transactions</th>
+            <th class="text-right">Cashin</th>
+            <th class="text-right">Cashout</th>
+            <th class="text-right">Net</th>
+        </tr>
+        </thead>
+        <tbody>
+        @php $ssp = $sst = $ssc = $sso = $ssn = 0; @endphp
+        @foreach($chunk['summary']['staffPerformance'] as $s)
+            <tr class="border-t">
+                <td class="p-2">{{ $s->staff_name }}</td>
+                <td class="p-2 text-right">{{ $s->players_added }}</td>
+                <td class="p-2 text-right">{{ $s->transactions }}</td>
+                <td class="p-2 text-right">{{ number_format($s->cashin,2) }}</td>
+                <td class="p-2 text-right">{{ number_format($s->cashout,2) }}</td>
+                <td class="p-2 text-right {{ $s->net < 0 ? 'text-red-600' : 'text-green-600' }}">
+                    {{ number_format($s->net,2) }}
+                </td>
+            </tr>
+            @php
+                    $ssp += $s->transactions;
+                    $sst += $s->transactions;
+                    $ssc += $s->cashin;
+                    $sso += $s->cashout;
+                    $ssn += $s->net;
+            @endphp
+        @endforeach
+        <tr style="font-weight:bold">
+            <td>Total</td>
+            <td class="text-right">{{ $ssp }}</td>
+            <td class="text-right">{{ $sst }}</td>
+            <td class="text-right">${{ number_format($ssc,2) }}</td>
+            <td class="text-right">${{ number_format($sso,2) }}</td>
+            <td class="text-right {{ $ssn < 0 ? 'net-negative' : 'net-positive' }}">
+                {{ $ssn < 0 ? '-$'.number_format(abs($ssn),2) : '$'.number_format($ssn,2) }}
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    {{-- Agent Performance --}}
     <h3>Overall Agent Performance</h3>
     <table>
         <thead>

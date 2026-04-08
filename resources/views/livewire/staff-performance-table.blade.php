@@ -21,13 +21,7 @@
                             Daily
                         </button>
 
-                        <button wire:click="setMainTab('weekly')"
-                                class="flex-shrink-0 px-4 py-1.5 rounded-md text-sm font-medium transition
-        {{ $activeMainTab === 'weekly'
-            ? 'bg-blue-600 text-white shadow'
-            : 'text-gray-600 hover:bg-white hover:shadow-sm' }}">
-                            Weekly
-                        </button>
+
 
                         <button wire:click="setMainTab('monthly')"
                                 class="flex-shrink-0 px-4 py-1.5 rounded-md text-sm font-medium transition
@@ -72,7 +66,9 @@
                                 <td class="p-2 text-right">${{ number_format($s->cashin,2) }}</td>
                                 <td class="p-2 text-right">${{ number_format($s->cashout,2) }}</td>
                                 <td class="p-2 text-right {{ $s->net < 0 ? 'text-red-600' : 'text-green-600' }}">
-                                    ${{ number_format($s->net,2) }}
+                                    {{ $s->net < 0
+                                        ? '-$' . number_format(abs($s->net), 2)
+                                        : '$' . number_format($s->net, 2) }}
                                 </td>
                             </tr>
                         @endforeach
@@ -90,8 +86,7 @@
     {{-- 🔷 SECTION 2: STAFF TABS --}}
     {{-- ============================= --}}
     <div class="grid grid-cols-1">
-
-    <div class="bg-gray-200 p-4 rounded">
+            <div class="bg-gray-200 p-4 rounded">
 
         <h2 class="text-xl font-bold mb-3">Staff Performance</h2>
 
@@ -130,9 +125,14 @@
                     <x-summary-card title="Players" :value="$daily['players']" :showDollar="false" color="blue"/>
                     <x-summary-card title="Cash In" :value="number_format($daily['cashin'],2)" color="green"/>
                     <x-summary-card title="Cash Out" :value="number_format($daily['cashout'],2)" color="red"/>
-                    <x-summary-card title="Net"
-                                    :value="number_format(abs($daily['net']),2)"
-                                    :isNegative="$daily['net'] < 0"/>
+                    <x-summary-card
+                        title="Net"
+                        :value="$daily['net'] < 0
+        ? '-$' . number_format(abs($daily['net']), 2)
+        : '$' . number_format($daily['net'], 2)"
+                        :isNegative="$daily['net'] < 0"
+                        :showDollar="false"
+                    />
                 </div>
             </div>
 
@@ -145,9 +145,14 @@
                     <x-summary-card title="Players" :value="$monthly['players']" :showDollar="false" color="blue"/>
                     <x-summary-card title="Cash In" :value="number_format($monthly['cashin'],2)" color="green"/>
                     <x-summary-card title="Cash Out" :value="number_format($monthly['cashout'],2)" color="red"/>
-                    <x-summary-card title="Net"
-                                    :value="number_format(abs($monthly['net']),2)"
-                                    :isNegative="$monthly['net'] < 0"/>
+                    <x-summary-card
+                        title="Net"
+                        :value="$monthly['net'] < 0
+        ? '-$' . number_format(abs($monthly['net']), 2)
+        : '$' . number_format($monthly['net'], 2)"
+                        :isNegative="$monthly['net'] < 0"
+                        :showDollar="false"
+                    />
                 </div>
             </div>
 
@@ -160,9 +165,14 @@
                     <x-summary-card title="Players" :value="$all['players']" :showDollar="false" color="blue"/>
                     <x-summary-card title="Cash In" :value="number_format($all['cashin'],2)" color="green"/>
                     <x-summary-card title="Cash Out" :value="number_format($all['cashout'],2)" color="red"/>
-                    <x-summary-card title="Net"
-                                    :value="number_format(abs($all['net']),2)"
-                                    :isNegative="$all['net'] < 0"/>
+                    <x-summary-card
+                        title="Net"
+                        :value="$all['net'] < 0
+        ? '-$' . number_format(abs($all['net']), 2)
+        : '$' . number_format($all['net'], 2)"
+                        :isNegative="$all['net'] < 0"
+                        :showDollar="false"
+                    />
                 </div>
             </div>
 
@@ -228,7 +238,11 @@
                                 <td class="p-2">{{ $r['players'] }}</td>
                                 <td class="p-2">${{ number_format($r['cashin'],2) }}</td>
                                 <td class="p-2">${{ number_format($r['cashout'],2) }}</td>
-                                <td class="p-2 font-semibold">${{ number_format($r['net'],2) }}</td>
+                                <td class="p-2 font-semibold">
+                                    {{ $r['net'] < 0
+                                        ? '-$' . number_format(abs($r['net']), 2)
+                                        : '$' . number_format($r['net'], 2) }}
+                                </td>
                             </tr>
 
                             @php
@@ -247,7 +261,11 @@
                             <td class="p-2">{{ $tPlayers }}</td>
                             <td class="p-2">${{ number_format($tIn,2) }}</td>
                             <td class="p-2">${{ number_format($tOut,2) }}</td>
-                            <td class="p-2">${{ number_format($tNet,2) }}</td>
+                            <td class="p-2 ">
+                                {{ $tNet < 0
+                                    ? '-$' . number_format(abs($tNet), 2)
+                                    : '$' . number_format($tNet, 2) }}
+                            </td>
                         </tr>
 
                         </tbody>
@@ -265,11 +283,11 @@
                     <table class="min-w-full table-auto">
                         <thead class="bg-gray-100 sticky top-0">
                         <tr>
-                            <th class="p-2">ID</th>
-                            <th class="p-2">Username</th>
-                            <th class="p-2">Player Name</th>
-                            <th class="p-2">Agent</th>
-                            <th class="p-2">Created</th>
+                            <th class="p-2 text-left">ID</th>
+                            <th class="p-2 text-left">Username</th>
+                            <th class="p-2 text-left">Player Name</th>
+                            <th class="p-2 text-left">Agent</th>
+                            <th class="p-2 text-left">Created</th>
                         </tr>
                         </thead>
 
@@ -298,12 +316,12 @@
                     <table class="min-w-full table-auto">
                         <thead class="bg-gray-100 sticky top-0">
                         <tr>
-                            <th class="p-2">SN</th>
-                            <th class="p-2">Player</th>
-                            <th class="p-2">Game</th>
-                            <th class="p-2">Type</th>
-                            <th class="p-2">Amount</th>
-                            <th class="p-2">Date</th>
+                            <th class="p-2 text-left">SN</th>
+                            <th class="p- text-left">Player</th>
+                            <th class="p-2 text-left">Game</th>
+                            <th class="p-2 text-left">Type</th>
+                            <th class="p-2 text-left">Amount</th>
+                            <th class="p-2 text-left">Date</th>
                         </tr>
                         </thead>
 
@@ -327,24 +345,32 @@
                     </table>
 
                 </div>
-                <div class="bg-gray-200 flex justify-center">
-                    <div class="flex gap-2">
-                        <div class="p-2 font-bold">TOTAL CASHIN:</div>
+                <div class="grid grid-cols-1">
+                    <div class="bg-gray-200 flex flex-col md:flex-row justify-center">
+                        <div class="flex gap-2">
+                            <div class="p-2 font-bold">TOTAL CASHIN:</div>
 
-                        <div class="p-2 font-bold text-green-600">${{number_format($all['cashin'],2) }}</div>
+                            <div class="p-2 font-bold text-green-600">${{number_format($all['cashin'],2) }}</div>
+                        </div>
+                        <div class="flex gap-2">
+                            <div class="p-2 font-bold">TOTAL CASHOUT:</div>
+
+                            <div class="p-2 font-bold text-red-600">${{number_format(abs($all['cashout']),2) }}</div>
+                        </div>
+                        <div class="flex gap-2">
+                            <div class="p-2 font-bold">TOTAL NET:</div>
+
+
+                            <div class="p-2 font-bold  {{ $all['net'] < 0 ? 'text-red-600' : 'text-green-600' }}">
+                                {{ $all['net'] < 0
+                                    ? '-$' . number_format(abs($all['net']), 2)
+                                    : '$' . number_format($all['net'], 2) }}
+                            </div>
+                        </div>
+
                     </div>
-                    <div class="flex gap-2">
-                        <div class="p-2 font-bold">TOTAL CASHOUT:</div>
-
-                        <div class="p-2 font-bold text-red-600">${{number_format(abs($all['cashout']),2) }}</div>
-                    </div>
-                    <div class="flex gap-2">
-                        <div class="p-2 font-bold">TOTAL NET:</div>
-
-                        <div class="p-2 font-bold">${{number_format(abs($all['net']),2) }}</div>
-                    </div>
-
                 </div>
+
             </div>
 
         @endif

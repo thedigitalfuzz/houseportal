@@ -77,7 +77,16 @@ class StaffPerformanceTable extends Component
         $query = Transaction::where('created_by_id', $staffId);
 
         if ($this->activeStaffTableTab === 'daily') {
-            $dates = $query->selectRaw('DATE(transaction_date) d')->distinct()->get();
+            $txnDates = Transaction::where('created_by_id', $staffId)
+                ->selectRaw('DATE(transaction_date) as d');
+
+            $playerDates = Player::where('created_by_id', $staffId)
+                ->where('created_by_type', \App\Models\Staff::class)
+                ->selectRaw('DATE(created_at) as d');
+
+            $dates = $txnDates->union($playerDates)
+                ->distinct()
+                ->get();
 
             foreach ($dates as $d) {
                 $rows[] = $this->calculateRow(
@@ -90,8 +99,16 @@ class StaffPerformanceTable extends Component
         }
 
         if ($this->activeStaffTableTab === 'monthly') {
-            $months = $query->selectRaw('YEAR(transaction_date) y, MONTH(transaction_date) m')->distinct()->get();
+            $txnMonths = Transaction::where('created_by_id', $staffId)
+                ->selectRaw('YEAR(transaction_date) y, MONTH(transaction_date) m');
 
+            $playerMonths = Player::where('created_by_id', $staffId)
+                ->where('created_by_type', \App\Models\Staff::class)
+                ->selectRaw('YEAR(created_at) y, MONTH(created_at) m');
+
+            $months = $txnMonths->union($playerMonths)
+                ->distinct()
+                ->get();
             foreach ($months as $m) {
                 $start = Carbon::create($m->y, $m->m)->startOfMonth();
                 $end = Carbon::create($m->y, $m->m)->endOfMonth();
@@ -101,8 +118,16 @@ class StaffPerformanceTable extends Component
         }
 
         if ($this->activeStaffTableTab === 'yearly') {
-            $years = $query->selectRaw('YEAR(transaction_date) y')->distinct()->get();
+            $txnYears = Transaction::where('created_by_id', $staffId)
+                ->selectRaw('YEAR(transaction_date) y');
 
+            $playerYears = Player::where('created_by_id', $staffId)
+                ->where('created_by_type', \App\Models\Staff::class)
+                ->selectRaw('YEAR(created_at) y');
+
+            $years = $txnYears->union($playerYears)
+                ->distinct()
+                ->get();
             foreach ($years as $y) {
                 $start = Carbon::create($y->y)->startOfYear();
                 $end = Carbon::create($y->y)->endOfYear();
@@ -123,9 +148,16 @@ class StaffPerformanceTable extends Component
 
         $transactions = (clone $base)->count();
 
-        $players = (clone $base)
-            ->distinct('player_id')
-            ->count('player_id');
+        $players = Player::where('created_by_id', $staffId)
+            ->where('created_by_type', \App\Models\Staff::class)
+            ->when($start && $end, function ($query) use ($start, $end) {
+                if ($start->isSameDay($end)) {
+                    $query->whereDate('created_at', $start);
+                } else {
+                    $query->whereBetween('created_at', [$start, $end]);
+                }
+            })
+            ->count();
 
         $cashin = (clone $base)->sum('cashin');   // ✅ FIXED (clone)
         $cashout = (clone $base)->sum('cashout'); // ✅ FIXED (clone)

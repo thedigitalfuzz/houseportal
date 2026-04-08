@@ -5,25 +5,27 @@
         <div class="p-3 bg-green-100 text-green-800 rounded">{{ session('success') }}</div>
     @endif
     <h2 class="font-bold text-xl mb-4">My Profile</h2>
-    <div class="bg-gray-200 p-4 space-y-6">
+    <div class="bg-gray-800 text-white p-6 rounded-xl mb-6 flex items-center gap-4">
+        @php
+            $photoPath = asset('/images/hslogo.png');
+            if(!empty($existingPhoto) && file_exists(storage_path('app/public/' . $existingPhoto))) {
+                $photoPath = asset('storage/' . $existingPhoto);
+            }
+        @endphp
+
+        <img src="{{ $photoPath }}" class="w-16 h-16 rounded-full object-cover border-gray-800" alt="Profile Photo">
+
+        <div class="flex flex-col">
+            <h1 class="text-2xl font-bold">{{ $name }}</h1>
+            <p class="text-gray-400">
+                Role: <span class="text-white">{{ Auth::user()->role ?? Auth::user()->staff_role ?? 'Staff' }}</span>
+            </p>
+        </div>
+    </div>
+
+    <div class="bg-gray-800 p-4 space-y-6 rounded-xl">
         {{-- Staff Photo Display --}}
 
-            <div class="flex flex-col items-start gap-2 max-w-md">
-            <span class="font-bold">{{ $name }}</span>
-            <span>Role:
-                <span class="text-gray-800">
-        {{ Auth::user()->role ?? Auth::user()->staff_role ?? 'Staff' }}
-    </span>
-            </span>
-            @php
-                $photoPath = asset('/images/hslogo.png');
-                if(!empty($existingPhoto) && file_exists(storage_path('app/public/' . $existingPhoto))) {
-                    $photoPath = asset('storage/' . $existingPhoto);
-                }
-            @endphp
-
-            <img src="{{ $photoPath }}" class="w-28 h-28 rounded-full object-cover border-gray-800"/>
-        </div>
 
         {{-- Profile Section --}}
         <div class="flex gap-6 flex-col md:flex-row">
@@ -71,7 +73,7 @@
             {{-- Monthly Time Summary & Highest Cash In/Out --}}
             <div class="flex-1 space-y-4">
 
-                <h2 class="font-bold text-xl mb-2">Your {{ $monthLabel }} Summary</h2>
+                <h2 class="font-bold text-xl mb-2 text-white">Your {{ $monthLabel }} Summary</h2>
 
                 {{-- Grid layout for all cards --}}
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -124,7 +126,7 @@
         </div>
         <div class="flex-1 space-y-4">
 
-            <h2 class="font-bold text-xl mb-2">
+            <h2 class="font-bold text-xl mb-2 text-white">
                 Today's Summary ({{ now()->format('Y-F-j') }})
             </h2>
 
@@ -198,7 +200,7 @@
         {{-- All Time Summary & Highest Cash In/Out --}}
         <div class="flex-1 space-y-4">
 
-            <h2 class="font-bold text-xl mb-2">Entire Summary</h2>
+            <h2 class="font-bold text-xl mb-2 text-white">Entire Summary</h2>
 
             {{-- Grid layout for all cards --}}
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

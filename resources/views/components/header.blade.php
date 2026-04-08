@@ -81,7 +81,7 @@ if (!empty($photoPath) && file_exists(storage_path('app/public/' . $photoPath)))
                             <div class="hover:bg-gray-100 transition-all py-2">
                             <a href="{{ $user->role === 'admin' ? route('admin.editprofile') : route('staff-profile') }}"
                                 class="w-full text-left px-4 py-2">
-                                {{ $user->role === 'admin' ? 'Edit Profile' : 'My Profile' }}
+                                {{ $user->role === 'admin' ? 'Admin Profile' : 'My Profile' }}
                             </a>
                             </div>
                         @endif

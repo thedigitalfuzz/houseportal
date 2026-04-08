@@ -66,7 +66,7 @@ Route::middleware(['auth', CheckRole::class.':admin'])->group(function () {
     Route::get('/staff', fn() => view('staff.index'))->name('staff.index');
     Route::get('/game-credits', fn() => view('pages.game-credits'))->name('game-credits');
     Route::get('/staffmanagement', fn() => view('staffs.index'))->name('staffs.index');
-    Route::get('/editprofile', fn() => view('admin.editprofile'))->name('admin.editprofile');
+    Route::get('/admin-profile', fn() => view('admin.editprofile'))->name('admin.editprofile');
     Route::get('/player-agents', fn() => view('pages.player-agents-page'))->name('player-agents');
     Route::get('/chat-management', fn() => view('pages.chat-management-page'))->name('chat.management');
     Route::get('/game-credits-credentials', fn() => view('pages.game-credits-credentials-page'))
