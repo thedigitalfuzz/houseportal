@@ -1,6 +1,25 @@
 <div class="p-4">
-    <div class="flex items-start md:items-center justify-between flex-col md:flex-row mb-4 gap-2">
-        <h1 class="text-3xl font-bold">Wallet Details</h1>
+    <div id="wallet-alert" class="fixed top-4 right-4 z-50 hidden">
+        <div class="bg-green-600 text-white px-4 py-2 rounded shadow flex items-center justify-between gap-4">
+            <span id="wallet-alert-message"></span>
+            <button id="wallet-alert-close" class="font-bold">&times;</button>
+        </div>
+    </div>
+    <div class="mb-4">
+        <h1 class="text-3xl font-bold mb-4">Wallet Details</h1>
+        <div class="flex justify-between items-start md:items-center flex-col md:flex-row gap-4">
+            <div class="w-full">
+                <button wire:click="openAddWalletDetailModal"
+                        class="px-3 py-1.5 bg-blue-600 text-white rounded hover:bg-blue-500 transition-all">
+                    Add Wallet
+                </button>
+            </div>
+
+            <div class="mb-4 flex gap-2 justify-end w-full">
+                <input type="text" wire:model.defer="searchTerm" placeholder="Search Agent, Wallet, Remarks" class="border rounded px-3 py-1.5 w-full md:w-1/3">
+                <button wire:click="loadData" class="px-3 py-1.5 bg-blue-600 text-white rounded hover:bg-blue-500 transition-all">Search</button>
+            </div>
+        </div>
 
     </div>
 
@@ -46,10 +65,10 @@
 
                     <td class="p-3 text-right flex justify-end gap-2">
 
-                        <button wire:click="openEditModal({{ $wd->id }})" class="bg-blue-200 text-black px-3 py-1 rounded">Edit</button>
+                        <button wire:click="openEditModal({{ $wd->id }})" class="bg-blue-200 text-black px-3 py-1 rounded hover:bg-blue-100 transition-all">Edit</button>
 
                         @if($this->canDelete())
-                            <button wire:click="confirmDelete({{ $wd->id }})" class="bg-red-600 text-white px-3 py-1 rounded">Delete</button>
+                            <button wire:click="confirmDelete({{ $wd->id }})" class="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-500 transition-all">Delete</button>
                         @endif
                     </td>
                 </tr>
@@ -66,11 +85,11 @@
                 <p>Are you sure you want to delete this wallet record?</p>
                 <div class="mt-4 flex justify-center gap-2">
                     <button wire:click="closeDeleteModal"
-                            class="px-4 py-2 border rounded">
+                            class="px-4 py-2 bg-gray-200 border rounded hover:bg-gray-100 transition-all">
                         Cancel
                     </button>
                     <button wire:click="deleteConfirmed"
-                            class="px-4 py-2 bg-red-600 text-white rounded">
+                            class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-500 transition-all">
                         Yes, Delete
                     </button>
 
@@ -120,8 +139,8 @@
                 </div>
 
                 <div class="mt-4 flex justify-end gap-2">
-                    <button wire:click="$set('editModal', false)" class="px-4 py-2 border rounded">Cancel</button>
-                    <button wire:click="updateStatus" class="px-4 py-2 bg-green-600 text-white rounded">Save</button>
+                    <button wire:click="$set('editModal', false)" class="px-4 py-2 bg-gray-300 border rounded hover:bg-gray-200 transition-all">Cancel</button>
+                    <button wire:click="updateStatus" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-500 transition-all">Save</button>
                 </div>
             </div>
             <script>
@@ -151,6 +170,67 @@
         </div>
 
     @endif
+    <!-- ADD WALLET DETAIL MODAL -->
+    @if($addWalletDetailModal)
+        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white rounded shadow p-6 w-full max-w-md">
+                <h2 class="text-xl font-bold mb-4">Add Wallet</h2>
+                @error('detail_wallet_name')
+                <p class="mb-3 p-2 bg-red-600 text-white rounded text-sm">{{ $message }}</p>
+                @enderror
 
+                <div class="space-y-3">
+                    <input wire:model="detail_agent"
+                           class="w-full border rounded p-2"
+                           placeholder="Agent">
 
+                    <input wire:model="detail_wallet_name"
+                           class="w-full border rounded p-2"
+                           placeholder="Wallet Name">
+
+                    <input wire:model="detail_wallet_remarks"
+                           class="w-full border rounded p-2"
+                           placeholder="Wallet Remarks">
+                </div>
+
+                <div class="mt-4 flex justify-end gap-2">
+                    <button wire:click="$set('addWalletDetailModal', false)"
+                            class="px-4 py-2 border rounded bg-gray-500 text-white  hover:bg-gray-400 transition-all">
+                        Cancel
+                    </button>
+
+                    <button wire:click="saveWalletDetail"
+                            class="px-4 py-2 bg-green-600 text-white rounded  hover:bg-green-500 transition-all">
+                        Save
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    <script>
+        document.addEventListener('livewire:load', () => {
+            // Listen to browser event
+            window.addEventListener('wallet-added', event => {
+                const alertBox = document.getElementById('wallet-alert');
+                const messageSpan = document.getElementById('wallet-alert-message');
+                const closeBtn = document.getElementById('wallet-alert-close');
+
+                // Payload comes directly in event.detail
+                messageSpan.textContent = event.detail.message ?? 'Success!';
+
+                alertBox.classList.remove('hidden');
+
+                // Close on click
+                closeBtn.onclick = () => {
+                    alertBox.classList.add('hidden');
+                };
+
+                // Keep it visible for 8 seconds
+                setTimeout(() => {
+                    alertBox.classList.add('hidden');
+                }, 8000);
+            });
+        });
+    </script>
 </div>

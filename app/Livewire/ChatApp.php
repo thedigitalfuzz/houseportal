@@ -155,10 +155,23 @@ class ChatApp extends Component
             $this->channels = Channel::where('type', 'public')->get();
         }
 
-        $this->selectedChannel = $this->channels->first()?->id;
-        $this->selectedChannelName = $this->channels->first()?->name;
 
+      //  $this->selectedChannel = $this->channels->first()?->id;
+       // $this->selectedChannelName = $this->channels->first()?->name;
+
+        $channelIdFromUrl = request()->get('channel');
+
+        if ($channelIdFromUrl) {
+            $this->selectedChannel = $channelIdFromUrl;
+        } else {
+            $this->selectedChannel = $this->channels->first()?->id;
+        }
         $this->loadMessages();
+        // ✅ VERY IMPORTANT: mark as read on initial load
+        if ($this->selectedChannel) {
+            $this->selectChannel($this->selectedChannel);
+        }
+
         $this->loadLastMessages();
     }
 
@@ -193,6 +206,36 @@ class ChatApp extends Component
             : \App\Models\User::class;
 
         $channel = Channel::find($channelId);
+        if ($channel->type === 'private') {
+
+            $otherUser = null;
+
+            foreach ($channel->adminUsers as $admin) {
+                if ($admin->id != $currentId) {
+                    $otherUser = $admin;
+                    $this->selectedChannelName = $admin->name;
+                    break;
+                }
+            }
+
+            if (!$otherUser) {
+                foreach ($channel->staffUsers as $staff) {
+                    if ($staff->id != $currentId) {
+                        $otherUser = $staff;
+                        $this->selectedChannelName = $staff->staff_name;
+                        break;
+                    }
+                }
+            }
+
+            if (!$otherUser) {
+                $this->selectedChannelName = 'Private Chat';
+            }
+
+        } else {
+            $this->selectedChannelName = $channel->name ?? 'Channel';
+        }
+
         if (!$channel) return;
 
         if ($currentType === \App\Models\User::class) {
@@ -236,12 +279,14 @@ class ChatApp extends Component
             $this->selectedChannelName = $channel->name ?? 'Channel';
         }
 
-        if ($channel->type === 'private') {
-            Message::where('channel_id', $channelId)
-                ->where('sender_id', '!=', $currentId)
-                ->where('is_read', false)
-                ->update(['is_read' => true]);
-        }
+        // ✅ mark messages as read for BOTH public + private channels
+        Message::where('channel_id', $channelId)
+            ->where(function ($q) use ($currentId, $currentType) {
+                $q->where('sender_id', '!=', $currentId)
+                    ->orWhere('sender_type', '!=', $currentType);
+            })
+            ->where('is_read', false)
+            ->update(['is_read' => true]);
 
         if ($channel->type === 'private') {
             foreach ($this->staffs as &$user) {
@@ -440,14 +485,23 @@ class ChatApp extends Component
         // $senderType = $message->sender_type === \App\Models\User::class ? 'admin' : 'staff';
         // foreach ($this->staffs as &$user) {
         // if ($user['real_id'] == $message->sender_id && $user['type'] == $senderType) {
-         if ($message->channel_id != $this->selectedChannel) {
-             $this->newMessages[$message->channel_id] = true;
-         }
+       //  if ($message->channel_id != $this->selectedChannel) {
+         //    $this->newMessages[$message->channel_id] = true;
+        // }
         // }
         // }
         // unset($user);
         // }
+        if ($message->channel_id != $this->selectedChannel) {
 
+            $isUnread = Message::where('id', $message->id)
+                ->where('is_read', false)
+                ->exists();
+
+            if ($isUnread) {
+                $this->newMessages[$message->channel_id] = true;
+            }
+        }
         $this->loadLastMessages();
         $this->staffs = collect($this->staffs)->values()->toArray();
         $this->dispatch('$refresh');

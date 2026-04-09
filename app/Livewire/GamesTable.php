@@ -6,6 +6,10 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\Game;
 use Illuminate\Support\Facades\Auth;
+use App\Helpers\NotificationHelper;
+use App\Models\User;
+use App\Models\Staff;
+
 
 class GamesTable extends Component
 {
@@ -97,11 +101,37 @@ class GamesTable extends Component
 
         if ($this->editingGameId) {
             $game = Game::findOrFail($this->editingGameId);
+
+            // track old values
+            $oldGameLink = $game->game_link;
+
             $game->update($validated);
+
+            // 🔥 General update notification
+            $this->sendGameNotification(
+                'Game Updated',
+                "Game {$game->name} has been updated on " . now()->format('Y-m-d')
+            );
+
+            // 🔥 Game link updated notification (ONLY if changed)
+            if ($oldGameLink !== $this->game_link) {
+                $this->sendGameNotification(
+                    'Game Link Updated',
+                    "Game {$game->name} link has been updated on " . now()->format('Y-m-d')
+                );
+            }
+
             $this->dispatch('gameUpdated');
-        } else {
+        }else {
             Game::create($validated);
             $this->dispatch('gameAdded');
+        }
+
+        if (!$this->editingGameId) {
+            $this->sendGameNotification(
+                'New Game Alert',
+                "Game-  {$this->name} has been added on " . now()->format('Y-m-d')
+            );
         }
 
         $this->modalOpen = false;
@@ -118,12 +148,33 @@ class GamesTable extends Component
     // DELETE AFTER CONFIRM
     public function deleteGame()
     {
-        Game::findOrFail($this->confirmDeleteId)->delete();
+        $game = Game::findOrFail($this->confirmDeleteId);
+
+        $gameName = $game->name;
+
+        $game->delete();
+
+        $this->sendGameNotification(
+            'Game Deleted',
+            "Game {$gameName} has been deleted on " . now()->format('Y-m-d')
+        );
+
         $this->deleteModal = false;
         $this->confirmDeleteId = null;
         $this->resetPage();
     }
 
+    protected function sendGameNotification($type, $message)
+    {
+        $users = collect()
+            ->merge(\App\Models\User::all())
+            ->merge(\App\Models\Staff::all());
+
+        NotificationHelper::send($users, $type, $message, '/games');
+
+        // refresh notification bell everywhere
+        $this->dispatch('refreshNotifications');
+    }
     public function render()
     {
         $query = Game::query()

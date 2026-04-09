@@ -12,14 +12,7 @@
                 <input type="text" wire:model="searchInput" placeholder="Search by username or player name" class="border rounded  px-2 py-1" />
 
                 <div class="flex gap-2 flex-col md:flex-row">
-                    @if($currentUser->role === 'admin')
-                        <select wire:model="agent_id" class="border rounded px-2 py-1">
-                            <option value="">All Agents</option>
-                            @foreach($allAgents as $agent)
-                                <option value="{{ $agent->id }}">{{ $agent->player_agent_name }}</option>
-                            @endforeach
-                        </select>
-                    @endif
+
 
                     <select wire:model="game_id" class="border rounded px-2 py-1">
                         <option value="">All games</option>
@@ -92,7 +85,33 @@
 <div class="border-gray-300 border-2 p-4">
     @forelse($transactionsDates as $date)
         <div class="grid grid-cols-1 mb-4">
-            <h3 class="font-bold mb-2">Date: {{ $date }}</h3>
+            <div class="flex flex-col md:flex-row justify-between md:items-center mb-2">
+                <h3 class="font-bold">
+                    Date: {{ $date }}
+                </h3>
+
+                @php
+                    $txns = $transactionsByDate[$date] ?? [];
+
+                    $totalCashin = collect($txns)->sum('cashin');
+                    $totalCashout = collect($txns)->sum('cashout');
+                    $net = $totalCashin - $totalCashout;
+                @endphp
+
+                <div class="text-sm font-semibold flex gap-4">
+        <span class="text-green-600">
+            CASH IN: ${{ number_format($totalCashin, 2) }}
+        </span>
+
+                    <span class="text-red-600">
+            CASH OUT: ${{ number_format($totalCashout, 2) }}
+        </span>
+
+                    <span class="{{ $net < 0 ? 'text-red-600' : 'text-green-600' }}">
+            NET: ${{ number_format(abs($net), 2) }}
+        </span>
+                </div>
+            </div>
             <div class="bg-white rounded shadow overflow-x-auto">
                 <table class="min-w-full table-auto">
                     <thead class="bg-gray-50">

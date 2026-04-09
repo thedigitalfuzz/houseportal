@@ -7,6 +7,7 @@ use Livewire\WithPagination;
 use App\Models\Player;
 use App\Models\PlayerAgent;
 use Illuminate\Support\Facades\Auth;
+use App\Helpers\NotificationHelper;
 
 class PlayersTable extends Component
 {
@@ -129,8 +130,8 @@ class PlayersTable extends Component
 
         // Update or create player based on editingPlayerId
         if ($this->editingPlayerId) {
-            Player::findOrFail($this->editingPlayerId)
-                ->update(array_merge($validated, [
+            $player = Player::findOrFail($this->editingPlayerId);
+                $player->update(array_merge($validated, [
                     'staff_id' => $this->agent_id, // Store agent_id in `staff_id` column
                     'assigned_staff' => $playerAgentName, // Store player_agent_name in `assigned_staff`
                     'username' => $this->username,
@@ -138,10 +139,16 @@ class PlayersTable extends Component
                     'updated_by_type' => $userType,
                 ]));
 
+            // 🔔 Send notification for admins & wallet managers
+            $staffName = $user instanceof \App\Models\Staff ? $user->staff_name : $user->name;
+            $this->sendPlayerUpdateNotification(
+                "{$player->username}, {$player->player_name} has been updated by {$staffName}"
+            );
+
             $this->dispatch('playerUpdated');
             $this->editModal = false;
         } else {
-            Player::create(array_merge($validated, [
+            $player= Player::create(array_merge($validated, [
                 'staff_id' => $this->agent_id, // Store agent_id in `staff_id` column
                 'assigned_staff' => $playerAgentName, // Store player_agent_name in `assigned_staff`
                 'username' => $this->username,
@@ -151,6 +158,12 @@ class PlayersTable extends Component
 
             $this->dispatch('playerCreated');
             $this->addModal = false;
+
+            // 🔔 Send notification for admins & wallet managers
+            $staffName = $user instanceof \App\Models\Staff ? $user->staff_name : $user->name;
+            $this->sendPlayerNotification(
+                "{$player->username}, {$player->player_name} has been added by {$staffName}"
+            );
         }
 
         // Reset values after save
@@ -179,6 +192,36 @@ class PlayersTable extends Component
         $this->resetPage();
     }
 
+    protected function sendPlayerNotification($message)
+    {
+        // Only admin + wallet managers
+        $users = \App\Models\User::whereIn('role', ['admin', 'wallet_manager'])->get();
+        $staff = \App\Models\Staff::where('role', 'wallet_manager')->get();
+        if ($users->isEmpty()) return;
+        $allRecipients = $users->merge($staff);
+
+        NotificationHelper::send($allRecipients, 'New Player Added', $message, '/players');
+
+
+
+        // Refresh notification bell
+        $this->dispatch('refreshNotifications');
+    }
+
+    protected function sendPlayerUpdateNotification($message)
+    {
+        // Get all admins and wallet managers
+        $users = \App\Models\User::whereIn('role', ['admin','wallet_manager'])->get();
+        $staff = \App\Models\Staff::where('role', 'wallet_manager')->get();
+        $allRecipients = $users->merge($staff);
+
+        if ($allRecipients->isEmpty()) return;
+
+        NotificationHelper::send($allRecipients, 'Player Updated', $message, '/players');
+
+        // Refresh notification bell
+        $this->dispatch('refreshNotifications');
+    }
     public function render()
     {
         $user = $this->currentUser();

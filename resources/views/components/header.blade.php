@@ -27,14 +27,11 @@
     <!-- Right Section -->
     <div>
         <div class="flex items-center gap-4 ">
-            <div class="text-gray-800 font-bold relative">
-                <i data-lucide="bell"></i>
-                <div class="absolute rounded-full px-1.5 py-1.5 top-0 right-0 bg-red-600"></div>
-
+            <div class="relative" wire:poll.5s>
+                <livewire:notifications-bell />
             </div>
-            <div class="text-gray-800 font-bold relative">
-                <i data-lucide="message-circle-more"></i>
-                <div class="absolute rounded-full px-1.5 py-1.5 top-0 right-0 bg-red-600"></div>
+            <div class="relative" wire:poll.5s>
+                <livewire:chat-bell />
             </div>
             <div>
                 <x-dropdown align="right">

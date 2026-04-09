@@ -57,6 +57,7 @@ class Dashboard extends Component
     public $dailyStaffSummary = [];
     public $dailySummaryData = [];
     public $allTimeSummaryData = [];
+    public $myDailySummary = [];
 
 public $gameStats;
     public $last5DaysDetailed = [];
@@ -69,7 +70,7 @@ public $gameStats;
         $this->isWalletManager = $user && $user->role === 'wallet_manager';
 
         // Only show for admin and wallet manager
-        if ($user && in_array($user->role, ['admin', 'wallet_manager'])) {
+        if ($user) {
             $start = now()->startOfDay();
             $end = now()->endOfDay();
 
@@ -180,6 +181,19 @@ public $gameStats;
         if ($this->isSupportAgent || $this->isWalletManager) {
             $userId = $user->id;
             $now = Carbon::now();
+
+            $todayStart = now()->startOfDay();
+            $todayEnd = now()->endOfDay();
+
+            $staffTodayTxn = Transaction::where('created_by_id', $userId)
+                ->whereBetween('transaction_date', [$todayStart, $todayEnd]);
+
+            $this->myDailySummary = (object) [
+                'transactions' => $staffTodayTxn->count(),
+                'cashin' => $staffTodayTxn->sum('cashin'),
+                'cashout' => $staffTodayTxn->sum('cashout'),
+                'net' => $staffTodayTxn->sum('cashin') - $staffTodayTxn->sum('cashout'),
+            ];
 
             // Staff Transactions for current month
             $staffTxn = Transaction::where('created_by_id', $userId)

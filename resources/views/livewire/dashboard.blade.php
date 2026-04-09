@@ -6,9 +6,9 @@
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
 
         <!-- TODAY'S SUMMARY -->
-        @if(!$isSupportAgent && !empty($dailySummaryData))
+        @if(!empty($dailySummaryData))
             <div class="bg-white shadow rounded-xl p-6">
-                <div class="font-bold text-lg mb-4">Today's Summary</div>
+                <div class="font-bold text-lg mb-4">Today's Summary- {{ now()->format('Y-F-d') }}</div>
                 <div class="space-y-2 text-sm text-gray-600">
                     <div class="flex justify-between"><span>Transactions:</span> <span>{{ number_format($dailySummaryData['transactions']) }}</span></div>
                     <div class="flex justify-between"><span>Cash In:</span> <span class="text-green-600">${{ number_format($dailySummaryData['cashin'], 2) }}</span></div>
@@ -20,7 +20,7 @@
 
         <!-- MONTHLY SUMMARY -->
         <div class="bg-white shadow rounded-xl p-6">
-            <div class="font-bold text-lg mb-4">{{ $monthLabel }} Summary</div>
+            <div class="font-bold text-lg mb-4">Summary- {{ $monthLabel }}</div>
             <div class="space-y-2 text-sm text-gray-600">
                 <div class="flex justify-between"><span>Total Transactions:</span> <span>{{ number_format($totalTransactions) }}</span></div>
                 <div class="flex justify-between"><span>Total Cash In:</span> <span class="text-green-600">${{ number_format($totalCashin, 2) }}</span></div>
@@ -38,6 +38,45 @@
                     <div class="flex justify-between"><span>Cash In:</span> <span class="text-green-600">${{ number_format($allTimeSummaryData['cashin'], 2) }}</span></div>
                     <div class="flex justify-between"><span>Cash Out:</span> <span class="text-red-600">${{ number_format($allTimeSummaryData['cashout'], 2) }}</span></div>
                     <div class="flex justify-between font-bold"><span>Net:</span> <span class="{{ $allTimeSummaryData['net'] < 0 ? 'text-red-600' : 'text-green-600' }}">${{ number_format(abs($allTimeSummaryData['net']), 2) }}</span></div>
+                </div>
+            </div>
+        @endif
+
+        @if($isSupportAgent || $isWalletManager)
+            <!-- Individual staff's today SUMMARY -->
+
+            <div class="bg-white shadow rounded-xl p-6">
+                <div class="font-bold text-lg mb-4">
+                    Your Summary - {{ now()->format('Y-F-d') }}
+                </div>
+
+                <div class="space-y-2 text-sm text-gray-600">
+                    <div class="flex justify-between">
+                        <span>Total Transactions:</span>
+                        <span>{{ number_format($myDailySummary->transactions ?? 0) }}</span>
+                    </div>
+
+                    <div class="flex justify-between">
+                        <span>Total Cash In:</span>
+                        <span class="text-green-600">
+                ${{ number_format($myDailySummary->cashin ?? 0, 2) }}
+            </span>
+                    </div>
+
+                    <div class="flex justify-between">
+                        <span>Total Cash Out:</span>
+                        <span class="text-red-600">
+                ${{ number_format($myDailySummary->cashout ?? 0, 2) }}
+            </span>
+                    </div>
+
+                    <div class="flex justify-between font-bold">
+                        <span>Net Total:</span>
+                        <span class="{{ ($myDailySummary->net ?? 0) < 0 ? 'text-red-400' : 'text-green-400' }}">
+                {{ ($myDailySummary->net ?? 0) < 0 ? '-' : '' }}
+                ${{ number_format(abs($myDailySummary->net ?? 0), 2) }}
+            </span>
+                    </div>
                 </div>
             </div>
         @endif
@@ -181,8 +220,8 @@
                     <tr class="bg-gray-100">
                         <th class="p-2 text-left">Wallet Name</th>
                         <th class="p-2 text-left">Wallet Remarks</th>
-                        <th class="p-2 text-left">Balance</th>
-                        <th class="p-2 text-left">Date</th>
+                        <th class="p-2 text-right">Balance</th>
+                        <th class="p-2 text-right">Date</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -190,8 +229,8 @@
                         <tr class="border-t">
                             <td class="p-2">{{ $wallet->wallet_name }}</td>
                             <td class="p-2">{{ $wallet->wallet_remarks ?? '-' }}</td>
-                            <td class="p-2">$ {{ number_format($wallet->current_balance, 2) }}</td>
-                            <td class="p-2">{{ $wallet->date->format('Y-m-d') }}</td>
+                            <td class="p-2 text-right">$ {{ number_format($wallet->current_balance, 2) }}</td>
+                            <td class="p-2 text-right">{{ $wallet->date->format('Y-m-d') }}</td>
 
                         </tr>
                     @endforeach
@@ -214,7 +253,7 @@
                         <th class="p-2 text-left">Game</th>
                         <th class="p-2 text-left">Sub Balance</th>
                         <th class="p-2 text-left">Store Name</th>
-                        <th class="p-2 text-left">Store Balance</th>
+                        <th class="p-2 text-right">Store Balance</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -223,7 +262,7 @@
                             <td class="p-2">{{ optional($gc->game)->name ?? '-' }}</td>
                             <td class="p-2">$ {{ number_format($gc->subdistributor_balance, 2) }}</td>
                             <td class="p-2">{{ $gc->store_name }}</td>
-                            <td class="p-2">$ {{ number_format($gc->store_balance, 2) }}</td>
+                            <td class="p-2 text-right">$ {{ number_format($gc->store_balance, 2) }}</td>
                         </tr>
                     @endforeach
                     </tbody>
@@ -294,8 +333,8 @@
                         <tr class="bg-gray-100">
                             <th class="p-2 text-left">Wallet Name</th>
                             <th class="p-2 text-left">Wallet Remarks</th>
-                            <th class="p-2 text-left">Balance</th>
-                            <th class="p-2 text-left">Date</th>
+                            <th class="p-2 text-right">Balance</th>
+                            <th class="p-2 text-right">Date</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -303,8 +342,8 @@
                             <tr class="border-t">
                                 <td class="p-2">{{ $wallet->wallet_name }}</td>
                                 <td class="p-2">{{ $wallet->wallet_remarks ?? '-' }}</td>
-                                <td class="p-2">$ {{ number_format($wallet->current_balance, 2) }}</td>
-                                <td class="p-2">{{ $wallet->date->format('Y-m-d') }}</td>
+                                <td class="p-2 text-right">$ {{ number_format($wallet->current_balance, 2) }}</td>
+                                <td class="p-2 text-right">{{ $wallet->date->format('Y-m-d') }}</td>
 
                             </tr>
                         @endforeach
@@ -370,8 +409,8 @@
                         <tr class="bg-gray-100">
                             <th class="p-2 text-left">Player</th>
                             <th class="p-2 text-left">Transaction</th>
-                            <th class="p-2 text-left">Amount</th>
-                            <th class="p-2 text-left">Remarks</th>
+                            <th class="p-2 text-right">Amount</th>
+                            <th class="p-2 text-right">Remarks</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -382,11 +421,11 @@
                                     {{ $txn->cashin > 0 ? 'Cash In' : 'Cash Out' }}
                                 </td>
 
-                                <td class="p-2">
+                                <td class="p-2 text-right">
                                     ${{ number_format($txn->cashin > 0 ? $txn->cashin : $txn->cashout, 2) }}
                                 </td>
 
-                                <td class="p-2">
+                                <td class="p-2 text-right">
                                     {{ $txn->wallet_remarks ?? '-' }}
                                 </td>
                             </tr>
@@ -514,8 +553,8 @@
                     <tr class="bg-gray-100">
                         <th class="p-2 text-left">Player</th>
                         <th class="p-2 text-left">Transaction</th>
-                        <th class="p-2 text-left">Amount</th>
-                        <th class="p-2 text-left">Remarks</th>
+                        <th class="p-2 text-right">Amount</th>
+                        <th class="p-2 text-right">Remarks</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -526,11 +565,11 @@
                                 {{ $txn->cashin > 0 ? 'Cash In' : 'Cash Out' }}
                             </td>
 
-                            <td class="p-2">
+                            <td class="p-2 text-right">
                                 ${{ number_format($txn->cashin > 0 ? $txn->cashin : $txn->cashout, 2) }}
                             </td>
 
-                            <td class="p-2">
+                            <td class="p-2 text-right">
                                 {{ $txn->wallet_remarks ?? '-' }}
                             </td>
                         </tr>

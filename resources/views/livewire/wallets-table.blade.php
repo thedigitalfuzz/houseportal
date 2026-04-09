@@ -6,12 +6,6 @@
                     class="px-4 py-2 bg-green-600 text-white rounded">
                 Add Record
             </button>
-
-                <button wire:click="openAddWalletDetailModal"
-                        class="px-4 py-2 bg-indigo-600 text-white rounded">
-                    Add Wallet
-                </button>
-
         </div>
 
         <div class="flex gap-2 flex-wrap">
@@ -252,43 +246,6 @@
         </div>
     @endif
 
-    <!-- ADD WALLET DETAIL MODAL -->
-    @if($addWalletDetailModal)
-        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div class="bg-white rounded shadow p-6 w-full max-w-md">
-                <h2 class="text-xl font-bold mb-4">Add Wallet</h2>
-                @error('detail_wallet_name')
-                <p class="mb-3 p-2 bg-red-600 text-white rounded text-sm">{{ $message }}</p>
-                @enderror
-
-                <div class="space-y-3">
-                    <input wire:model="detail_agent"
-                           class="w-full border rounded p-2"
-                           placeholder="Agent">
-
-                    <input wire:model="detail_wallet_name"
-                           class="w-full border rounded p-2"
-                           placeholder="Wallet Name">
-
-                    <input wire:model="detail_wallet_remarks"
-                           class="w-full border rounded p-2"
-                           placeholder="Wallet Remarks">
-                </div>
-
-                <div class="mt-4 flex justify-end gap-2">
-                    <button wire:click="$set('addWalletDetailModal', false)"
-                            class="px-4 py-2 border rounded bg-gray-500 text-white">
-                        Cancel
-                    </button>
-
-                    <button wire:click="saveWalletDetail"
-                            class="px-4 py-2 bg-green-600 text-white rounded">
-                        Save
-                    </button>
-                </div>
-            </div>
-        </div>
-    @endif
 
     <!-- DELETE MODAL (UNCHANGED) -->
     @if($deleteModal)
