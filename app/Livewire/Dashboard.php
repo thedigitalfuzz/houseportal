@@ -58,6 +58,8 @@ class Dashboard extends Component
     public $dailySummaryData = [];
     public $allTimeSummaryData = [];
     public $myDailySummary = [];
+    public $topWalletsDaily = [];
+    public $topWalletsMonthly = [];
 
 public $gameStats;
     public $last5DaysDetailed = [];
@@ -129,6 +131,58 @@ public $gameStats;
                     'net' => $allQ->sum('cashin') - $allQ->sum('cashout'),
                 ];
             }
+
+            // ================= WALLET PERFORMANCE (TOP 5) =================
+
+// DAILY (TODAY)
+            $todayStart = now()->startOfDay();
+            $todayEnd = now()->endOfDay();
+
+            $dailyTxns = \App\Models\Transaction::whereBetween('transaction_date', [$todayStart, $todayEnd])->get();
+
+            $this->topWalletsDaily = $dailyTxns
+                ->groupBy(fn($t) => $t->wallet_name . '|' . $t->wallet_remarks . '|' . $t->agent)
+                ->map(function ($txns) {
+                    $cashin = $txns->sum('cashin');
+                    $cashout = $txns->sum('cashout');
+
+                    return [
+                        'wallet_name' => $txns->first()->wallet_name,
+                        'wallet_remarks' => $txns->first()->wallet_remarks,
+                        'cashin' => $cashin,
+                        'cashout' => $cashout,
+                        'net' => $cashin - $cashout,
+                    ];
+                })
+                ->sortByDesc('cashin')
+                ->take(5)
+                ->values();
+
+
+// MONTHLY (CURRENT MONTH)
+            $monthStart = now()->startOfMonth();
+            $monthEnd = now()->endOfMonth();
+
+            $monthlyTxns = \App\Models\Transaction::whereBetween('transaction_date', [$monthStart, $monthEnd])->get();
+
+            $this->topWalletsMonthly = $monthlyTxns
+                ->groupBy(fn($t) => $t->wallet_name . '|' . $t->wallet_remarks . '|' . $t->agent)
+                ->map(function ($txns) {
+                    $cashin = $txns->sum('cashin');
+                    $cashout = $txns->sum('cashout');
+
+                    return [
+                        'wallet_name' => $txns->first()->wallet_name,
+                        'wallet_remarks' => $txns->first()->wallet_remarks,
+                        'cashin' => $cashin,
+                        'cashout' => $cashout,
+                        'net' => $cashin - $cashout,
+                    ];
+                })
+                ->sortByDesc('cashin')
+                ->take(5)
+                ->values();
+
         }
 
         // ORIGINAL DATA (UNCHANGED)
@@ -306,6 +360,8 @@ public $gameStats;
 
                 return $row;
             });
+
+
 
         if ($this->isSupportAgent || $this->isWalletManager) {
             $userId = $user->id;

@@ -209,9 +209,9 @@
             <!-- KEEP YOUR ORIGINAL FIRST TWO BOXES -->
             <div class="bg-white shadow rounded p-4 overflow-x-auto">
                 <div class="flex justify-between mb-2 items-center">
-                    <h2 class="font-bold mb-3">Recent Wallets</h2>
+                    <h2 class="font-bold mb-3">Recent Wallet Balance</h2>
                     <a href="{{ route('wallets') }}" class="inline-block px-2 py-1 text-sm bg-blue-200 rounded-lg sm:px-3 sm:py-2 sm:text-base">
-                        Wallets
+                        Wallet Records
                     </a>
                 </div>
 
@@ -232,6 +232,92 @@
                             <td class="p-2 text-right">$ {{ number_format($wallet->current_balance, 2) }}</td>
                             <td class="p-2 text-right">{{ $wallet->date->format('Y-m-d') }}</td>
 
+                        </tr>
+                    @endforeach
+                    </tbody>
+                </table>
+            </div>
+            <div class="bg-white shadow rounded p-4 overflow-x-auto">
+                <div class="flex justify-between mb-2 items-center">
+                    <h2 class="font-bold mb-3">
+                        Daily Wallet Performance - {{ now()->format('Y-M-d') }}
+                    </h2>
+                    <a href="{{ route('wallet-performance') }}" class="inline-block px-2 py-1 text-sm bg-blue-200 rounded-lg sm:px-3 sm:py-2 sm:text-base">
+                        Wallet Performance
+                    </a>
+                </div>
+
+
+                <table class="min-w-full table-auto">
+                    <thead>
+                    <tr class="bg-gray-100">
+                        <th class="p-2 text-left">Wallet Name</th>
+                        <th class="p-2 text-left">Remarks</th>
+                        <th class="p-2 text-right">Cash In</th>
+                        <th class="p-2 text-right">Cash Out</th>
+                        <th class="p-2 text-right">Net</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    @foreach($topWalletsDaily as $w)
+                        <tr class="border-t">
+                            <td class="p-2">{{ $w['wallet_name'] }}</td>
+                            <td class="p-2">{{ $w['wallet_remarks'] ?? '-' }}</td>
+                            <td class="p-2 text-right text-green-600">
+                                ${{ number_format($w['cashin'],2) }}
+                            </td>
+                            <td class="p-2 text-right text-red-600">
+                                ${{ number_format($w['cashout'],2) }}
+                            </td>
+                            <td class="p-2 text-right font-semibold">
+                    <span class="{{ $w['net'] < 0 ? 'text-red-600' : 'text-green-600' }}">
+    {{ $w['net'] < 0 ? '-' : '' }}${{ number_format(abs($w['net']), 2) }}
+</span>
+                            </td>
+                        </tr>
+                    @endforeach
+                    </tbody>
+                </table>
+            </div>
+            <div class="bg-white shadow rounded p-4 overflow-x-auto">
+                <div class="flex justify-between mb-2 items-center">
+                    <h2 class="font-bold mb-3">
+                        Monthly Wallet Performance - {{ now()->format('Y-M') }}
+                    </h2>
+                    <a href="{{ route('monthly-wallet-performance') }}" class="inline-block px-2 py-1 text-sm bg-blue-200 rounded-lg sm:px-3 sm:py-2 sm:text-base">
+                        Wallet Performance
+                    </a>
+                </div>
+
+
+                <table class="min-w-full table-auto">
+                    <thead>
+                    <tr class="bg-gray-100">
+                        <th class="p-2 text-left">Wallet Name</th>
+                        <th class="p-2 text-left">Remarks</th>
+                        <th class="p-2 text-right">Cash In</th>
+                        <th class="p-2 text-right">Cash Out</th>
+                        <th class="p-2 text-right">Net</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    @foreach($topWalletsMonthly as $w)
+                        <tr class="border-t">
+                            <td class="p-2">{{ $w['wallet_name'] }}</td>
+                            <td class="p-2">{{ $w['wallet_remarks'] ?? '-' }}</td>
+                            <td class="p-2 text-right text-green-600">
+                                ${{ number_format($w['cashin'],2) }}
+                            </td>
+                            <td class="p-2 text-right text-red-600">
+                                ${{ number_format($w['cashout'],2) }}
+                            </td>
+                            <td class="p-2 text-right font-semibold">
+                   <span class="{{ $w['net'] < 0 ? 'text-red-600' : 'text-green-600' }}">
+    {{ $w['net'] < 0 ? '-' : '' }}${{ number_format(abs($w['net']), 2) }}
+</span>
+                            </td>
                         </tr>
                     @endforeach
                     </tbody>
@@ -260,9 +346,9 @@
                     @foreach($recentGameCredits as $gc)
                         <tr class="border-t">
                             <td class="p-2">{{ optional($gc->game)->name ?? '-' }}</td>
-                            <td class="p-2">$ {{ number_format($gc->subdistributor_balance, 2) }}</td>
+                            <td class="p-2">{{ number_format($gc->subdistributor_balance, 2) }}</td>
                             <td class="p-2">{{ $gc->store_name }}</td>
-                            <td class="p-2 text-right">$ {{ number_format($gc->store_balance, 2) }}</td>
+                            <td class="p-2 text-right">{{ number_format($gc->store_balance, 2) }}</td>
                         </tr>
                     @endforeach
                     </tbody>
@@ -345,6 +431,93 @@
                                 <td class="p-2 text-right">$ {{ number_format($wallet->current_balance, 2) }}</td>
                                 <td class="p-2 text-right">{{ $wallet->date->format('Y-m-d') }}</td>
 
+                            </tr>
+                        @endforeach
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="bg-white shadow rounded p-4 overflow-x-auto">
+                    <div class="flex justify-between mb-2 items-center">
+                        <h2 class="font-bold mb-3">
+                            Daily Wallet Performance - {{ now()->format('Y-M-d') }}
+                        </h2>
+                        <a href="{{ route('wallet-performance') }}" class="inline-block px-2 py-1 text-sm bg-blue-200 rounded-lg sm:px-3 sm:py-2 sm:text-base">
+                            Wallet Performance
+                        </a>
+                    </div>
+
+
+                    <table class="min-w-full table-auto">
+                        <thead>
+                        <tr class="bg-gray-100">
+                            <th class="p-2 text-left">Wallet Name</th>
+                            <th class="p-2 text-left">Remarks</th>
+                            <th class="p-2 text-right">Cash In</th>
+                            <th class="p-2 text-right">Cash Out</th>
+                            <th class="p-2 text-right">Net</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        @foreach($topWalletsDaily as $w)
+                            <tr class="border-t">
+                                <td class="p-2">{{ $w['wallet_name'] }}</td>
+                                <td class="p-2">{{ $w['wallet_remarks'] ?? '-' }}</td>
+                                <td class="p-2 text-right text-green-600">
+                                    ${{ number_format($w['cashin'],2) }}
+                                </td>
+                                <td class="p-2 text-right text-red-600">
+                                    ${{ number_format($w['cashout'],2) }}
+                                </td>
+                                <td class="p-2 text-right font-semibold">
+                    <span class="{{ $w['net'] < 0 ? 'text-red-600' : 'text-green-600' }}">
+    {{ $w['net'] < 0 ? '-' : '' }}${{ number_format(abs($w['net']), 2) }}
+</span>
+                                </td>
+                            </tr>
+                        @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                <div class="bg-white shadow rounded p-4 overflow-x-auto">
+                    <div class="flex justify-between mb-2 items-center">
+                        <h2 class="font-bold mb-3">
+                            Monthly Wallet Performance - {{ now()->format('Y-M') }}
+                        </h2>
+                        <a href="{{ route('monthly-wallet-performance') }}" class="inline-block px-2 py-1 text-sm bg-blue-200 rounded-lg sm:px-3 sm:py-2 sm:text-base">
+                            Wallet Performance
+                        </a>
+                    </div>
+
+
+                    <table class="min-w-full table-auto">
+                        <thead>
+                        <tr class="bg-gray-100">
+                            <th class="p-2 text-left">Wallet Name</th>
+                            <th class="p-2 text-left">Remarks</th>
+                            <th class="p-2 text-right">Cash In</th>
+                            <th class="p-2 text-right">Cash Out</th>
+                            <th class="p-2 text-right">Net</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        @foreach($topWalletsMonthly as $w)
+                            <tr class="border-t">
+                                <td class="p-2">{{ $w['wallet_name'] }}</td>
+                                <td class="p-2">{{ $w['wallet_remarks'] ?? '-' }}</td>
+                                <td class="p-2 text-right text-green-600">
+                                    ${{ number_format($w['cashin'],2) }}
+                                </td>
+                                <td class="p-2 text-right text-red-600">
+                                    ${{ number_format($w['cashout'],2) }}
+                                </td>
+                                <td class="p-2 text-right font-semibold">
+                   <span class="{{ $w['net'] < 0 ? 'text-red-600' : 'text-green-600' }}">
+    {{ $w['net'] < 0 ? '-' : '' }}${{ number_format(abs($w['net']), 2) }}
+</span>
+                                </td>
                             </tr>
                         @endforeach
                         </tbody>
@@ -492,6 +665,7 @@
                         </tbody>
                     </table>
                 </div>
+                <!-- Daily Staff Report -->
                 <div class="bg-white shadow rounded p-4 overflow-x-auto">
                     <div class="flex justify-between items-center mb-2">
                         <h2 class="font-bold mb-3">
@@ -508,23 +682,23 @@
                             <thead>
                             <tr class="bg-gray-100">
                                 <th class="p-2 text-left">Name</th>
-                                <th class="p-2 text-left">Txns</th>
+                                <th class="p-2 text-right">Transactions</th>
                                 <th class="p-2 text-right">Players</th>
-                                <th class="p-2">In</th>
-                                <th class="p-2">Out</th>
-                                <th class="p-2 text-right">Net</th>
+                                <th class="p-2 text-right">Cash In</th>
+                                <th class="p-2 text-right">Cash Out</th>
+                                <!--  <th class="p-2 text-right">Net</th> -->
                             </tr>
                             </thead>
 
                             <tbody>
                             @forelse($dailyStaffSummary as $index => $staff)
-                                <tr>
+                                <tr class="border-t">
                                     <td class="p-2 font-bold">{{ $staff->staff_name }}</td>
-                                    <td class="p-2">{{ $staff->transactions }}</td>
-                                    <td class="p-2">{{ $staff->players_added }}</td>
-                                    <td class="p-2 text-green-600">${{ $staff->cashin }}</td>
-                                    <td class="p-2 text-red-600">${{ $staff->cashout }}</td>
-                                    <td class="p-2 font-semibold">${{ $staff->net }}</td>
+                                    <td class="p-2 text-right">{{ $staff->transactions }}</td>
+                                    <td class="p-2 text-right">{{ $staff->players_added }}</td>
+                                    <td class="p-2 text-green-600 text-right">${{ $staff->cashin }}</td>
+                                    <td class="p-2 text-red-600 text-right">${{ $staff->cashout }}</td>
+                                    <!--   <td class="p-2 font-semibold text-right">${{ $staff->net }}</td> -->
                                 </tr>
                             @empty
                                 <tr>
@@ -537,6 +711,7 @@
                         </table>
                     @endif
                 </div>
+
 
             @else
             <!-- Recent Transactions -->

@@ -271,7 +271,7 @@ class TransactionsTable extends Component
             ->sortDesc();
 
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
-        $perPage = 5;
+        $perPage = 3;
         $currentDates = $dates->slice(($currentPage - 1) * $perPage, $perPage)->values();
 
         $paginatedDates = new LengthAwarePaginator(

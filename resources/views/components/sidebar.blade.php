@@ -157,7 +157,7 @@
 
         @if(in_array($role, ['wallet_manager', 'admin']))
             @php
-                $walletOpen = request()->routeIs('wallets', 'wallet-details', 'monthly-wallet-updates');
+                $walletOpen = request()->routeIs('wallets', 'wallet-details', 'monthly-wallet-updates', 'wallet-performance', 'monthly-wallet-performance', 'overall-wallet-performance');
             @endphp
 
             <details class="group" {{ $walletOpen ? 'open' : '' }}>
@@ -176,6 +176,12 @@
                 </summary>
 
                 <div class="ml-4 mt-1 space-y-1">
+                    <a href="{{ route('wallet-performance') }}"
+                       class="flex items-center gap-3 py-2 px-3 text-sm rounded-md hover:bg-gray-700 {{ request()->routeIs('wallet-performance', 'monthly-wallet-performance','overall-wallet-performance') ? 'bg-gray-700' : '' }}">
+
+                        <i data-lucide="chart-no-axes-column-increasing" class="w-4 h-4  shrink-0 text-gray-300"></i>
+                        <span class="sidebar-text">Wallet Performance</span>
+                    </a>
                     <a href="{{ route('wallets') }}"
                        class="flex items-center gap-3 py-2 px-3 text-sm rounded-md hover:bg-gray-700 {{ request()->routeIs('wallets') ? 'bg-gray-700' : '' }}">
 
@@ -194,6 +200,7 @@
                         <i data-lucide="calendar" class="w-4 h-4  shrink-0 text-gray-300"></i>
                         <span class="sidebar-text">Monthly Wallet Updates</span>
                     </a>
+
                 </div>
             </details>
         @endif

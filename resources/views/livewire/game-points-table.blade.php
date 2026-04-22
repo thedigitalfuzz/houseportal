@@ -2,11 +2,13 @@
     <div class="flex justify-between flex-col md:flex-row md:items-center mb-4">
         <h2 class="text-xl font-bold mb-2 md:mb-0">Game Points</h2>
         <div class="flex flex-col md:flex-row gap-2">
+            @if($this->canDelete())
             <button wire:click="openAddModal" class="px-4 py-2 bg-green-600 text-white rounded">Add Game Points Record</button>
             <button wire:click="openRechargeModal"
                     class="px-4 py-2 bg-indigo-600 text-white rounded">
                 Recharge Points
             </button>
+            @endif
             <button wire:click="openRechargeListModal" class="px-4 py-2 bg-blue-600 text-white rounded">Recharge List</button>
 
 
@@ -48,9 +50,12 @@
                         <th class="p-3 text-right">Recharged Points</th>
                         <th class="p-3 text-right">Total Starting Points</th>
                         <th class="p-3 text-right">Used Points</th>
-                        <th class="p-3 text-left">Created By</th>
+
                        <!-- <th class="p-3 text-left">Last Edited By</th> -->
+                        @if($this->canDelete())
+                            <th class="p-3 text-left">Created By</th>
                         <th class="p-3 text-right">Actions</th>
+                        @endif
                     </tr>
                     </thead>
 
@@ -75,7 +80,7 @@
                             <td class="p-3 text-right">
                                 {{ $r->used_points !== null ? number_format($r->used_points, 2) : '-' }}
                             </td>
-
+                            @if($this->canDelete())
                             <td class="p-3">
                                 {{ $r->created_by_name }}
                             </td>
@@ -84,14 +89,15 @@
                                 {{ $r->updated_by_name }}
                             </td>
                             -->
-
+@endif
                             <td class="p-3 text-right flex gap-2 justify-end">
-                                <button
-                                    wire:click="editRecord({{ $r->id }})"
-                                    class="px-3 py-1 bg-blue-200 rounded">
-                                    Edit
-                                </button>
+
                                 @if($this->canDelete())
+                                    <button
+                                        wire:click="editRecord({{ $r->id }})"
+                                        class="px-3 py-1 bg-blue-200 rounded">
+                                        Edit
+                                    </button>
                                 <button
                                     wire:click="deleteRecord({{ $r->id }})"
                                     class="px-3 py-1 bg-red-600 text-white rounded">
@@ -208,7 +214,9 @@
                         <th class="p-2 text-left">Date</th>
                         <th class="p-2 text-left">Game</th>
                         <th class="p-2 text-right">Recharge Amount</th>
+                        @if($this->canDelete())
                         <th class="p-2 text-center">Actions</th>
+                            @endif
                     </tr>
                     </thead>
                     <tbody>
@@ -217,12 +225,14 @@
                             <td class="p-2">{{ $r->date }}</td>
                             <td class="p-2">{{ $r->game->name ?? '-' }}</td>
                             <td class="p-2 text-right">{{ number_format($r->recharge_points,2) }}</td>
+                            @if($this->canDelete())
                             <td class="p-2 text-right flex gap-2 justify-end">
 
                                 <button wire:click="editRecharge({{ $r->id }})"  class="bg-blue-200 text-black px-3 py-1 rounded">Edit</button>
 
                                 <button wire:click="confirmDeleteRecharge({{ $r->id }})" class="px-3 py-1 bg-red-600 text-white rounded">Delete</button>
                             </td>
+                            @endif
                         </tr>
                     @endforeach
                     </tbody>

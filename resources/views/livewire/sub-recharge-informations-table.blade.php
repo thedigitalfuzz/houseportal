@@ -30,10 +30,10 @@
         <table class="min-w-full table-auto">
             <thead class="bg-gray-50">
             <tr>
-                <th class="p-3">Date</th>
-                <th class="p-3">Game</th>
-                <th class="p-3">Subdistributor</th>
-                <th class="p-3">Amount</th>
+                <th class="p-3 text-left">Date</th>
+                <th class="p-3 text-left">Game</th>
+                <th class="p-3 text-left">Subdistributor</th>
+                <th class="p-3 text-right">Amount</th>
                 @if($this->canEdit())
                     <th class="p-3 text-right">Actions</th>
                 @endif
@@ -45,7 +45,7 @@
                     <td class="p-3">{{ $r->date->format('Y-m-d') }}</td>
                     <td class="p-3">{{ $r->game->name }}</td>
                     <td class="p-3">{{ $r->subdistributor->sub_username }}</td>
-                    <td class="p-3">${{ number_format($r->amount,2) }}</td>
+                    <td class="p-3 text-right">${{ number_format($r->amount,2) }}</td>
 
                     @if($this->canEdit())
                         <td class="p-3 text-right flex justify-end gap-2">

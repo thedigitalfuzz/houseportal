@@ -58,6 +58,9 @@ Route::middleware(['auth.any', 'verified', CheckStaffRole::class.':wallet_manage
     Route::get('/monthly-wallet-updates', fn() => view('pages.monthly-wallet-updates-page'))->name('monthly-wallet-updates');
     Route::get('/reports', fn() => view('pages.housesupport-reports-page'))->name('reports');
     Route::get('/staff-performance', fn() => view('pages.staff-performance-table-page'))->name('staff-performance');
+    Route::get('/wallet-performance', fn() => view('pages.wallet-performance-page'))->name('wallet-performance');
+    Route::get('/monthly-wallet-performance', fn() => view('pages.wallet-performance-monthly-page'))->name('monthly-wallet-performance');
+    Route::get('/overall-wallet-performance', fn() => view('pages.wallet-performance-overall-page'))->name('overall-wallet-performance');
     Route::get('/housesupport-report/pdf', [HouseReportsPdfController::class, 'download'])->name('housesupport-report.pdf');
 });
 
