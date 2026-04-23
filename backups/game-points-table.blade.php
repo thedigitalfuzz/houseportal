@@ -2,11 +2,13 @@
     <div class="flex justify-between flex-col md:flex-row md:items-center mb-4">
         <h2 class="text-xl font-bold mb-2 md:mb-0">Game Points</h2>
         <div class="flex flex-col md:flex-row gap-2">
-            <a href="{{route('game-points-details')}}" class="px-4 py-2 bg-green-600 text-white rounded">Bonus and Used Points</a>
+            @if($this->canDelete())
+            <button wire:click="openAddModal" class="px-4 py-2 bg-green-600 text-white rounded">Add Game Points Record</button>
             <button wire:click="openRechargeModal"
                     class="px-4 py-2 bg-indigo-600 text-white rounded">
                 Recharge Points
             </button>
+            @endif
             <button wire:click="openRechargeListModal" class="px-4 py-2 bg-blue-600 text-white rounded">Recharge List</button>
 
 
@@ -47,14 +49,13 @@
                         <th class="p-3 text-right">Current Closing Points</th>
                         <th class="p-3 text-right">Recharged Points</th>
                         <th class="p-3 text-right">Total Starting Points</th>
-                        <th class="p-3 text-right">Bonus Added Points</th>
                         <th class="p-3 text-right">Used Points</th>
-                        <th class="p-3 text-left">Last Edited By</th>
 
-
-
+                       <!-- <th class="p-3 text-left">Last Edited By</th> -->
+                        @if($this->canDelete())
+                            <th class="p-3 text-left">Created By</th>
                         <th class="p-3 text-right">Actions</th>
-
+                        @endif
                     </tr>
                     </thead>
 
@@ -75,24 +76,28 @@
                             <td class="p-3 text-right">
                                 {{ number_format($r->total_starting_points, 2) }}
                             </td>
-                            <td class="p-3 text-right">
-                                {{ number_format($r->bonus_added_points ?? 0, 2) }}
-                            </td>
+
                             <td class="p-3 text-right">
                                 {{ $r->used_points !== null ? number_format($r->used_points, 2) : '-' }}
                             </td>
+                            @if($this->canDelete())
+                            <td class="p-3">
+                                {{ $r->created_by_name }}
+                            </td>
+                            <!--
                             <td class="p-3">
                                 {{ $r->updated_by_name }}
                             </td>
-
+                            -->
+@endif
                             <td class="p-3 text-right flex gap-2 justify-end">
-                                <button
-                                    wire:click="editRecord({{ $r->id }})"
-                                    class="px-3 py-1 bg-blue-200 rounded">
-                                    Edit
-                                </button>
-                                @if($this->canDelete())
 
+                                @if($this->canDelete())
+                                    <button
+                                        wire:click="editRecord({{ $r->id }})"
+                                        class="px-3 py-1 bg-blue-200 rounded">
+                                        Edit
+                                    </button>
                                 <button
                                     wire:click="deleteRecord({{ $r->id }})"
                                     class="px-3 py-1 bg-red-600 text-white rounded">

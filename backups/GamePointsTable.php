@@ -9,7 +9,6 @@ use App\Models\Game;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Carbon\Carbon;
-use App\Models\Transaction;
 
 class GamePointsTable extends Component
 {
@@ -38,7 +37,6 @@ class GamePointsTable extends Component
     public $editRechargeId = null;
     public $editRechargeAmount = null;
     public $deleteRechargeId = null; // for confirmation
-
     protected $listeners = ['refreshGamePoints' => '$refresh'];
 
     public function mount()
@@ -63,11 +61,11 @@ class GamePointsTable extends Component
         $this->editPoints = null;
     }
 
-    //public function openAddModal()
-   // {
-     //   $this->resetInputs();
-       // $this->editModal = true;
-    //}
+    public function openAddModal()
+    {
+        $this->resetInputs();
+        $this->editModal = true;
+    }
 
     public function editRecord($id)
     {
@@ -91,7 +89,7 @@ class GamePointsTable extends Component
 
         $user = $this->currentUser();
         $userType = get_class($user);
-        if (!$this->editingId) return;
+
         if ($this->editingId) {
             // UPDATE existing main points
             $record = GamePoint::findOrFail($this->editingId);
@@ -104,15 +102,20 @@ class GamePointsTable extends Component
             ]);
         } else {
             // CREATE or fetch row if recharge exists
-            $record = GamePoint::firstOrNew([
-                'game_id' => $this->editGameId,
-                'date' => $this->editDate,
-            ]);
+            $record = GamePoint::firstOrCreate(
+                [
+                    'game_id' => $this->editGameId,
+                    'date' => $this->editDate,
+                ],
+                [
+                    'points' => 0,
+                    'recharge_points' => 0,
+                    'total_starting_points' => 0,
+                    'created_by_id' => $user->id,
+                    'created_by_type' => $userType,
+                ]
+            );
 
-            if (!$record->exists) {
-                $record->recharge_points = 0;
-                $record->total_starting_points = 0;
-            }
             $record->points = $this->editPoints;
             $record->updated_by_id = $user->id;
             $record->updated_by_type = $userType;
@@ -161,26 +164,7 @@ class GamePointsTable extends Component
 
     public function confirmDelete()
     {
-        $record = GamePoint::findOrFail($this->editingId);
-
-        // 🔥 PRESERVE recharge info BEFORE delete
-        $gameId = $record->game_id;
-        $date = $record->date;
-        $recharge = $record->recharge_points ?? 0;
-
-        $record->delete();
-
-        // 🔥 RE-ATTACH recharge into a "shadow record"
-        GamePoint::updateOrCreate(
-            [
-                'game_id' => $gameId,
-                'date' => $date,
-            ],
-            [
-                'recharge_points' => $recharge,
-            ]
-        );
-
+        GamePoint::findOrFail($this->editingId)->delete();
         $this->deleteModal = false;
         $this->resetInputs();
         $this->resetPage();
@@ -315,13 +299,22 @@ class GamePointsTable extends Component
         $user = $this->currentUser();
         $userType = get_class($user);
 
-        $record = GamePoint::firstOrNew([
-            'game_id' => $this->rechargeGameId,
-            'date' => $this->rechargeDate,
-        ]);
+        // Get existing record for this game + date (if any)
+        $record = GamePoint::where('game_id', $this->rechargeGameId)
+            ->where('date', $this->rechargeDate)
+            ->first();
 
-        if (!$record->exists) {
-            $record->recharge_points = 0;
+        if (!$record) {
+            // CREATE new row if it doesn't exist
+            $record = GamePoint::create([
+                'game_id' => $this->rechargeGameId,
+                'date' => $this->rechargeDate,
+                'points' => 0,
+                'recharge_points' => 0,
+                'total_starting_points' => 0,
+                'created_by_id' => $user->id,
+                'created_by_type' => $userType,
+            ]);
         }
 
         // Add recharge
@@ -350,115 +343,39 @@ class GamePointsTable extends Component
         $this->resetPage();
     }
 
-
-
-
     // ----------------------
     // RENDER TABLE
     // ----------------------
     public function render()
     {
-        $transactions = \App\Models\Transaction::with('game')
-            ->when($this->searchGame, fn($q) => $q->where('game_id', $this->searchGame))
-            ->when($this->dateFrom, fn($q) => $q->whereDate('created_at', '>=', $this->dateFrom))
-            ->when($this->dateTo, fn($q) => $q->whereDate('created_at', '<=', $this->dateTo))
-            ->orderBy('created_at', 'asc')
-            ->get();
+        $query = GamePoint::with(['game', 'createdBy', 'updatedBy'])
+            ->orderBy('date', 'desc');
 
-        $grouped = $transactions->groupBy(function ($t) {
-            return Carbon::parse(
-                $t->transaction_date ?? $t->created_at
-            )->format('Y-m-d');
-        });
-
-        $recordsByDate = [];
-        $previousClosing = [];
-
-        foreach ($grouped as $date => $txns) {
-
-            $games = $txns->groupBy('game_id');
-
-            foreach ($games as $gameId => $gTxns) {
-
-                $cashinCredits = $gTxns
-                    ->where('transaction_type', 'cashin')
-                    ->sum('credits_used');
-
-                $cashoutCredits = $gTxns
-                    ->where('transaction_type', 'cashout')
-                    ->sum('credits_used');
-
-                $totalBonus = $gTxns->sum('bonus_added');
-
-                $existingRow = GamePoint::firstOrCreate(
-                    [
-                        'game_id' => $gameId,
-                        'date' => $date,
-                    ],
-                    [
-                        'points' => null,
-                        'recharge_points' => 0,
-                        'created_by_id' => null,
-                        'created_by_type' => null,
-                    ]
-                );
-
-                $starting = ($previousClosing[$gameId] ?? 0) + ($existingRow->recharge_points ?? 0);
-
-                $netUsed = $cashinCredits - $cashoutCredits;
-
-                $calculatedClosing = $starting - $netUsed;
-                // if admin edited points manually, use DB value
-                $closing = $existingRow->points !== null
-                    ? $existingRow->points
-                    : $calculatedClosing;
-
-             //   $displayUsed = $existingRow && $existingRow->points !== null
-               //     ? ($starting - $existingRow->points)
-                 //   : ($starting - $calculatedClosing);
-
-                $calculatedUsed = $cashinCredits - $cashoutCredits;
-
-                if ($existingRow->points !== null) {
-                    // 🔥 ADMIN OVERRIDE EXISTS → ALWAYS RESPECT IT
-                    $displayUsed = $starting - $existingRow->points;
-                } elseif ($cashinCredits > 0 || $cashoutCredits > 0) {
-                    // 🔥 TRANSACTION MODE
-                    $displayUsed = $calculatedUsed;
-                } else {
-                    // 🔥 FALLBACK (HISTORICAL DATA)
-                    $displayUsed = $existingRow->used_points ?? 0;
-                }
-
-// ✅ ONLY update starting points ALWAYS
-// ✅ update used_points ONLY if it's NULL (new rows)
-                $existingRow->update([
-                    'total_starting_points' => $starting,
-                    'used_points' => $existingRow->used_points ?? $calculatedUsed,
-                ]);
-
-                $recordsByDate[$date][] = (object)[
-                    'id' => $existingRow->id,
-                    'game_id' => $gameId,
-                    'game' => $existingRow->game,
-                    'points' => $closing,
-                    'recharge_points' => $existingRow->recharge_points ?? 0,
-                    'total_starting_points' => $starting,
-                    'used_points' => $displayUsed,
-                    'bonus_added_points' => $totalBonus,
-                    'created_by_name' => $existingRow->created_by_name ?? '-',
-                    'updated_by_name' => $existingRow?->updated_by_name ?? '-',
-                ];
-
-                $previousClosing[$gameId] = $closing;
-            }
+        if ($this->searchGame) {
+            $query->where('game_id', $this->searchGame);
         }
 
-        $dateKeys = collect(array_keys($recordsByDate))
-            ->sortDesc()
-            ->values();
-        $page = LengthAwarePaginator::resolveCurrentPage();
+        if ($this->dateFrom) {
+            $query->whereDate('date', '>=', $this->dateFrom);
+        }
 
+        if ($this->dateTo) {
+            $query->whereDate('date', '<=', $this->dateTo);
+        }
+
+        $records = $query->get();
+
+        // --- FILTER: show only rows where main points are entered ---
+        $recordsWithPoints = $records->filter(fn($r) => $r->points > 0);
+
+        // Group records by date
+        $grouped = $recordsWithPoints->groupBy(fn($r) =>
+        Carbon::parse($r->date)->format('Y-m-d')
+        );
+
+        // Paginate DATE KEYS
+        $dateKeys = $grouped->keys()->values();
+        $page = LengthAwarePaginator::resolveCurrentPage();
         $pagedDates = $dateKeys
             ->slice(($page - 1) * $this->perPage, $this->perPage)
             ->values()
@@ -471,12 +388,13 @@ class GamePointsTable extends Component
             $page,
             ['path' => request()->url()]
         );
+
         return view('livewire.game-points-table', [
             'dates' => $pagedDates,
-            'recordsByDate' => $recordsByDate,
+            'recordsByDate' => $grouped,
             'paginator' => $paginator,
             'games' => Game::orderBy('name')->get(),
-            'hasAnyData' => count($recordsByDate) > 0,
+            'hasAnyData' => $recordsWithPoints->count() > 0,
         ]);
     }
 }

@@ -55,6 +55,7 @@ Route::middleware(['auth.any', 'verified', CheckStaffRole::class.':wallet_manage
     Route::get('/daily-player-leaderboard', fn() => view('pages.player-leaderboard-daily-page'))->name('daily-player-leaderboard');
     Route::get('/game-performance', fn() => view('pages.game-performance-page'))->name('game-performance');
     Route::get('/game-points', fn() => view('pages.game-points-page'))->name('game-points');
+    Route::get('/game-points-details', fn() => view('pages.game-points-details-page'))->name('game-points-details');
     Route::get('/monthly-wallet-updates', fn() => view('pages.monthly-wallet-updates-page'))->name('monthly-wallet-updates');
     Route::get('/reports', fn() => view('pages.housesupport-reports-page'))->name('reports');
     Route::get('/staff-performance', fn() => view('pages.staff-performance-table-page'))->name('staff-performance');

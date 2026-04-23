@@ -88,7 +88,7 @@
 
 
         @php
-            $gamesOpen = request()->routeIs('games', 'game-credits', 'game-points', 'game-performance','game-credits-credentials');
+            $gamesOpen = request()->routeIs('games', 'game-credits', 'game-points', 'game-performance','game-credits-credentials','game-points-details');
         @endphp
 
         <details class="group" {{ $gamesOpen ? 'open' : '' }}>
@@ -126,6 +126,12 @@
 
                         <i data-lucide="star" class="w-4 h-4  shrink-0 text-gray-300"></i>
                         <span class="sidebar-text">Game Points</span>
+                    </a>
+                    <a href="{{ route('game-points-details') }}"
+                       class="flex items-center gap-3 py-2 px-3 text-sm rounded-md hover:bg-gray-700 {{ request()->routeIs('game-points-details') ? 'bg-gray-700' : '' }}">
+
+                        <i data-lucide="coins" class="w-4 h-4  shrink-0 text-gray-300"></i>
+                        <span class="sidebar-text">Bonus and Used Points</span>
                     </a>
 
                     @if($role === 'admin')

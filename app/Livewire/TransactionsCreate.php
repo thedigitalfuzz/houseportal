@@ -37,6 +37,7 @@ class TransactionsCreate extends Component
 
     public $playerSearch = '';
     public $showModal = false;
+    public $credits_used;
 
     protected $rules = [
         'player_id' => 'required|exists:players,id',
@@ -50,6 +51,7 @@ class TransactionsCreate extends Component
         'wallet_name' => 'nullable|string|max:255',
         'wallet_remarks' => 'nullable|string',
         'transaction_date' => 'required|date',
+        'credits_used' => 'nullable|numeric|min:0',
     ];
 
 
@@ -74,6 +76,7 @@ class TransactionsCreate extends Component
             'walletRemarks',
             'notes',
             'transaction_date',
+            'credits_used',
         ]);
 
         $this->walletNames = WalletDetail::where('status', 'active')
@@ -246,9 +249,16 @@ class TransactionsCreate extends Component
 
         $total = $cashin - $cashout;
 
-        $bonusAdded = $this->bonus_added !== null && $this->bonus_added !== ''
-            ? $this->bonus_added
-            : 0;
+        $creditsUsed = ($this->credits_used !== null && $this->credits_used !== '')
+            ? floatval($this->credits_used)
+            : floatval($this->amount);
+
+// Default behavior when empty
+        if ($this->transaction_type === 'cashin') {
+            $bonusAdded = $creditsUsed - floatval($this->amount);
+        } else {
+            $bonusAdded = 0;
+        }
 
         // Get current user (admin or staff)
         $user = auth()->user() ?? auth()->guard('staff')->user();
@@ -283,6 +293,7 @@ class TransactionsCreate extends Component
             'game_id' => $this->game_id,
             'cashin' => $this->transaction_type === 'cashin' ? floatval($this->amount) : 0,
             'cashout' => $this->transaction_type === 'cashout' ? floatval($this->amount) : 0,
+            'transaction_type' => $this->transaction_type,
             'total_transaction' => $this->transaction_type === 'cashin' ? floatval($this->amount) : -floatval($this->amount),
             'bonus_added' => floatval($bonusAdded),
             'cash_tag' => $this->cash_tag,
@@ -299,6 +310,7 @@ class TransactionsCreate extends Component
                 : 'App\Models\Staff',
             'updated_by_id' => null,
             'updated_by_type' => null,
+            'credits_used' => $creditsUsed,
         ]);
 
         $this->dispatch('transactionCreated');

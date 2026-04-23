@@ -33,6 +33,12 @@
                     </select>
 
                     <input type="number" wire:model="amount" class="border rounded w-full px-2 py-1" placeholder="Amount">
+                    <input
+                        type="number"
+                        wire:model="credits_used"
+                        class="border rounded w-full px-2 py-1"
+                        placeholder="Credits Recharged / Redeemed"
+                    >
                     <!-- FOR CASHTAG INPUT
                                        <input type="text" wire:model="cash_tag" class="border rounded w-full px-2 py-1" placeholder="Cash Tag">
                      -->

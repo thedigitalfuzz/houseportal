@@ -54,6 +54,7 @@ class TransactionsTable extends Component
 
     public $confirmDeleteId = null;
     public $deleteModal = false;
+    public $editCreditsUsed;
 
     protected $listeners = ['transactionCreated' => '$refresh'];
 
@@ -153,6 +154,7 @@ class TransactionsTable extends Component
         $this->editTransactionType = $transaction->cashin > 0 ? 'cashin' : 'cashout';
         $this->editAmount = $transaction->cashin > 0 ? $transaction->cashin : $transaction->cashout;
         $this->editBonusAdded = $transaction->bonus_added;
+        $this->editCreditsUsed = $transaction->credits_used;
         $this->editCashTag = $transaction->cash_tag;
         $this->editDeposit = $transaction->deposit;
         $this->editNotes = $transaction->notes;
@@ -196,13 +198,22 @@ class TransactionsTable extends Component
             'editDeposit' => 'nullable|numeric|min:0',
             'editNotes' => 'nullable|string',
             'editTransactionDate' => 'required|date',
+            'editCreditsUsed' => 'nullable|numeric|min:0',
         ]);
 
         $cashin = $this->editTransactionType === 'cashin' ? $this->editAmount : 0;
         $cashout = $this->editTransactionType === 'cashout' ? $this->editAmount : 0;
         $total = $cashin - $cashout;
-        $bonusAdded = $this->editBonusAdded ?? 0;
+       // $bonusAdded = $this->editBonusAdded ?? 0;
+        $creditsUsed = ($this->editCreditsUsed !== null && $this->editCreditsUsed !== '')
+            ? floatval($this->editCreditsUsed)
+            : floatval($this->editAmount);
 
+        if ($this->editTransactionType === 'cashin') {
+            $bonusAdded = $creditsUsed - floatval($this->editAmount);
+        } else {
+            $bonusAdded = 0;
+        }
         $transaction = Transaction::findOrFail($this->editingTransactionId);
         $user = $this->currentUser();
         $userType = $user instanceof \App\Models\User ? 'App\Models\User' : 'App\Models\Staff';
@@ -230,6 +241,7 @@ class TransactionsTable extends Component
             'game_id' => $this->editGameId,
             'cashin' => $cashin,
             'cashout' => $cashout,
+            'transaction_type' => $this->editTransactionType,
             'total_transaction' => $cashin ? $cashin : -$cashout,
             'bonus_added' => floatval($bonusAdded),
             'cash_tag' => $this->editCashTag,
@@ -241,6 +253,7 @@ class TransactionsTable extends Component
             'transaction_date' => $this->editTransactionDate,
             'updated_by_id' => $user->id,
             'updated_by_type' => $userType,
+            'credits_used' => $creditsUsed,
         ]);
 
         $this->editModal = false;

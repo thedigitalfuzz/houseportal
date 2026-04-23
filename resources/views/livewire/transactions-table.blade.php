@@ -131,7 +131,7 @@
                         <th class="p-3 text-left">Cash Tag</th>
                         <th class="p-3 text-left">Wallet Agent</th>
                         -->
-
+                        <th class="p-3 text-left">Used Points</th>
                         <th class="p-3 text-left">Wallet Name</th>
                         <th class="p-3 text-left">Wallet Remarks</th>
                         <th class="p-3 text-left">Player Agent</th>
@@ -179,7 +179,17 @@
                             <td class="p-3">{{ $t->cash_tag }}</td>
                             <td class="p-3">{{ $t->agent }}</td>
                             -->
+                            <td class="p-3">
+                                @php
+                                    $credits = $t->credits_used ?? ($t->cashin > 0 ? $t->cashin : $t->cashout);
+                                @endphp
 
+                                @if($t->cashout > 0)
+                                    -{{ number_format($credits, 2) }}
+                                @else
+                                    {{ number_format($credits, 2) }}
+                                @endif
+                            </td>
                             <td class="p-3">{{ $t->wallet_name }}</td>
                             <td class="p-3">{{ $t->wallet_remarks }}</td>
                             <td class="p-3">{{ $t->player->assignedAgent->player_agent_name ?? '-' }}</td>
@@ -265,8 +275,14 @@
                     <label class="text-xs">Cash Tag:</label>
                     <input type="text" wire:model="editCashTag" placeholder="Cash Tag" class="border rounded w-full px-2 py-1" />
                    -->
-                    <!-- Agent -->
-
+                    <!-- Credits Used -->
+                    <label class="text-xs">Credits Recharged / Redeemed:</label>
+                    <input
+                        type="number"
+                        wire:model="editCreditsUsed"
+                        placeholder="Credits"
+                        class="border rounded w-full px-2 py-1"
+                    />
 
 
                     <!-- Wallet Name -->
