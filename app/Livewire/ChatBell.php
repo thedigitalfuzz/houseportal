@@ -72,20 +72,57 @@ class ChatBell extends Component
 
             // ✅ Last message
             $lastMessage = Message::where('channel_id', $channel->id)
+                ->with('sender')
                 ->latest()
                 ->first();
+
+            $formattedMessage = '';
+
+            if ($lastMessage) {
+
+                // ✅ sender name
+                $senderName = 'Someone';
+
+                if ($lastMessage->sender_type === \App\Models\Staff::class) {
+                    $senderName = $lastMessage->sender->staff_name ?? 'Staff';
+                } elseif ($lastMessage->sender_type === \App\Models\User::class) {
+                    $senderName = $lastMessage->sender->name ?? 'Admin';
+                }
+
+                // ✅ media label
+                $mediaText = null;
+
+                if ($lastMessage->type === 'image') {
+                    $mediaText = "$senderName sent a photo";
+                } elseif ($lastMessage->type === 'video') {
+                    $mediaText = "$senderName sent a video";
+                } elseif ($lastMessage->type === 'file') {
+                    $mediaText = "$senderName sent a file";
+                }
+
+                // ✅ combine text + media
+                if (!empty($lastMessage->message) && $mediaText) {
+                    $formattedMessage = $lastMessage->message . "\n" . $mediaText;
+                } elseif ($mediaText) {
+                    $formattedMessage = $mediaText;
+                } else {
+                    $formattedMessage = $lastMessage->message;
+                }
+            }
 
             $data[] = [
                 'channel_id' => $channel->id,
                 'name' => $name,
-                'last_message' => $lastMessage?->message,
+                'last_message' => $formattedMessage,
+                'last_message_time' => $lastMessage?->created_at,
                 'unread' => $unread,
             ];
         }
 
         // ✅ Sort latest first
         usort($data, function ($a, $b) {
-            return strcmp($b['last_message'] ?? '', $a['last_message'] ?? '');
+            return strtotime($b['last_message_time'] ?? 0)
+                <=> strtotime($a['last_message_time'] ?? 0);
         });
 
         $this->conversations = $data;

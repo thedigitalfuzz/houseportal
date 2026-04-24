@@ -10,7 +10,7 @@ class Message extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['channel_id','sender_id','sender_type','message','type'];
+    protected $fillable = ['channel_id','sender_id','sender_type','message','type','file_path','file_type','file_name','file_size'];
 
     public function sender()
     {

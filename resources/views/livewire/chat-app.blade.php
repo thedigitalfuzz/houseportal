@@ -61,8 +61,63 @@
                             \App\Models\Staff::class) {{ $msg->sender->staff_name ?? 'Unknown Staff' }}
                                 @elseif($msg->sender_type === \App\Models\User::class) Administrator @else Unknown @endif
                             </div>
-                            <div class="mt-1 text-sm text-gray-800 break-words p-3 rounded-xl bg-gray-100 shadow-sm"> {{
-                            $msg->message }} </div> @if($msg->reactions && $msg->message !== 'This message has been
+
+                            <div class="mt-1 text-sm text-gray-800 break-words p-3 rounded-xl bg-gray-100 shadow-sm">
+
+                                @if($msg->message === 'This message has been deleted by the sender')
+                                    <div class="text-gray-400 italic">
+                                        This message has been deleted by the sender
+                                    </div>
+                                @else
+
+                                    @if($msg->type === 'image' && $msg->file_path)
+                                        <img
+                                            src="{{ asset('storage/' . $msg->file_path) }}"
+                                            class="w-[200px] h-[200px] object-cover rounded cursor-pointer"
+                                            onclick="openImagePreview('{{ asset('storage/' . $msg->file_path) }}')"
+                                        >
+
+                                    @elseif($msg->type === 'video' && $msg->file_path)
+                                        <div class="relative w-64 rounded-lg overflow-hidden bg-black cursor-pointer"
+                                             onclick="openVideoPreview('{{ asset('storage/' . $msg->file_path) }}')">
+
+                                            <video
+                                                id="video-{{ $msg->id }}"
+                                                src="{{ asset('storage/' . $msg->file_path) }}"
+                                                class="w-full h-auto"
+                                                preload="metadata"
+                                            ></video>
+
+                                            <!-- Play Button Overlay -->
+                                            <div class="absolute inset-0 flex items-center top-72 justify-center">
+                                                <button
+                                                    onclick="event.stopPropagation(); toggleInlineVideo({{ $msg->id }})"
+                                                    class="bg-black/60 hover:bg-black/80 text-white rounded-full w-14 h-14 flex items-center justify-center"
+                                                >
+                                                    <svg class="w-6 h-6" fill="white" viewBox="0 0 24 24">
+                                                        <path d="M8 5v14l11-7z"/>
+                                                    </svg>
+                                                </button>
+                                            </div>
+
+                                        </div>
+                                    @elseif($msg->type === 'file' && $msg->file_path)
+                                        <a href="{{ asset('storage/' . $msg->file_path) }}" target="_blank" class="text-blue-600 underline">
+                                            📎 {{ $msg->file_name }}
+                                        </a>
+                                    @endif
+
+                                    @if($msg->message)
+                                        <div class="mt-2">
+                                            {{ $msg->message }}
+                                        </div>
+                                    @endif
+
+                                @endif
+
+                            </div>
+
+                            @if($msg->reactions && $msg->message !== 'This message has been
                         deleted by the sender') <div class="mt-2 flex gap-2 flex-wrap"> @php $reactions =
                             json_decode($msg->reactions, true); @endphp @foreach($reactions as $emoji => $users) <span
                                     class="bg-white border border-gray-200 px-2 py-0.5 rounded-full text-sm shadow-sm"> {{
@@ -90,8 +145,37 @@
                     <input type="text" wire:model.live="newMessage" wire:keydown.enter="sendMessage"  placeholder="Message {{ $selectedChannelName }}"
                            class="flex-1 min-w-0 bg-gray-100 border border-gray-200 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
                     <!--<button class="text-xl text-gray-500 hover:text-gray-700 shrink-0">😊</button> -->
+                    <input type="file" wire:model="file" id="fileInput" class="hidden">
+
+                    <label for="fileInput" class="cursor-pointer text-xl">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-paperclip-icon lucide-paperclip"><path d="m16 6-8.414 8.586a2 2 0 0 0 2.829 2.829l8.414-8.586a4 4 0 1 0-5.657-5.657l-8.379 8.551a6 6 0 1 0 8.485 8.485l8.379-8.551"/></svg>
+                    </label>
+                    @error('file')
+                    <div class="text-red-500 text-xs mt-1">
+                        {{ $message }}
+                    </div>
+                    @enderror
+                    <div wire:loading wire:target="file" class="w-full bg-gray-200 h-1 rounded">
+                        <div class="bg-blue-500 h-1 animate-pulse"></div>
+                    </div>
+                    @if ($file)
+                        <div class="mt-2">
+                            @if(str_starts_with($file->getMimeType(), 'image/'))
+                                <img src="{{ $file->temporaryUrl() }}"
+                                     class="w-[100px] h-[100px] rounded-full object-cover">
+                            @elseif(str_starts_with($file->getMimeType(), 'video/'))
+                                <video class="w-[100px] h-[100px] rounded-full object-cover" controls>
+                                    <source src="{{ $file->temporaryUrl() }}">
+                                </video>
+                            @else
+                                <div class="font-bold text-sm">
+                                    {{ $file->getClientOriginalName() }}
+                                </div>
+                            @endif
+                        </div>
+                    @endif
                     <button
-                        wire:click="sendMessage"
+                        wire:click="sendMessage"   wire:loading.attr="disabled"   wire:target="file"
                         class="bg-blue-600 hover:bg-blue-500 px-5 py-2 rounded-full text-sm font-medium shrink-0 text-white">
                         Send </button> </div>
             </div>
@@ -178,8 +262,26 @@
             </div>
         </div>
     </div>
+    <div wire:ignore id="imagePreviewOverlay"
+         class="fixed inset-0 bg-black bg-opacity-80 hidden items-center justify-center z-50">
 
+        <button onclick="closeImagePreview()"
+                class="absolute top-5 right-5 text-white text-3xl font-bold">
+            ×
+        </button>
 
+        <img id="previewImage" class="max-w-[90%] max-h-[90%] rounded shadow-lg">
+    </div>
+    <div wire:ignore id="videoPreviewOverlay"
+         class="fixed inset-0 bg-black bg-opacity-80 hidden items-center justify-center z-50">
+
+        <button onclick="closeVideoPreview()"
+                class="absolute top-5 right-5 text-white text-3xl font-bold">
+            ×
+        </button>
+
+        <video id="previewVideo" controls class="max-w-[90%] max-h-[90%] rounded"></video>
+    </div>
 
     <script>
         Livewire.on('hideReactionBar', data => { const bar = document.querySelector(#reaction-bar-${data.messageId}); if(bar) bar.style.display = 'none'; }); Livewire.on('hideDeletedMessageAlert', () => { setTimeout(() => { const alert = document.getElementById('deletedMessageAlert'); if(alert) alert.style.display = 'none'; }, 5000); });
@@ -202,5 +304,50 @@
                 chatContainer.scrollTop = chatContainer.scrollHeight;
             }
         });
+    </script>
+    <script>
+        function openImagePreview(src) {
+            const overlay = document.getElementById('imagePreviewOverlay');
+            const img = document.getElementById('previewImage');
+
+            img.src = src;
+            overlay.classList.remove('hidden');
+            overlay.classList.add('flex');
+        }
+
+        function closeImagePreview() {
+            const overlay = document.getElementById('imagePreviewOverlay');
+            overlay.classList.add('hidden');
+            overlay.classList.remove('flex');
+        }
+        function openVideoPreview(src) {
+            const overlay = document.getElementById('videoPreviewOverlay');
+            const video = document.getElementById('previewVideo');
+
+            video.src = src;
+            overlay.classList.remove('hidden');
+            overlay.classList.add('flex');
+        }
+
+        function closeVideoPreview() {
+            const overlay = document.getElementById('videoPreviewOverlay');
+            const video = document.getElementById('previewVideo');
+
+            video.pause();
+            video.src = '';
+            overlay.classList.add('hidden');
+            overlay.classList.remove('flex');
+        }
+        function toggleInlineVideo(id) {
+            const video = document.getElementById('video-' + id);
+
+            if (!video) return;
+
+            if (video.paused) {
+                video.play();
+            } else {
+                video.pause();
+            }
+        }
     </script>
 </div>

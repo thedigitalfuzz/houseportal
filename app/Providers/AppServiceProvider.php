@@ -13,6 +13,7 @@ use App\Observers\WalletObserver;
 use App\Models\Transaction;
 use App\Observers\TransactionObserver;
 use App\Http\Middleware\CheckStaffRole;
+use Livewire\Features\SupportFileUploads\FileUploadConfiguration;
 
 
 
@@ -43,6 +44,9 @@ class AppServiceProvider extends ServiceProvider
         \Illuminate\Database\Eloquent\Relations\Relation::morphMap([
             'staff' => \App\Models\Staff::class,
             'user'  => \App\Models\User::class,
+        ]);
+        config([
+            'livewire.temporary_file_upload.rules' => ['required', 'file', 'max:25600'],
         ]);
     }
 }

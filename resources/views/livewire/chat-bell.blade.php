@@ -17,22 +17,25 @@
             <ul class="divide-y">
                 @forelse($conversations as $chat)
                     <li wire:click="goToChat({{ $chat['channel_id'] }})"
-                        class="p-3 cursor-pointer hover:bg-gray-100 flex justify-between">
+                        class="p-3 cursor-pointer hover:bg-gray-100 flex justify-between items-center">
 
                         <div>
                             <div class="font-semibold text-sm">
                                 {{ $chat['name'] }}
                             </div>
 
-                            <div class="text-xs text-gray-500 truncate">
+                            <div class="text-xs text-gray-500 whitespace-pre-line truncate">
                                 {{ $chat['last_message'] }}
                             </div>
                         </div>
 
                         @if($chat['unread'] > 0)
-                            <span class="bg-red-500 text-white text-xs px-2 py-1 rounded-full">
+                            <div>
+                                 <span class="bg-red-500 text-white text-xs px-2 py-1 rounded-full">
                                 {{ $chat['unread'] }}
                             </span>
+                            </div>
+
                         @endif
 
                     </li>

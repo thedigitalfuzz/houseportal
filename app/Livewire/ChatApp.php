@@ -9,9 +9,14 @@ use App\Models\User;
 use App\Models\Staff;
 use App\Events\TypingEvent;
 use Illuminate\Support\Facades\Auth;
+use Livewire\WithFileUploads;
 
 class ChatApp extends Component
 {
+    use WithFileUploads;
+
+
+    public $file;
     public $channels = [];
     public $selectedChannel;
     public $selectedChannelName;
@@ -26,6 +31,9 @@ class ChatApp extends Component
     public $typingUsers = [];
 
     protected $listeners = ['removeTypingUser'];
+    protected $rules = [
+        'file' => 'nullable|file|max:25600',
+    ];
     public $newMessages = []; // add at top
 
     protected function getListeners(): array
@@ -325,7 +333,7 @@ class ChatApp extends Component
 
     public function sendMessage()
     {
-        if (trim($this->newMessage) === '' || !$this->selectedChannel) return;
+        if ((!$this->file && trim($this->newMessage) === '') || !$this->selectedChannel) return;
 
         if (Auth::guard('staff')->check()) {
             $sender = Auth::guard('staff')->user();
@@ -337,20 +345,60 @@ class ChatApp extends Component
             $senderType = User::class;
         }
 
+        $filePath = null;
+        $fileType = null;
+        $fileName = null;
+        $fileSize = null;
+        $type = 'text';
+
+        if ($this->file) {
+            validator(
+                ['file' => $this->file],
+                ['file' => 'nullable|file|max:25600']
+            )->validate();
+
+            $filePath = $this->file->store('chat_files', 'public');
+            $fileType = $this->file->getMimeType();
+            $fileName = $this->file->getClientOriginalName();
+            $fileSize = $this->file->getSize();
+
+            if ($fileSize > 25 * 1024 * 1024) {
+                $this->addError('file', 'The media exceeds the file size limit i.e. 25MB');
+                return;
+
+            }
+            if (str_starts_with($fileType, 'image/')) {
+                $type = 'image';
+            } elseif (str_starts_with($fileType, 'video/')) {
+                $type = 'video';
+            } else {
+                $type = 'file';
+            }
+        }
+
         $message = Message::create([
             'channel_id' => $this->selectedChannel,
             'sender_id' => $senderId,
             'sender_type' => $senderType,
             'message' => $this->newMessage,
-            'type' => 'text',
+            'type' => $type,
+            'file_path' => $filePath,
+            'file_type' => $fileType,
+            'file_name' => $fileName,
+            'file_size' => $fileSize,
         ]);
 
-        //broadcast(new \App\Events\MessageSent($message))->toOthers();
         event(new \App\Events\MessageSent($message));
+
         $this->messages->push($message);
+
         $this->newMessage = '';
+        $this->file = null;
+
         $this->loadLastMessages();
         $this->dispatch('scrollChatToBottom');
+        $this->resetErrorBag('file');
+        $this->resetValidation('file');
     }
 
     public function react($messageId, $emoji)
@@ -853,6 +901,11 @@ class ChatApp extends Component
         }
     }
 
+    public function updatedFile()
+    {
+        $this->resetErrorBag('file');
+        $this->resetValidation('file');
+    }
     public function render()
     {
         return view('livewire.chat-app');

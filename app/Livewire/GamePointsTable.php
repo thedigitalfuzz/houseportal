@@ -378,7 +378,12 @@ class GamePointsTable extends Component
 
             $games = $txns->groupBy('game_id');
 
-            foreach ($games as $gameId => $gTxns) {
+            $allGames = Game::all()->keyBy('id');
+            $groupedGames = $txns->groupBy('game_id');
+
+            foreach ($allGames as $gameId => $gameModel) {
+
+                $gTxns = $groupedGames[$gameId] ?? collect();
 
                 $cashinCredits = $gTxns
                     ->where('transaction_type', 'cashin')
@@ -390,59 +395,54 @@ class GamePointsTable extends Component
 
                 $totalBonus = $gTxns->sum('bonus_added');
 
-                $existingRow = GamePoint::firstOrCreate(
-                    [
-                        'game_id' => $gameId,
-                        'date' => $date,
-                    ],
-                    [
-                        'points' => null,
-                        'recharge_points' => 0,
-                        'created_by_id' => null,
-                        'created_by_type' => null,
-                    ]
-                );
+                // ⚠️ IMPORTANT: DO NOT CREATE ROW IF NO DATA
+                $existingRow = GamePoint::where('game_id', $gameId)
+                    ->where('date', $date)
+                    ->first();
 
-                $starting = ($previousClosing[$gameId] ?? 0) + ($existingRow->recharge_points ?? 0);
+                $rechargePoints = $existingRow->recharge_points ?? 0;
+
+                $starting = ($previousClosing[$gameId] ?? 0) + $rechargePoints;
 
                 $netUsed = $cashinCredits - $cashoutCredits;
 
-                $calculatedClosing = $starting - $netUsed;
-                // if admin edited points manually, use DB value
-                $closing = $existingRow->points !== null
-                    ? $existingRow->points
-                    : $calculatedClosing;
-
-             //   $displayUsed = $existingRow && $existingRow->points !== null
-               //     ? ($starting - $existingRow->points)
-                 //   : ($starting - $calculatedClosing);
-
-                $calculatedUsed = $cashinCredits - $cashoutCredits;
-
-                if ($existingRow->points !== null) {
-                    // 🔥 ADMIN OVERRIDE EXISTS → ALWAYS RESPECT IT
-                    $displayUsed = $starting - $existingRow->points;
-                } elseif ($cashinCredits > 0 || $cashoutCredits > 0) {
-                    // 🔥 TRANSACTION MODE
-                    $displayUsed = $calculatedUsed;
+                // 🔥 FIX: if NO transaction AND NO manual points → DO NOTHING
+                if (!$existingRow && $cashinCredits == 0 && $cashoutCredits == 0) {
+                    $closing = $starting;
+                    $displayUsed = 0;
                 } else {
-                    // 🔥 FALLBACK (HISTORICAL DATA)
-                    $displayUsed = $existingRow->used_points ?? 0;
+
+                    $calculatedClosing = $starting - $netUsed;
+
+                    $closing = $existingRow && $existingRow->points !== null
+                        ? $existingRow->points
+                        : $calculatedClosing;
+
+                    if ($existingRow && $existingRow->points !== null) {
+                        $displayUsed = $starting - $existingRow->points;
+                    } elseif ($cashinCredits > 0 || $cashoutCredits > 0) {
+                        $displayUsed = $netUsed;
+                    } else {
+                        $displayUsed = 0;
+                    }
+
+                    // ✅ ONLY update if row exists (NO SPAM CREATION)
+                    if ($existingRow) {
+                        $existingRow->update([
+                            'total_starting_points' => $starting,
+                            'used_points' => ($cashinCredits > 0 || $cashoutCredits > 0)
+                                ? $netUsed
+                                : 0,
+                        ]);
+                    }
                 }
 
-// ✅ ONLY update starting points ALWAYS
-// ✅ update used_points ONLY if it's NULL (new rows)
-                $existingRow->update([
-                    'total_starting_points' => $starting,
-                    'used_points' => $existingRow->used_points ?? $calculatedUsed,
-                ]);
-
                 $recordsByDate[$date][] = (object)[
-                    'id' => $existingRow->id,
+                    'id' => $existingRow->id ?? null,
                     'game_id' => $gameId,
-                    'game' => $existingRow->game,
+                    'game' => $gameModel, // ✅ important fix
                     'points' => $closing,
-                    'recharge_points' => $existingRow->recharge_points ?? 0,
+                    'recharge_points' => $rechargePoints,
                     'total_starting_points' => $starting,
                     'used_points' => $displayUsed,
                     'bonus_added_points' => $totalBonus,
