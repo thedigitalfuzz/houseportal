@@ -116,5 +116,32 @@
         });
     });
 </script>
+<script>
+    window.addEventListener('cashin-zero-blocked', event => {
+        const message = event.detail.message;
+
+        const box = document.createElement('div');
+        box.innerHTML = `
+        <div style="
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 380px;
+            background: #fee2e2;
+            border: 1px solid #f87171;
+            color: #b91c1c;
+            padding: 12px;
+            border-radius: 8px;
+            z-index: 9999;
+        ">
+            <div style="display:flex; justify-content:space-between; align-items:start;">
+                <div>${message}</div>
+                <button onclick="this.parentElement.parentElement.remove()">✕</button>
+            </div>
+        </div>
+    `;
+        document.body.appendChild(box);
+    });
+</script>
 </body>
 </html>

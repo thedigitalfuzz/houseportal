@@ -4,6 +4,6 @@
 
 @section('content')
     <div class="p-6">
-        <livewire:game-points-table />
+        <livewire:new-game-points-table />
     </div>
 @endsection

@@ -9,31 +9,32 @@
             </button>
         @endforeach
     </div>
+<div class="grid grid-cols-1">
+    <div class="flex gap-2 mb-3 overflow-x-auto">
+        <button wire:click="setGame(null)"
+                class="px-3 py-1 rounded {{ $selectedGame === null ? 'bg-blue-600 text-white' : 'bg-gray-300' }}">
+            All Games
+        </button>
 
+        @foreach($games as $g)
+            <button wire:click="setGame({{ $g->id }})"
+                    class="px-3 py-1 rounded whitespace-nowrap {{ $selectedGame == $g->id ? 'bg-blue-600 text-white' : 'bg-gray-300' }}">
+                {{ $g->name }}
+            </button>
+        @endforeach
+    </div>
+</div>
 
     {{-- GRID --}}
     <div class="grid grid-cols-1 gap-4">
-        <h2 class="font-bold text-lg mb-2 mt-4">Points Summary for Games and Players:</h2>
         {{-- 1 TOTAL SUMMARY --}}
         <div class="border p-3 rounded bg-gray-50">
-            <div class="flex gap-2 mb-3 overflow-x-auto">
-                <button wire:click="setGame(null)"
-                        class="px-3 py-1 rounded {{ $selectedGame === null ? 'bg-blue-600 text-white' : 'bg-gray-300' }}">
-                    All Games
-                </button>
 
-                @foreach($games as $g)
-                    <button wire:click="setGame({{ $g->id }})"
-                            class="px-3 py-1 rounded whitespace-nowrap {{ $selectedGame == $g->id ? 'bg-blue-600 text-white' : 'bg-gray-300' }}">
-                        {{ $g->name }}
-                    </button>
-                @endforeach
-            </div>
             <h2 class="font-bold mb-2">Total Summary ({{ $gameLabel }})</h2>
 
             <div class="max-h-[400px] overflow-y-auto border bg-white rounded shadow overflow-x-auto">
                 <table class="w-full">
-                    <thead class="sticky top-0 bg-gray-200 ">
+                    <thead class="sticky top-0 bg-gray-200 z-0">
                     <tr>
                         <th class="text-left p-4">Period</th>
                         <th class="text-right p-4">Cashin</th>
@@ -54,6 +55,28 @@
                             <td class="text-right p-4 font-bold">{{ $d['used'] }}</td>
                         </tr>
                     @endforeach
+                    @php
+                        $totCashin = $totCashout = $totNet = $totBonus = $totUsed = 0;
+                    @endphp
+
+                    @foreach($totalSummary as $period => $d)
+                        @php
+                            $totCashin += $d['cashin'];
+                            $totCashout += $d['cashout'];
+                            $totNet += $d['net'];
+                            $totBonus += $d['bonus'];
+                            $totUsed += $d['used'];
+                        @endphp
+                    @endforeach
+
+                    <tr class="bg-yellow-200 font-bold border-t-2">
+                        <td class="p-4">TOTAL</td>
+                        <td class="text-right p-4">{{ $totCashin }}</td>
+                        <td class="text-right p-4">{{ $totCashout }}</td>
+                        <td class="text-right p-4">{{ $totNet }}</td>
+                        <td class="text-right p-4">{{ $totBonus }}</td>
+                        <td class="text-right p-4">{{ $totUsed }}</td>
+                    </tr>
                     </tbody>
                 </table>
             </div>
@@ -67,7 +90,7 @@
 
             <div class="max-h-[400px] overflow-y-auto border bg-white rounded shadow overflow-x-auto">
                 <table class="w-full">
-                    <thead class="sticky top-0 bg-gray-200">
+                    <thead class="sticky top-0 bg-gray-200 z-0">
                     <tr>
                         <th class="text-left p-4">Rank</th>
                         <th class="text-left p-4">Player</th>
@@ -91,6 +114,28 @@
                             <td class="text-right p-4 font-bold">{{ $p['used'] }}</td>
                         </tr>
                     @endforeach
+                    @php
+                        $totCashin = $totCashout = $totNet = $totBonus = $totUsed = 0;
+                    @endphp
+
+                    @foreach($playerSummary as $p)
+                        @php
+                            $totCashin += $p['cashin'];
+                            $totCashout += $p['cashout'];
+                            $totNet += $p['net'];
+                            $totBonus += $p['bonus'];
+                            $totUsed += $p['used'];
+                        @endphp
+                    @endforeach
+
+                    <tr class="bg-yellow-200 font-bold border-t-2">
+                        <td colspan="2" class="p-4">TOTAL</td>
+                        <td class="text-right p-4">{{ $totCashin }}</td>
+                        <td class="text-right p-4">{{ $totCashout }}</td>
+                        <td class="text-right p-4">{{ $totNet }}</td>
+                        <td class="text-right p-4">{{ $totBonus }}</td>
+                        <td class="text-right p-4">{{ $totUsed }}</td>
+                    </tr>
                     </tbody>
                 </table>
             </div>
@@ -98,7 +143,6 @@
 
     </div>
     <div class="grid grid-cols-1 gap-4">
-        <h2 class="font-bold text-lg my-2">Points Summary for Wallets</h2>
         {{-- 4 WALLET SUMMARY --}}
         @php
             $periodKeys = array_keys($walletPeriods);
@@ -108,12 +152,12 @@
 
         <div class="border p-3 rounded bg-gray-50">
             <h2 class="font-bold mb-2">
-                Wallet Summary for {{ $current['label'] ?? '' }}
+                Wallet Summary for {{ $current['label'] ?? '' }} ({{ $gameLabel }})
             </h2>
 
-            <div class="max-h-[400px] overflow-y-auto border bg-white rounded shadow overflow-x-auto">
+            <div class="max-h-[400px] overflow-auto border bg-white rounded shadow relative">
                 <table class="w-full">
-                    <thead class="sticky top-0 bg-gray-200">
+                    <thead class="sticky top-0 bg-gray-200 z-0">
                     <tr>
                         <th class="text-left p-4 font-bold">Wallet</th>
                         <th class="text-left p-4 font-bold">Remarks</th>
@@ -136,6 +180,26 @@
                                 <td class="text-right p-4 font-bold">{{ $w['used'] }}</td>
                             </tr>
                         @endforeach
+                        @php
+                            $totCashin = $totCashout = $totNet = $totUsed = 0;
+                        @endphp
+
+                        @foreach($current['items'] as $w)
+                            @php
+                                $totCashin += $w['cashin'];
+                                $totCashout += $w['cashout'];
+                                $totNet += $w['net'];
+                                $totUsed += $w['used'];
+                            @endphp
+                        @endforeach
+
+                        <tr class="bg-yellow-200 font-bold border-t-2">
+                            <td colspan="2" class="p-4">TOTAL</td>
+                            <td class="text-right p-4">{{ $totCashin }}</td>
+                            <td class="text-right p-4">{{ $totCashout }}</td>
+                            <td class="text-right p-4">{{ $totNet }}</td>
+                            <td class="text-right p-4">{{ $totUsed }}</td>
+                        </tr>
                     @endif
                     </tbody>
                 </table>

@@ -474,7 +474,14 @@ class HousesupportReports extends Component
 
         foreach ($games as $game) {
             $transactions = Transaction::where('game_id', $game->id);
-            $gamePoints = \App\Models\GamePoint::where('game_id', $game->id);
+            $gamePoints = \App\Models\GamePoint::query()
+                ->where('game_id', $game->id)
+                ->where(function ($q) use ($start, $end) {
+                    if ($start && $end) {
+                        $q->whereBetween('date', [$start, $end]);
+                    }
+                })
+                ->get();
 
             if ($start && $end) {
                 $transactions->whereBetween('transaction_date', [$start, $end]);

@@ -57,6 +57,7 @@ class TransactionsTable extends Component
     public $editCreditsUsed;
 
     protected $listeners = ['transactionCreated' => '$refresh'];
+    public $originalCreditsUsed;
 
     public function updatingSearchInput()
     {
@@ -151,15 +152,20 @@ class TransactionsTable extends Component
         $this->editGameId = $transaction->game_id;
         $this->editCashin = $transaction->cashin;
         $this->editCashout = $transaction->cashout;
-        $this->editTransactionType = $transaction->cashin > 0 ? 'cashin' : 'cashout';
-        $this->editAmount = $transaction->cashin > 0 ? $transaction->cashin : $transaction->cashout;
+       // $this->editTransactionType = $transaction->cashin > 0 ? 'cashin' : 'cashout';
+       // $this->editAmount = $transaction->cashin > 0 ? $transaction->cashin : $transaction->cashout;
+        $this->editAmount = abs($transaction->total_transaction);
+        $this->editTransactionType = $transaction->total_transaction >= 0 ? 'cashin' : 'cashout';
         $this->editBonusAdded = $transaction->bonus_added;
-        $this->editCreditsUsed = $transaction->credits_used;
+        $this->editCreditsUsed = $transaction->credits_used !== null
+            ? abs($transaction->credits_used)
+            : null;
         $this->editCashTag = $transaction->cash_tag;
         $this->editDeposit = $transaction->deposit;
         $this->editNotes = $transaction->notes;
         $this->editWalletName = $transaction->wallet_name;
         $this->editWalletRemarks = $transaction->wallet_remarks;
+        $this->originalCreditsUsed = $transaction->credits_used;
 
         // Populate wallet names and remarks with only active wallets
         $this->editWalletNames = WalletDetail::where('status', 'active')
@@ -198,16 +204,62 @@ class TransactionsTable extends Component
             'editDeposit' => 'nullable|numeric|min:0',
             'editNotes' => 'nullable|string',
             'editTransactionDate' => 'required|date',
-            'editCreditsUsed' => 'nullable|numeric|min:0',
+            'editCreditsUsed' => 'nullable|numeric',
         ]);
+        $transaction = Transaction::findOrFail($this->editingTransactionId);
 
+// 🚨 BLOCK: original cashin + 0 credits_used
+        if (
+            $this->editTransactionType === 'cashin'
+            && (float) $transaction->credits_used === 0
+        ) {
+            dd('BLOCK HIT');
+            $player = $transaction->player;
+
+            $message = "Cashin Transaction can't have 0 credits recharged. "
+                . "Add a new transaction for the exact date and game and "
+                . "<a href='" . route('chat') . "' class='text-blue-600 underline'>ask Administrator</a> "
+                . "to delete transaction #{$transaction->id} of {$transaction->transaction_date} "
+                . "for {$player->player_name} ({$player->username})";
+
+            $this->dispatchBrowserEvent('cashin-zero-blocked', [
+                'message' => $this->cashinZeroMessage
+            ]);
+
+            return;
+        }
         $cashin = $this->editTransactionType === 'cashin' ? $this->editAmount : 0;
         $cashout = $this->editTransactionType === 'cashout' ? $this->editAmount : 0;
         $total = $cashin - $cashout;
        // $bonusAdded = $this->editBonusAdded ?? 0;
-        $creditsUsed = ($this->editCreditsUsed !== null && $this->editCreditsUsed !== '')
-            ? floatval($this->editCreditsUsed)
-            : floatval($this->editAmount);
+        $amount = floatval($this->editAmount);
+
+        // IMPORTANT: detect real empty, not "0"
+        $raw = $this->editCreditsUsed;
+
+// normalize EVERYTHING properly
+        if ($raw === '' || $raw === null) {
+            $raw = null;
+        } else {
+            $raw = (float) $raw;
+        }
+
+// fallback ONLY if truly null
+        if ($raw === null) {
+            $creditsUsed = $this->editTransactionType === 'cashin'
+                ? abs($amount)
+                : -abs($amount);
+        } else {
+            // ALWAYS apply sign logic (NO special zero handling)
+            $creditsUsed = $this->editTransactionType === 'cashin'
+                ? abs((float)$raw)
+                : -abs((float)$raw);
+
+            // 🔥 force true zero (avoid -0 issue ONLY)
+            if ($creditsUsed == 0) {
+                $creditsUsed = 0;
+            }
+        }
 
         if ($this->editTransactionType === 'cashin') {
             $bonusAdded = $creditsUsed - floatval($this->editAmount);
@@ -242,7 +294,10 @@ class TransactionsTable extends Component
             'cashin' => $cashin,
             'cashout' => $cashout,
             'transaction_type' => $this->editTransactionType,
-            'total_transaction' => $cashin ? $cashin : -$cashout,
+          //  'total_transaction' => $cashin ? $cashin : -$cashout,
+            'total_transaction' => $this->editTransactionType === 'cashin'
+                ? abs($this->editAmount)
+                : -abs($this->editAmount),
             'bonus_added' => floatval($bonusAdded),
             'cash_tag' => $this->editCashTag,
             'agent' => $agent,

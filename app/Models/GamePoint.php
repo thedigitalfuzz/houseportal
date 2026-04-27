@@ -68,4 +68,11 @@ class GamePoint extends Model
             ? ($this->updatedBy->staff_name ?? '-')
             : ($this->updatedBy->name ?? '-');
     }
+
+    public function getTypeAttribute()
+    {
+        if ($this->updated_by_id) return 'override';
+        if ($this->created_by_id && !$this->updated_by_id) return 'manual';
+        return 'auto';
+    }
 }

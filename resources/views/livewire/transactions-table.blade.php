@@ -82,7 +82,7 @@
 
     </div>
 
-<div class="border-gray-300 border-2 p-4">
+    <div class="border-gray-300 border-2 p-4">
     @forelse($transactionsDates as $date)
         <div class="grid grid-cols-1 mb-4">
             <div class="flex flex-col md:flex-row justify-between md:items-center mb-2">
@@ -178,17 +178,13 @@
                             <td class="p-3">$ {{ number_format($t->bonus_added,2) }}</td>
                             <td class="p-3">{{ $t->cash_tag }}</td>
                             <td class="p-3">{{ $t->agent }}</td>
-                            -->
-                            <td class="p-3">
+-->
+                            <td>
                                 @php
-                                    $credits = $t->credits_used ?? ($t->cashin > 0 ? $t->cashin : $t->cashout);
+                                    $credits = $t->credits_used;
                                 @endphp
 
-                                @if($t->cashout > 0)
-                                    -{{ number_format($credits, 2) }}
-                                @else
-                                    {{ number_format($credits, 2) }}
-                                @endif
+                                {{ number_format($credits, 2) }}
                             </td>
                             <td class="p-3">{{ $t->wallet_name }}</td>
                             <td class="p-3">{{ $t->wallet_remarks }}</td>

@@ -1,4 +1,4 @@
-<header class="bg-white border-b p-4 flex items-center justify-between md:fixed md:top-0 md:left-0 md:right-0">
+<header class="bg-white border-b p-4 flex items-center justify-between md:fixed md:top-0 md:left-0 md:right-0 z-40">
 
     <!-- Left Section -->
     <div class=" items-center gap-4 justify-center">

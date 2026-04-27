@@ -1,130 +1,137 @@
 <div>
+
+    <!-- HEADER -->
     <div class="flex justify-between flex-col md:flex-row md:items-center mb-4">
         <h2 class="text-xl font-bold mb-2 md:mb-0">Game Points</h2>
+
         <div class="flex flex-col md:flex-row gap-2">
-            <button wire:click="openAddModal" class="px-4 py-2 bg-green-600 text-white rounded">Add Game Points Record</button>
             <button wire:click="openRechargeModal"
                     class="px-4 py-2 bg-indigo-600 text-white rounded">
                 Recharge Points
             </button>
-            <button wire:click="openRechargeListModal" class="px-4 py-2 bg-blue-600 text-white rounded">Recharge List</button>
 
-
+            <button wire:click="openRechargeListModal"
+                    class="px-4 py-2 bg-blue-600 text-white rounded">
+                Recharge List
+            </button>
         </div>
-
     </div>
 
-    <!-- Filters -->
+    <!-- FILTERS -->
     <div class="flex flex-col md:flex-row gap-2 mb-4">
-        <select wire:model="searchGame" class="border rounded px-2 py-1">
+        <select wire:model.live="searchGame" class="border rounded px-2 py-1">
             <option value="">All Games</option>
             @foreach($games as $g)
                 <option value="{{ $g->id }}">{{ $g->name }}</option>
             @endforeach
         </select>
 
-        <input type="date" wire:model="dateFrom" class="border rounded px-2 py-1" placeholder="From Date"/>
-        <input type="date" wire:model="dateTo" class="border rounded px-2 py-1" placeholder="To Date"/>
-        <button wire:click="$refresh" class="px-4 py-1 bg-blue-600 text-white rounded">Search</button>
+        <input type="date" wire:model.live="dateFrom" class="border rounded px-2 py-1"/>
+        <input type="date" wire:model.live="dateTo" class="border rounded px-2 py-1"/>
     </div>
 
-    @if(!$hasAnyData)
+    @if(empty($recordsByDate))
         <div class="bg-white p-6 rounded shadow text-center text-gray-500">
             No Records to display
         </div>
     @else
-        @foreach($dates as $date)
-            <div class="grid grid-cols-1 mb-6">
-                <div wire:key="game-points-date-{{ $date }}"
-                     class="bg-white rounded shadow mb-4 overflow-x-auto p-4">
 
-                    <h3 class="font-bold mb-2">Date: {{ $date }}</h3>
+        @foreach($recordsByDate as $date => $rows)
+            <div class="bg-white rounded shadow mb-4 overflow-x-auto p-4">
 
-                    <table class="min-w-full table-auto">
-                        <thead class="bg-gray-100">
-                        <tr>
-                            <th class="p-3 text-left">Game</th>
-                            <th class="p-3 text-right">Current Closing Points</th>
-                            <th class="p-3 text-right">Recharged Points</th>
-                            <th class="p-3 text-right">Total Starting Points</th>
-                            <th class="p-3 text-right">Bonus Added</th>
-                            <th class="p-3 text-right">Used Points</th>
-                            <th class="p-3 text-left">Created By</th>
-                            <!-- <th class="p-3 text-left">Last Edited By</th> -->
-                            <th class="p-3 text-right">Actions</th>
-                        </tr>
-                        </thead>
+                <h3 class="font-bold mb-2">Date: {{ $date }}</h3>
 
-                        <tbody>
-                        @forelse($recordsByDate[$date] ?? [] as $r)
-                            <tr class="border-t">
-                                <td class="p-3">
-                                    {{ $r->game->name ?? '-' }}
-                                </td>
+                <table class="min-w-full table-auto">
+                    <thead class="bg-gray-100">
+                    <tr>
+                        <th class="p-3 text-left">Game</th>
+                        <th class="p-3 text-right">Starting Points</th>
+                        <th class="p-3 text-right">Recharge Points</th>
+                        <th class="p-3 text-right">Closing Points</th>
+                        <th class="p-3 text-right">Bonus Added Points</th>
 
-                                <td class="p-3 text-right">
-                                    {{ number_format($r->points, 2) }}
-                                </td>
-                                <td class="p-3 text-right">
-                                    {{ number_format($r->recharge_points, 2) }}
-                                </td>
+                        <th class="p-3 text-right">Used Points</th>
+                        <th class="p-3 text-left">Type</th>
+                        <th class="p-3 text-right">Actions</th>
+                    </tr>
+                    </thead>
 
-                                <td class="p-3 text-right">
-                                    {{ number_format($r->total_starting_points, 2) }}
-                                </td>
-                                <td class="p-3 text-right">
-                                    {{ number_format($r->bonus_added ?? 0, 2) }}
-                                </td>
-                                <td class="p-3 text-right">
-                                    {{ $r->used_points !== null ? number_format($r->used_points, 2) : '-' }}
-                                </td>
+                    <tbody>
+                    @foreach($rows as $r)
+                        @php
+                            $row = $r['row'];
 
-                                <td class="p-3">
-                                    {{ $r->created_by_name }}
-                                </td>
-                                <!--
+                            if($row && $row->updated_by_id) {
+                                $type = 'Override';
+                            } elseif($row && $row->created_by_id && !$row->updated_by_id) {
+                                $type = 'Manual';
+                            } else {
+                                $type = 'Auto';
+                            }
+                        @endphp
+
+                        <tr class="border-t">
                             <td class="p-3">
-                                {{ $r->updated_by_name }}
-                                </td>
--->
+                                {{ $r['game']->name }}
+                            </td>
+                            <td class="p-3 text-right">
+                                {{ number_format($r['starting'], 2) }}
+                            </td>
+                            <td class="p-3 text-right">
+                                {{ number_format($r['recharge'], 2) }}
+                            </td>
+                            <td class="p-3 text-right">
+                                {{ number_format($r['closing'], 2) }}
+                            </td>
 
-                                <td class="p-3 text-right flex gap-2 justify-end">
-                                    <button
-                                        wire:click="editRecord({{ $r->id }})"
-                                        class="px-3 py-1 bg-blue-200 rounded">
+                            <td class="p-3 text-right">
+                                {{ number_format($r['bonus_added_points'] ?? 0, 2) }}
+                            </td>
+
+
+
+
+                            <td class="p-3 text-right">
+                                {{ number_format($r['used'], 2) }}
+                            </td>
+
+                            <td class="p-3">
+                            <span class="
+                                px-2 py-1 rounded text-xs
+                                @if($type === 'Override') bg-red-200
+                                @elseif($type === 'Manual') bg-yellow-200
+                                @else bg-green-200
+                                @endif
+                            ">
+                                {{ $type }}
+                            </span>
+                            </td>
+
+                            <td class="p-3 text-right flex gap-2 justify-end">
+                                @if($row)
+                                    <button wire:click="editRecord({{ $row->id }})"
+                                            class="px-3 py-1 bg-blue-200 rounded">
                                         Edit
                                     </button>
-                                    @if($this->canDelete())
-                                        <button
-                                            wire:click="deleteRecord({{ $r->id }})"
+
+                                    <button wire:click="deleteRecord({{ $row->id }})"
                                             class="px-3 py-1 bg-red-600 text-white rounded">
-                                            Delete
-                                        </button>
-                                    @endif
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="5" class="p-3 text-center text-gray-500">
-                                    No Records to display
-                                </td>
-                            </tr>
-                        @endforelse
-                        </tbody>
-                    </table>
-                </div>
+                                        Delete
+                                    </button>
+                                @endif
+                            </td>
+                        </tr>
+                    @endforeach
+
+                    </tbody>
+                </table>
             </div>
         @endforeach
 
-        <div class="mt-4">
-            {{ $paginator->links() }}
-        </div>
     @endif
-
-
-
-
-
+    <div class="mt-4">
+        {{ $pagination->links() }}
+    </div>
     <!-- ADD / EDIT MODAL -->
     @if($editModal)
         <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -211,7 +218,9 @@
                             <th class="p-2 text-left">Date</th>
                             <th class="p-2 text-left">Game</th>
                             <th class="p-2 text-right">Recharge Amount</th>
-                            <th class="p-2 text-center">Actions</th>
+                            @if($this->canDelete())
+                                <th class="p-2 text-center">Actions</th>
+                            @endif
                         </tr>
                         </thead>
                         <tbody>
@@ -220,12 +229,14 @@
                                 <td class="p-2">{{ $r->date }}</td>
                                 <td class="p-2">{{ $r->game->name ?? '-' }}</td>
                                 <td class="p-2 text-right">{{ number_format($r->recharge_points,2) }}</td>
-                                <td class="p-2 text-right flex gap-2 justify-end">
+                                @if($this->canDelete())
+                                    <td class="p-2 text-right flex gap-2 justify-end">
 
-                                    <button wire:click="editRecharge({{ $r->id }})"  class="bg-blue-200 text-black px-3 py-1 rounded">Edit</button>
+                                        <button wire:click="editRecharge({{ $r->id }})"  class="bg-blue-200 text-black px-3 py-1 rounded">Edit</button>
 
-                                    <button wire:click="confirmDeleteRecharge({{ $r->id }})" class="px-3 py-1 bg-red-600 text-white rounded">Delete</button>
-                                </td>
+                                        <button wire:click="confirmDeleteRecharge({{ $r->id }})" class="px-3 py-1 bg-red-600 text-white rounded">Delete</button>
+                                    </td>
+                                @endif
                             </tr>
                         @endforeach
                         </tbody>

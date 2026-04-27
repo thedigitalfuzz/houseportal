@@ -7,9 +7,9 @@
 @endphp
 <aside
     id="sidebar"
-    class="w-64 bg-gray-800 fixed top-0 left-0 h-screen text-white z-40
+    class="w-64 bg-gray-800 fixed top-0 left-0 h-screen text-white
            transform -translate-x-full transition-all duration-300
-           lg:translate-x-0 flex flex-col sidebar-expanded"
+           lg:translate-x-0 flex flex-col sidebar-expanded z-50"
 >
     <div class="lg:hidden flex justify-end p-3">
         <button onclick="closeSidebarMobile()" class="text-white text-xl">

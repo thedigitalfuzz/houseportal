@@ -51,7 +51,7 @@ class TransactionsCreate extends Component
         'wallet_name' => 'nullable|string|max:255',
         'wallet_remarks' => 'nullable|string',
         'transaction_date' => 'required|date',
-        'credits_used' => 'nullable|numeric|min:0',
+        'credits_used' => 'nullable|numeric',
     ];
 
 
@@ -249,11 +249,23 @@ class TransactionsCreate extends Component
 
         $total = $cashin - $cashout;
 
-        $creditsUsed = ($this->credits_used !== null && $this->credits_used !== '')
-            ? floatval($this->credits_used)
-            : floatval($this->amount);
+        $amount = floatval($this->amount);
 
-// Default behavior when empty
+        if ($this->credits_used === null || $this->credits_used === '') {
+            // fallback = signed amount
+            $creditsUsed = $this->transaction_type === 'cashin'
+                ? abs($amount)
+                : -abs($amount);
+        } else {
+            $creditsUsed = floatval($this->credits_used);
+
+            // enforce correct sign based on transaction type
+            $creditsUsed = $this->transaction_type === 'cashin'
+                ? abs($creditsUsed)
+                : -abs($creditsUsed);
+        }
+
+
         if ($this->transaction_type === 'cashin') {
             $bonusAdded = $creditsUsed - floatval($this->amount);
         } else {
@@ -294,7 +306,10 @@ class TransactionsCreate extends Component
             'cashin' => $this->transaction_type === 'cashin' ? floatval($this->amount) : 0,
             'cashout' => $this->transaction_type === 'cashout' ? floatval($this->amount) : 0,
             'transaction_type' => $this->transaction_type,
-            'total_transaction' => $this->transaction_type === 'cashin' ? floatval($this->amount) : -floatval($this->amount),
+           // 'total_transaction' => $this->transaction_type === 'cashin' ? floatval($this->amount) : -floatval($this->amount),
+            'total_transaction' => $this->transaction_type === 'cashin'
+                ? abs($this->amount)
+                : -abs($this->amount),
             'bonus_added' => floatval($bonusAdded),
             'cash_tag' => $this->cash_tag,
             'agent' => $agent,
